@@ -1,246 +1,303 @@
-# 📘 Explanatory Notes – Version Française
+# 📘 Notes explicatives – Diagrammes de séquence des appels API - version française
 
-## 1. Architecture générale
+## 1. Vue d’ensemble
 
-L’application **HBnB** est structurée selon une architecture en trois couches (*layered architecture*).  
-Cette organisation permet de séparer clairement les responsabilités, de réduire le couplage entre les composants et de faciliter la maintenance ainsi que l’évolution du système.
+Cette section présente quatre diagrammes de séquence illustrant le traitement des principales requêtes API de l’application HBnB.
 
-Les trois couches principales sont :
+Chaque diagramme met en évidence les interactions entre les trois couches de l’architecture :
 
-- **Presentation Layer**
+- **Presentation Layer** (API / Controllers)
 - **Business Logic Layer**
-- **Persistence Layer**
+- **Persistence Layer** (Repositories / Database)
 
-Chaque couche possède un rôle précis et communique uniquement avec la couche immédiatement inférieure.
-
----
-
-## 2. Presentation Layer
-
-La couche **Presentation** constitue le point d’entrée de l’application.  
-Elle est responsable de l’interaction avec les utilisateurs via des endpoints API.
-
-### Responsabilités principales
-
-- Recevoir les requêtes HTTP  
-- Extraire et valider le format des données entrantes  
-- Gérer les codes de réponse HTTP  
-- Transmettre les demandes à la couche Business Logic  
-
-Cette couche ne contient aucune règle métier.  
-Elle ne connaît pas la structure interne des modèles ni les mécanismes de stockage des données.  
-Son rôle est purement orienté communication et exposition des services.
-
-La séparation garantit que toute modification de la logique métier ou de la base de données n’impacte pas directement l’API.
+L’objectif est de visualiser clairement le flux d’informations et l’enchaînement des opérations nécessaires au traitement de chaque requête.
 
 ---
 
-## 3. Business Logic Layer
+# 1️⃣ Inscription utilisateur – `POST /users`
 
-La couche **Business Logic** représente le cœur fonctionnel de l’application.
+## Objectif
 
-### Elle contient :
+Cette API permet la création d’un nouveau compte utilisateur.
 
-- Les modèles métier (`User`, `Place`, `Review`, `Amenity`)  
-- Les règles de validation métier  
-- Les cas d’usage (`RegisterUser`, `CreatePlace`, `SubmitReview`, etc.)  
-- La façade (point d’entrée interne)  
+## Déroulement des interactions
 
-### Responsabilités
+1. L’**utilisateur** envoie ses données d’inscription à l’API.
+2. La **Presentation Layer** transmet la requête à la Business Logic via la facade.
+3. La **Business Logic Layer** valide les données reçues.
+4. Si la validation échoue :
+   - L’API retourne `400 Bad Request`.
+5. Si la validation réussit :
+   - La couche métier vérifie l’unicité de l’email via la Persistence Layer.
+6. La **Persistence Layer** interroge la base de données.
+7. Si l’email existe déjà :
+   - L’API retourne `409 Conflict`.
+8. Si l’email est disponible :
+   - Le nouvel utilisateur est enregistré.
+   - L’API retourne `201 Created`.
 
-- L’application des règles métier  
-- La cohérence des données  
-- L’orchestration des opérations  
-- La coordination entre modèles et persistence  
+## Contribution des couches
 
-Elle ne dépend pas de la couche Presentation et ne connaît pas les détails techniques de la base de données.
-
-La logique métier est centralisée ici afin de garantir la cohérence du système et d’éviter la duplication de règles dans d’autres couches.
-
----
-
-## 4. Persistence Layer
-
-La couche **Persistence** est chargée du stockage et de la récupération des données.
-
-### Elle comprend :
-
-- Les repositories (`UserRepository`, `PlaceRepository`, etc.)  
-- Les mécanismes d’accès à la base de données (SQL, ORM, DAO)  
-
-### Responsabilités
-
-- Exécuter les opérations CRUD  
-- Gérer les requêtes SQL  
-- Assurer la communication avec la base de données  
-- Encapsuler les détails techniques liés au stockage  
-
-Cette couche isole totalement la logique métier des détails d’implémentation de la base de données.
-
-Grâce à cette séparation, il est possible de changer de technologie de stockage sans modifier la Business Logic.
+- **Presentation Layer** : réception et envoi des réponses HTTP.
+- **Business Logic Layer** : validation des données et application des règles métier.
+- **Persistence Layer** : vérification en base et sauvegarde de l’utilisateur.
 
 ---
 
-## 5. Rôle du Facade Pattern
+# 2️⃣ Création d’une place – `POST /places`
 
-Le **Facade Pattern** est utilisé pour simplifier la communication entre la Presentation Layer et la Business Logic Layer.
+## Objectif
 
-### La façade :
+Cette API permet à un utilisateur de créer une nouvelle annonce de logement.
 
-- Fournit un point d’entrée unique  
-- Expose des méthodes de haut niveau  
-- Masque la complexité interne  
-- Réduit le couplage entre les couches  
+## Déroulement des interactions
 
-Sans façade, la couche Presentation devrait interagir directement avec plusieurs modèles ou cas d’usage, ce qui augmenterait la dépendance et la complexité.
+1. L’utilisateur envoie les données de la place à l’API.
+2. L’API transmet la requête à la Business Logic.
+3. La couche métier valide les données de la place.
+4. Si la validation échoue :
+   - L’API retourne `400 Bad Request`.
+5. Si les données sont valides :
+   - La couche métier vérifie l’existence du propriétaire.
+6. Si le propriétaire n’existe pas :
+   - L’API retourne `404 Not Found`.
+7. Si le propriétaire existe :
+   - La place est enregistrée via la Persistence Layer.
+   - L’API retourne `201 Created`.
 
-Grâce à la façade :
+## Contribution des couches
 
-- La Presentation ne connaît qu’une interface unique  
-- La Business Logic conserve le contrôle total de son organisation interne  
-- Les modifications internes n’impactent pas l’API  
-
-La façade améliore donc la maintenabilité, la lisibilité et la robustesse de l’architecture.
-
----
-
-## 6. Communication entre les couches
-
-Le flux de communication est strictement unidirectionnel :
-
-Presentation → Business Logic (via Facade)
-Business Logic → Persistence (via Repositories)
-
-
-Aucune couche ne doit accéder directement à une couche non adjacente.
-
-Cette organisation garantit :
-
-- Une forte cohésion interne  
-- Un faible couplage externe  
-- Une architecture évolutive  
-- Une meilleure testabilité  
+- **Presentation Layer** : gestion de la requête et réponse HTTP.
+- **Business Logic Layer** : validation et vérification des règles métier.
+- **Persistence Layer** : enregistrement en base de données.
 
 ---
 
-# 📘 Explanatory Notes – English Version 
+# 3️⃣ Soumission d’un avis – `POST /places/{place_id}/reviews`
 
-## 1. Overall Architecture
+## Objectif
 
-The **HBnB application** follows a three-layered architecture.  
-This structure ensures clear separation of responsibilities, reduced coupling, and improved maintainability and scalability.
+Cette API permet à un utilisateur de soumettre un avis sur un logement.
 
-The three main layers are:
+## Déroulement des interactions
 
-- **Presentation Layer**
+1. L’utilisateur envoie les données de l’avis à l’API.
+2. L’API transmet la requête à la Business Logic.
+3. La couche métier valide les données.
+4. Si la validation échoue :
+   - L’API retourne `400 Bad Request`.
+5. Si les données sont valides :
+   - Vérification de l’existence de l’utilisateur.
+   - Vérification de l’existence du logement.
+6. Si l’un des deux n’existe pas :
+   - L’API retourne `404 Not Found`.
+7. Vérification des règles de permission.
+8. Si l’utilisateur n’a pas l’autorisation :
+   - L’API retourne `403 Forbidden`.
+9. Si toutes les conditions sont respectées :
+   - L’avis est enregistré via la Persistence Layer.
+   - L’API retourne `201 Created`.
+
+## Contribution des couches
+
+- **Presentation Layer** : gestion de la communication HTTP.
+- **Business Logic Layer** : application des validations et règles métier.
+- **Persistence Layer** : vérifications en base et enregistrement de l’avis.
+
+---
+
+# 4️⃣ Récupération d’une liste de places – `GET /places`
+
+## Objectif
+
+Cette API permet de récupérer une liste de logements selon des critères de recherche optionnels (localisation, prix, équipements).
+
+## Déroulement des interactions
+
+1. L’utilisateur envoie une requête GET avec des filtres éventuels.
+2. L’API transmet les paramètres à la Business Logic.
+3. La couche métier valide les filtres.
+4. Si les filtres sont invalides :
+   - L’API retourne `400 Bad Request`.
+5. Si les filtres sont valides :
+   - Construction des critères de recherche.
+   - Application des filtres optionnels.
+6. La Persistence Layer exécute la requête en base.
+7. Les résultats sont retournés à la couche métier.
+8. L’API renvoie `200 OK` avec la liste des places (ou une liste vide si aucun résultat)
+
+## Contribution des couches
+
+- **Presentation Layer** : gestion des paramètres et réponse.
+- **Business Logic Layer** : construction des critères et orchestration.
+- **Persistence Layer** : exécution des requêtes SQL.
+
+---
+
+# Cohérence architecturale
+
+Dans l’ensemble des diagrammes :
+
+- La communication respecte strictement l’architecture en couches.
+- La Presentation Layer n’accède jamais directement à la base de données.
+- La Business Logic centralise toutes les validations et règles métier.
+- La Persistence Layer gère exclusivement les interactions avec la base.
+
+Cette séparation garantit :
+
+- Une meilleure maintenabilité
+- Une architecture évolutive
+- Un faible couplage entre les couches
+- Une responsabilité claire pour chaque composant
+
+# 📘 Explanatory Notes – Sequence Diagrams for API Calls - English version
+
+## 1. Overview
+
+This section presents four sequence diagrams illustrating how the HBnB application processes key API requests.
+
+Each diagram demonstrates the interaction between the three architectural layers:
+
+- **Presentation Layer** (API / Controllers)
 - **Business Logic Layer**
-- **Persistence Layer**
+- **Persistence Layer** (Repositories / Database)
 
-Each layer has a clearly defined responsibility and communicates only with the adjacent layer.
-
----
-
-## 2. Presentation Layer
-
-The **Presentation Layer** serves as the entry point of the application.  
-It handles user interaction through API endpoints.
-
-### Responsibilities
-
-- Receiving HTTP requests  
-- Validating input format  
-- Managing HTTP response codes  
-- Forwarding requests to the Business Logic layer  
-
-This layer does not contain business rules.  
-It does not access the database directly nor manipulate domain models.
-
-Its purpose is strictly to expose services and manage communication between the client and the system.
+The goal of these diagrams is to clearly represent the flow of information and the sequence of operations required to handle each API request.
 
 ---
 
-## 3. Business Logic Layer
+# 1️⃣ User Registration – `POST /users`
 
-The **Business Logic Layer** represents the core of the application.
+## Purpose
 
-### It contains:
+This API call allows a new user to create an account in the system.
 
-- Domain models (`User`, `Place`, `Review`, `Amenity`)  
-- Business validation rules  
-- Use cases (`RegisterUser`, `CreatePlace`, `SubmitReview`, etc.)  
-- The Facade (internal entry point)  
+## Interaction Flow
 
-### Responsibilities
+1. The **User** sends registration data to the API.
+2. The **Presentation Layer** forwards the request to the Business Logic layer via the facade pattern
+3. The **Business Logic Layer** validates the input data.
+4. If validation fails:
+   - The API returns `400 Bad Request`.
+5. If validation succeeds:
+   - The Business Logic checks email uniqueness via the Persistence layer.
+6. The **Persistence Layer** queries the database.
+7. If the email already exists:
+   - The API returns `409 Conflict`.
+8. If the email is available:
+   - The new user is saved in the database.
+   - The API returns `201 Created`.
 
-- Applying business rules  
-- Ensuring data consistency  
-- Orchestrating operations  
-- Coordinating between models and persistence  
+## Layer Contributions
 
-It remains independent from the Presentation Layer and does not depend on database implementation details.
-
-Centralizing business logic in this layer ensures system consistency and avoids duplication of rules.
-
----
-
-## 4. Persistence Layer
-
-The **Persistence Layer** is responsible for data storage and retrieval.
-
-### It includes:
-
-- Repositories (`UserRepository`, `PlaceRepository`, etc.)  
-- Database access mechanisms (SQL, ORM, DAO)  
-
-### Responsibilities
-
-- Executing CRUD operations  
-- Managing SQL queries  
-- Handling communication with the database  
-- Encapsulating storage-related technical details  
-
-This isolation allows the Business Logic to remain independent of database technology.
-
-As a result, the storage solution can be changed without affecting business logic.
+- **Presentation Layer**: Handles HTTP request and response.
+- **Business Logic Layer**: Applies validation rules and uniqueness constraints.
+- **Persistence Layer**: Executes database checks and saves the user.
 
 ---
 
-## 5. Role of the Facade Pattern
+# 2️⃣ Place Creation – `POST /places`
 
-The **Facade Pattern** simplifies communication between the Presentation and Business Logic layers.
+## Purpose
 
-### The facade:
+This API call enables a user to create a new place listing.
 
-- Provides a single entry point  
-- Exposes high-level methods  
-- Hides internal complexity  
-- Reduces coupling between layers  
+## Interaction Flow
 
-Without the facade, the Presentation Layer would need to directly interact with multiple models or services, increasing complexity and dependency.
+1. The User sends place data to the API.
+2. The API forwards the request to the Business Logic layer.
+3. The Business Logic validates the place data.
+4. If validation fails:
+   - The API returns `400 Bad Request`.
+5. If valid:
+   - The Business Logic verifies that the owner exists.
+6. If the owner does not exist:
+   - The API returns `404 Not Found`.
+7. If the owner exists:
+   - The place is saved via the Persistence layer.
+   - The API returns `201 Created`.
 
-By using a facade:
+## Layer Contributions
 
-- The Presentation Layer interacts with one unified interface  
-- The internal organization of the Business Layer remains protected  
-- Internal changes do not affect the API layer  
-
-This improves maintainability, readability, and architectural robustness.
+- **Presentation Layer**: Receives request and formats response.
+- **Business Logic Layer**: Enforces validation and ownership rules.
+- **Persistence Layer**: Persists the new place in the database.
 
 ---
 
-## 6. Layer Communication Flow
+# 3️⃣ Review Submission – `POST /places/{place_id}/reviews`
 
-The communication flow is strictly unidirectional:
+## Purpose
 
-Presentation → Business Logic (via Facade)
-Business Logic → Persistence (via Repositories)
+This API call allows a user to submit a review for a specific place.
 
+## Interaction Flow
 
-No layer directly accesses a non-adjacent layer.
+1. The User sends review data to the API.
+2. The API forwards the request to the Business Logic layer.
+3. The Business Logic validates review data.
+4. If validation fails:
+   - The API returns `400 Bad Request`.
+5. If valid:
+   - The system verifies that the user exists.
+   - The system verifies that the place exists.
+6. If either does not exist:
+   - The API returns `404 Not Found`.
+7. The system checks permission rules (e.g., user eligibility).
+8. If permission is denied:
+   - The API returns `403 Forbidden`.
+9. If all checks pass:
+   - The review is saved via the Persistence layer.
+   - The API returns `201 Created`.
 
-This structure ensures:
+## Layer Contributions
 
-- High cohesion  
-- Low coupling  
-- Scalability  
-- Better testability  
+- **Presentation Layer**: Manages HTTP communication.
+- **Business Logic Layer**: Applies validation and business rules.
+- **Persistence Layer**: Performs existence checks and saves review data.
+
+---
+
+# 4️⃣ Fetching a List of Places – `GET /places`
+
+## Purpose
+
+This API call retrieves a list of places based on optional filtering criteria.
+
+## Interaction Flow
+
+1. The User sends a GET request with optional filters (location, price, amenities).
+2. The API forwards filters to the Business Logic layer.
+3. The Business Logic validates filter parameters.
+4. If invalid:
+   - The API returns `400 Bad Request`.
+5. If valid:
+   - The Business Logic builds search criteria.
+   - Optional filters are applied.
+6. The Persistence layer executes the database query.
+7. The resulting list of places is returned.
+8. The API sends `200 OK` with the result (or an empty list if no results are found)
+
+## Layer Contributions
+
+- **Presentation Layer**: Handles query parameters and formats response.
+- **Business Logic Layer**: Constructs search criteria and applies filters.
+- **Persistence Layer**: Executes database queries.
+
+---
+
+# Architectural Consistency
+
+Across all four diagrams:
+
+- Communication follows a strict layered structure.
+- The Presentation Layer does not directly access the database.
+- The Business Logic Layer centralizes validation and rule enforcement.
+- The Persistence Layer handles all database interactions.
+
+This separation of concerns ensures:
+
+- Maintainability
+- Scalability
+- Clear responsibility boundaries
+- Strong architectural consistency
