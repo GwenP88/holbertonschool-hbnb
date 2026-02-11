@@ -1,3 +1,79 @@
+```
+---
+config:
+  layout : elk
+  theme: redux-dark
+---
+classDiagram
+direction TB
+    class BaseModel {
+        <<abstract>>
+	    #id: UUID4
+	    #created_at: DateTime
+	    #updated_at: DateTime
+        +save() void
+        +update_time() void
+    }
+
+    class User {
+	    -first_name: str
+	    -last_name: str
+	    -email: str
+	    -password: str
+	    -is_admin: bool
+	    +create_user(data: dict) User
+	    +get_profile() dict
+	    +update_user(data: dict) void
+	    +set_password(password: str) void
+	    +delete() void
+        +is_owner_of(place: Place) bool
+    }
+
+    class Place {
+	    -title: str
+	    -description: str
+	    -price: float
+	    -latitude: float
+	    -longitude: float
+	    -amenities : list[Amenity]
+	    -owner: User
+	    +create_place(data: dict, owner: User) Place
+	    +get_details() dict
+	    +update_details(data: dict) void
+	    +delete() void
+	    +add_amenity(amenity: Amenity) void
+        +remove_amenity(amenity: Amenity) void
+    }
+
+    class Review {
+	    -rating: int
+	    -comment: str
+	    -author : User
+	    -place: Place
+	    +create_review(data: dict, author: User, place: Place) Review
+	    +get_details() dict
+	    +update_review(data: dict) void
+	    +delete() void
+    }
+
+    class Amenity {
+	    -name: str
+	    -description: str
+	    +create_amenity(data: dict) Amenity
+	    +get_details() dict
+	    +update_amenity(data: dict) void
+	    +delete() void
+    }
+    BaseModel <|-- User
+    BaseModel <|-- Place
+    BaseModel <|-- Review
+    BaseModel <|-- Amenity
+    User "1" --> "0..*" Review
+    User "1" --> "0..*" Place
+    Place "1" *-- "0..*" Review
+    Place "0..*" o-- "0..*" Amenity
+```
+
 # Explanatory Notes – Detailed Class Diagram - English version
 
 ## 1. Overview
