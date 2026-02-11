@@ -1,1 +1,1 @@
-not empty
+![HBnB Banner](images/banner.png)
