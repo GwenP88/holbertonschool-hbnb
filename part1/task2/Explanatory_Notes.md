@@ -1,4 +1,4 @@
-# 📘 Notes explicatives – Diagrammes de séquence des appels API - version française
+# Notes explicatives – Diagrammes de séquence des appels API - version française
 
 ## 1. Vue d’ensemble
 

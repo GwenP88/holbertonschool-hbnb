@@ -1,0 +1,33 @@
+sequenceDiagram
+    participant U as USER
+    participant API as API
+    participant BL as BUSINESS LOGIC
+    participant DB as DATABASE
+
+    U->>API: GET /places?lat=&lon=&max_price=&amenity=
+    API->>BL: validateFilters(filters)
+
+    alt Invalid filters
+        BL-->>API: ValidationError
+        API-->>U: 400 Bad Request
+    else Valid filters
+        BL->>BL: buildSearchCriteria(filters)
+
+        opt lat & lon provided
+            BL->>BL: computeGeoArea(lat, lon)
+        end
+
+        opt max_price provided
+            BL->>BL: setMaxPrice(max_price)
+        end
+
+        opt amenity provided
+            BL->>BL: addAmenityFilter(amenity)
+        end
+
+        BL->>DB: search_places(SearchCriteria)
+        DB-->>BL: places[]
+        BL-->>API: places[]
+        API-->>U: 200 OK (places[])
+            
+    end

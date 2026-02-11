@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant U as USER
+    participant API as API
+    participant BL as BUSINESS LOGIC
+    participant DB as DATABASE
+
+    U->>API: POST /users (registration data)
+    API->>BL: validateRegistration(data)
+
+    alt Invalid data
+        BL-->>API: ValidationError
+        API-->>U: 400 Bad Request
+    else Valid data
+        BL->>DB: check_email(email)
+        DB-->>BL: emailExists=true/false
+
+        alt Email already exists
+            BL-->>API: EmailAlreadyExists
+            API-->>U: 409 Conflict
+        else Email available
+            BL->>DB: save_new_user(user)
+            DB-->>BL: UserSaved
+            BL-->>API: UserCreated(user)
+            API-->>U: 201 Created
+        end
+    end
