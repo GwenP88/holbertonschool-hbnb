@@ -22,7 +22,7 @@ direction TB
 	    -password: str
 	    -is_admin: bool
 	    +create_user(data: dict) User
-	    +get_profil() dict
+	    +get_profile() dict
 	    +update_user(data: dict) void
 	    +set_password(password: str) void
 	    +delete() void
@@ -37,7 +37,7 @@ direction TB
 	    -longitude: float
 	    -amenities : list[Amenity]
 	    -owner: User
-	    +created_place(data: dict, owner: User) Place
+	    +create_place(data: dict, owner: User) Place
 	    +get_details() dict
 	    +update_details(data: dict) void
 	    +delete() void
@@ -59,7 +59,7 @@ direction TB
     class Amenity {
 	    -name: str
 	    -description: str
-	    +created_amenity(data: dict) Amenity
+	    +create_amenity(data: dict) Amenity
 	    +get_details() dict
 	    +update_amenity(data: dict) void
 	    +delete() void
