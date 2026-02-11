@@ -1,0 +1,44 @@
+sequenceDiagram
+    participant U as USER
+    participant API as API
+    participant BL as BUSINESS LOGIC
+    participant DB as DATABASE
+
+    U->>API: POST /places/{place_id}/reviews (review data)
+    API->>BL: validateReview(data)
+
+    alt Invalid data
+        BL-->>API: ValidationError
+        API-->>U: 400 Bad Request
+    else Valid data
+        BL->>DB: check_user(author_id)
+        DB-->>BL: userExists=true/false
+
+        alt userExists == false
+            BL-->>API: UserNotFound
+            API-->>U: 404 Not Found
+        else userExists == true
+            BL->>DB: check_place(place_id)
+            DB-->>BL: placeExists=true/false
+
+            alt placeExists == false
+                BL-->>API: PlaceNotFound
+                API-->>U: 404 Not Found
+
+            else placeExists == true
+                BL->>DB: check_permission(author_id, place_id)
+                DB-->>BL: permission=true/false
+
+                alt permission == false
+                    BL-->>API: PermissionDenied
+                    API-->>U: 403 Forbidden
+
+                else permission == true
+                    BL->>DB: save_new_review(review)
+                    DB-->>BL: savedReview
+                    BL-->>API: ReviewCreated(savedReview)
+                    API-->>U: 201 Created
+                end
+            end    
+        end
+    end

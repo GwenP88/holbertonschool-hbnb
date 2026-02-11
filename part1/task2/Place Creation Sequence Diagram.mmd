@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant U as USER
+    participant API as API
+    participant BL as BUSINESS LOGIC
+    participant DB as DATABASE
+
+    U->>API: POST /place (registration data)
+    API->>BL: validatePlace(data)
+
+    alt Invalid data
+        BL-->>API: ValidationError
+        API-->>U: 400 Bad Request
+    else Valid data
+        BL->>DB: check_owner(owner)
+        DB-->>BL: ownerExists=true/false
+
+        alt ownerExists == false
+            BL-->>API: OwnerNotFound
+            API-->>U: 404 Not Found
+        else ownerExists == true
+            BL->>DB: save_new_place(place)
+            DB-->>BL: savedPlace
+            BL-->>API: PlaceCreated(place)
+            API-->>U: 201 Created
+        end
+    end
