@@ -1,4 +1,31 @@
-# 📘 Explanatory Notes – Version Française
+```
+---
+config:
+  layout: dagre
+---
+flowchart TB
+    PL["<b>Presentation Layer</b><br>
+    <hr>
+    API Endpoints<br> 
+    Controllers
+    (UserController, PlaceController, ReviewController, AmenityController...)"]
+    -. via Facade Pattern .-> BL["<b>Business Logic Layer</b><br>
+    <hr>
+    Facade (entry point)<br>
+    Validation<br>
+    Models (user, place, review, amenity)<br>
+    Use cases (RegisterUser, CreatePlace, SubmitReview, SearchPlaces...)"]
+    BL -. Database Operations .-> DAL["<b>Persistence Layer</b><br>
+    <hr>
+    Repositories (UserRepo, PlaceRepo, ReviewRepo, AmenityRepo...)<br>
+    Database Access Object"]
+
+    style PL fill:#f0f8ff,stroke:#4682b4
+    style BL fill:#fff8e7,stroke:#ffa500
+    style DAL fill:#ffe4e1,stroke:#dc143c
+```
+
+# Explanatory Notes – Version Française
 
 ## 1. Architecture générale
 
@@ -123,7 +150,7 @@ Cette organisation garantit :
 
 ---
 
-# 📘 Explanatory Notes – English Version 
+# Explanatory Notes – English Version 
 
 ## 1. Overall Architecture
 
