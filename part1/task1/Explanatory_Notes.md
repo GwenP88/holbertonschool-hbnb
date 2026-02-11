@@ -1,4 +1,4 @@
-# 📘 Explanatory Notes – Detailed Class Diagram - English version
+# Explanatory Notes – Detailed Class Diagram - English version
 
 ## 1. Overview
 
@@ -178,7 +178,7 @@ Encapsulation ensures that internal data cannot be modified directly and must go
 
 ---
 
-# 📘 Notes explicatives – Diagramme de classes - version Française
+# Notes explicatives – Diagramme de classes - version Française
 
 ## 1. Vue d’ensemble
 
