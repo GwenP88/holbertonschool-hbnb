@@ -1,1 +1,0 @@
-![HBnB Banner](images/banner.png)

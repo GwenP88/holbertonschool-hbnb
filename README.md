@@ -1,1 +1,1 @@
-![HBnB Banner](images/banner.png)
+![HBnB Banner](assets/banner.png)
