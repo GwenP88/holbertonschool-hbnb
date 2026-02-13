@@ -1,4 +1,4 @@
-![HBnB Banner](/assets/banner.png)
+![HBnB Banner](/banner.png)
 
 # HBnB Technical Documentation
 
