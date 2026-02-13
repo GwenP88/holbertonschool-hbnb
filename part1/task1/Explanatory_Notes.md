@@ -1,9 +1,4 @@
 ```
----
-config:
-  layout : elk
-  theme: redux-dark
----
 classDiagram
 direction TB
     class BaseModel {
@@ -26,7 +21,6 @@ direction TB
 	    +update_user(data: dict) void
 	    +set_password(password: str) void
 	    +delete() void
-        +is_owner_of(place: Place) bool
     }
 
     class Place {
@@ -35,10 +29,11 @@ direction TB
 	    -price: float
 	    -latitude: float
 	    -longitude: float
-	    -amenities : list[Amenity]
-	    -owner: User
-	    +create_place(data: dict, owner: User) Place
-	    +get_details() dict
+	    -amenities: list[Amenity]
+	    -owner_id: UUID4
+	    +create_place(data: dict, owner_id: UUID4) Place
+	    +get_details(): dict
+		+to_list_item(): dict
 	    +update_details(data: dict) void
 	    +delete() void
 	    +add_amenity(amenity: Amenity) void
@@ -48,9 +43,9 @@ direction TB
     class Review {
 	    -rating: int
 	    -comment: str
-	    -author : User
-	    -place: Place
-	    +create_review(data: dict, author: User, place: Place) Review
+	    -author_id: UUID4
+	    -place_id: UUID4
+	    +create_review(data: dict, author_id: UUID4, place_id: UUID4) Review
 	    +get_details() dict
 	    +update_review(data: dict) void
 	    +delete() void
@@ -74,361 +69,250 @@ direction TB
     Place "0..*" o-- "0..*" Amenity
 ```
 
-# Explanatory Notes – Detailed Class Diagram - English version
+# Detailed Class Diagram – Explanatory Notes
 
-## 1. Overview
+## Overview
 
-The Business Logic Layer represents the core domain of the HBnB application.  
-It defines the main entities of the system, their attributes, behaviors, and relationships.
+The system is modeled using a domain-driven approach centered around four main entities:
 
-The primary entities modeled in this layer are:
+- `User`
+- `Place`
+- `Review`
+- `Amenity`
 
-- **User**
-- **Place**
-- **Review**
-- **Amenity**
+All entities inherit from an abstract base class `BaseModel`, which provides shared attributes and behaviors.
 
-All entities inherit from an abstract `BaseModel` class, ensuring consistency and shared core attributes across the system.
-
----
-
-## 2. BaseModel (Abstract Class)
-
-`BaseModel` is an abstract superclass that provides common attributes and behaviors shared by all domain entities.
-
-### Key Attributes
-
-- `id: UUID4` – Unique identifier for each entity instance  
-- `created_at: DateTime` – Timestamp of object creation  
-- `updated_at: DateTime` – Timestamp of last update  
-
-### Key Methods
-
-- `save()` – Persists changes  
-- `update_time()` – Updates the modification timestamp  
-
-This abstraction ensures standardization and avoids duplication of shared properties across domain classes.
+The diagram uses standard UML notation to represent:
+- Generalization (inheritance)
+- Associations
+- Composition
+- Multiplicities
 
 ---
 
-## 3. User Entity
+# 1. BaseModel (Abstract)
 
-The `User` class represents individuals interacting with the platform.
+## Role
 
-### Key Attributes
+`BaseModel` is an abstract class that provides common attributes and behaviors shared by all domain entities.
 
-- `first_name`
-- `last_name`
-- `email`
-- `password`
-- `is_admin`
+## Key Attributes
 
-### Key Responsibilities
+- `id: UUID4` — Unique identifier for each entity instance.
+- `created_at: DateTime` — Timestamp indicating when the entity was created.
+- `updated_at: DateTime` — Timestamp indicating the last update.
 
-- Managing user profile data  
-- Creating and updating user information  
-- Determining ownership of places  
-- Managing authentication-related behavior  
+## Key Methods
 
-### Relationships
+- `save(): void` — Persists the entity.
+- `update_time(): void` — Updates the `updated_at` timestamp.
 
-- A **User can own multiple Places** (`1 → 0..*`)  
-- A **User can write multiple Reviews** (`1 → 0..*`)  
-- Each Review has exactly **one author**
+## Purpose
 
----
+This abstraction ensures:
+- Consistent identity management.
+- Centralized lifecycle handling.
+- Reduced duplication across entities.
 
-## 4. Place Entity
-
-The `Place` class represents properties listed on the platform.
-
-### Key Attributes
-
-- `title`
-- `description`
-- `price`
-- `latitude`
-- `longitude`
-- `owner: User`
-
-### Key Responsibilities
-
-- Managing listing information  
-- Associating amenities  
-- Managing related reviews  
-
-### Relationships
-
-- A **Place belongs to exactly one User (owner)**  
-- A **Place can have multiple Reviews** (`1 → 0..*`)  
-- A **Place can have multiple Amenities**, and an Amenity can belong to multiple Places (many-to-many relationship)  
-
-The relationship between `Place` and `Review` is modeled as a **composition**, meaning a Review cannot exist without its associated Place.
+All domain entities (`User`, `Place`, `Review`, `Amenity`) inherit from `BaseModel`.
 
 ---
 
-## 5. Review Entity
+# 2. User
 
-The `Review` class represents feedback left by users on places.
+## Role
 
-### Key Attributes
+Represents a system user. A user can own places and write reviews.
 
-- `rating`
-- `comment`
-- `author: User`
-- `place: Place`
+## Key Attributes
 
-### Key Responsibilities
+- `first_name: str`
+- `last_name: str`
+- `email: str`
+- `password: str`
+- `is_admin: bool`
 
-- Storing user feedback  
-- Ensuring rating integrity  
-- Linking authors to places  
+## Key Methods
 
-### Relationships
+- `create_user(data: dict): User`
+- `get_profile(): dict`
+- `update_user(data: dict): void`
+- `set_password(password: str): void`
+- `delete(): void`
 
-- A **Review is written by exactly one User**  
-- A **Review belongs to exactly one Place**  
+## Business Responsibility
 
-This ensures traceability and accountability within the platform.
-
----
-
-## 6. Amenity Entity
-
-The `Amenity` class represents features available in a place (e.g., WiFi, TV, Air conditioning).
-
-### Key Attributes
-
-- `name`
-- `description`
-
-### Key Responsibilities
-
-- Defining available features  
-- Being associated with multiple Places  
-
-### Relationships
-
-- An **Amenity can be associated with multiple Places**  
-- A **Place can include multiple Amenities**
-
-This many-to-many association increases flexibility and avoids duplication of amenity definitions.
+- Manages user identity and profile information.
+- Can own multiple places.
+- Can write multiple reviews.
 
 ---
 
-## 7. Relationship Design Rationale
+# 3. Place
 
-The class relationships reflect real-world business logic:
+## Role
 
-- Users own Places.  
-- Users write Reviews.  
-- Reviews are tightly coupled to Places.  
-- Amenities are shared reusable resources.  
+Represents a property listed in the system.
 
-The use of inheritance via `BaseModel` ensures structural consistency, while associations and compositions clearly represent domain dependencies.
+## Key Attributes
 
-This design promotes:
+- `title: str`
+- `description: str`
+- `price: float`
+- `latitude: float`
+- `longitude: float`
+- `amenities: list[Amenity]`
+- `owner_id: UUID4` — References the user who owns the place.
 
-- High cohesion within entities  
-- Clear responsibility separation  
-- Maintainability and scalability  
-- Strong domain modeling  
+## Key Methods
 
----
+- `create_place(data: dict, owner_id: UUID4): Place`
+- `get_details(): dict` — Returns full detailed representation of the place.
+- `to_list_item(): dict` — Returns summarized representation for list views.
+- `update_details(data: dict): void`
+- `delete(): void`
+- `add_amenity(amenity: Amenity): void`
+- `remove_amenity(amenity: Amenity): void`
 
-## 8. Visibility Modifiers in the Diagram
+## Business Responsibility
 
-The class diagram uses UML visibility symbols:
-
-- `+` **Public**: Accessible from other classes  
-- `-` **Private**: Accessible only within the class  
-- `#` **Protected**: Accessible within the class and its subclasses  
-
-In this model:
-
-- Core attributes are marked as **private (-)** to enforce encapsulation.  
-- Shared attributes in `BaseModel` are **protected (#)** to allow inheritance.  
-- Methods are generally **public (+)** to define the class interface.  
-
-Encapsulation ensures that internal data cannot be modified directly and must go through controlled methods.
+- Encapsulates all data related to a listing.
+- Maintains association with its owner via `owner_id`.
+- Manages relationships with amenities.
+- Provides different data representations for detailed and list views.
 
 ---
 
-# Notes explicatives – Diagramme de classes - version Française
+# 4. Review
 
-## 1. Vue d’ensemble
+## Role
 
-La Business Logic Layer représente le cœur métier de l’application HBnB.  
-Elle définit les entités principales du système, leurs attributs, leurs comportements et leurs relations.
+Represents a review written by a user for a specific place.
 
-Les entités principales sont :
+## Key Attributes
 
-- **User**
-- **Place**
-- **Review**
-- **Amenity**
+- `rating: int`
+- `comment: str`
+- `author_id: UUID4`
+- `place_id: UUID4`
 
-Toutes les entités héritent d’une classe abstraite `BaseModel`, garantissant la cohérence des attributs communs.
+## Key Methods
 
----
+- `create_review(data: dict, author_id: UUID4, place_id: UUID4): Review`
+- `get_details(): dict`
+- `update_review(data: dict): void`
+- `delete(): void`
 
-## 2. BaseModel (Classe abstraite)
+## Business Responsibility
 
-`BaseModel` fournit les attributs et comportements communs à toutes les entités métier.
-
-### Attributs principaux
-
-- `id: UUID4` – Identifiant unique  
-- `created_at: DateTime` – Date de création  
-- `updated_at: DateTime` – Date de dernière modification  
-
-### Méthodes principales
-
-- `save()` – Sauvegarde l’objet  
-- `update_time()` – Met à jour le timestamp  
-
-Cette abstraction évite la duplication de code et garantit une structure homogène.
+- Links a user to a place through feedback.
+- Stores evaluation data (rating and comment).
+- Maintains referential integrity through `author_id` and `place_id`.
 
 ---
 
-## 3. Entité User
+# 5. Amenity
 
-La classe `User` représente un utilisateur de la plateforme.
+## Role
 
-### Attributs principaux
+Represents a feature or facility available at a place (e.g., Wi-Fi, parking).
 
-- `first_name`
-- `last_name`
-- `email`
-- `password`
-- `is_admin`
+## Key Attributes
 
-### Responsabilités
+- `name: str`
+- `description: str`
 
-- Gérer les informations de profil  
-- Créer et modifier des données utilisateur  
-- Déterminer la propriété d’un logement  
-- Gérer certains comportements liés à l’authentification  
+## Key Methods
 
-### Relations
+- `create_amenity(data: dict): Amenity`
+- `get_details(): dict`
+- `update_amenity(data: dict): void`
+- `delete(): void`
 
-- Un **User peut posséder plusieurs Places**  
-- Un **User peut écrire plusieurs Reviews**  
-- Chaque Review possède un seul auteur  
+## Business Responsibility
+
+- Defines reusable features.
+- Can be associated with multiple places.
 
 ---
 
-## 4. Entité Place
+# Relationships Between Entities
 
-La classe `Place` représente un logement proposé sur la plateforme.
+## 1. Generalization (Inheritance)
 
-### Attributs principaux
+All entities inherit from `BaseModel`:
 
-- `title`
-- `description`
-- `price`
-- `latitude`
-- `longitude`
-- `owner: User`
+- `BaseModel <|-- User`
+- `BaseModel <|-- Place`
+- `BaseModel <|-- Review`
+- `BaseModel <|-- Amenity`
 
-### Responsabilités
-
-- Gérer les informations du logement  
-- Associer des équipements  
-- Gérer les avis associés  
-
-### Relations
-
-- Une **Place appartient à un seul User**  
-- Une **Place peut avoir plusieurs Reviews**  
-- Une **Place peut avoir plusieurs Amenities**, et une Amenity peut être liée à plusieurs Places  
-
-La relation `Place–Review` est modélisée comme une **composition**, ce qui signifie qu’un Review ne peut exister sans sa Place associée.
+This ensures shared identity and lifecycle management.
 
 ---
 
-## 5. Entité Review
+## 2. User – Place (One-to-Many)
 
-La classe `Review` représente un avis laissé par un utilisateur.
+- A `User` can own multiple `Place` entities.
+- Each `Place` is associated with exactly one owner via `owner_id`.
 
-### Attributs principaux
+Multiplicity:
+- `User "1" --> "0..*" Place`
 
-- `rating`
-- `comment`
-- `author: User`
-- `place: Place`
-
-### Responsabilités
-
-- Stocker les avis  
-- Garantir l’intégrité des évaluations  
-- Assurer le lien entre utilisateur et logement  
-
-### Relations
-
-- Un **Review est écrit par un seul User**  
-- Un **Review est associé à une seule Place**
-
-Cela garantit la traçabilité des avis.
+This models the ownership relationship in the system.
 
 ---
 
-## 6. Entité Amenity
+## 3. User – Review (One-to-Many)
 
-La classe `Amenity` représente un équipement disponible dans un logement.
+- A `User` can write multiple `Review` entities.
+- Each `Review` is authored by one user via `author_id`.
 
-### Attributs principaux
+Multiplicity:
+- `User "1" --> "0..*" Review`
 
-- `name`
-- `description`
-
-### Responsabilités
-
-- Définir les équipements disponibles  
-- Être associé à plusieurs logements  
-
-### Relations
-
-- Une **Amenity peut être liée à plusieurs Places**  
-- Une **Place peut inclure plusieurs Amenities**
-
-Cette relation many-to-many permet la réutilisation des équipements sans duplication.
+This represents authorship of reviews.
 
 ---
 
-## 7. Justification des relations
+## 4. Place – Review (Composition, One-to-Many)
 
-Les relations modélisées reflètent la logique métier réelle :
+- A `Place` can have multiple reviews.
+- Each `Review` is associated with exactly one place via `place_id`.
 
-- Les utilisateurs possèdent des logements.  
-- Les utilisateurs écrivent des avis.  
-- Les avis dépendent des logements.  
-- Les équipements sont mutualisés entre plusieurs logements.  
+Multiplicity:
+- `Place "1" *-- "0..*" Review`
 
-L’héritage via `BaseModel` garantit une structure cohérente.  
-Les associations et compositions représentent correctement les dépendances métier.
-
-Cette conception favorise :
-
-- Une forte cohésion  
-- Un faible couplage  
-- Une bonne maintenabilité  
-- Une modélisation métier claire et évolutive  
+Composition indicates strong ownership:
+If a `Place` is removed, its associated reviews are also logically removed.
 
 ---
 
-## 8. Visibilités UML
+## 5. Place – Amenity (Many-to-Many)
 
-Le diagramme utilise les symboles UML suivants :
+- A `Place` can have multiple amenities.
+- An `Amenity` can be shared across multiple places.
 
-- `+` **Public** : accessible depuis l’extérieur  
-- `-` **Privé** : accessible uniquement dans la classe  
-- `#` **Protégé** : accessible dans la classe et ses sous-classes  
+Multiplicity:
+- `Place "0..*" o-- "0..*" Amenity`
 
-Dans ce modèle :
+Aggregation reflects a reusable relationship where amenities exist independently of places.
 
-- Les attributs sont majoritairement **privés (-)** pour garantir l’encapsulation.  
-- Les attributs communs de `BaseModel` sont **protégés (#)** pour permettre l’héritage.  
-- Les méthodes sont **publiques (+)** afin de définir l’interface de la classe.  
+---
 
-Cela permet de contrôler l’accès aux données et de respecter les principes de la programmation orientée objet.
+# Contribution to Overall Business Logic
+
+The domain model supports the core system workflows:
+
+- Users create and manage places.
+- Users search and view places using different representations (`get_details`, `to_list_item`).
+- Users write reviews for places.
+- Places aggregate reviews and amenities.
+- Amenities are reusable domain features.
+
+The use of UUID-based references (`owner_id`, `author_id`, `place_id`) ensures:
+- Clear separation between domain identity and object references.
+- Compatibility with persistence layers.
+- Reduced coupling between entities.
+
+This structured domain model provides a solid foundation for implementing business rules, enforcing constraints, and supporting API operations while maintaining clear separation of responsibilities.
