@@ -1,1 +1,1 @@
-![HBnB Banner](/home/gpichot/holbertonschool-hbnb/assets/banner.png)
+![HBnB Banner](/assets/banner.png)
