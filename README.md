@@ -1,8 +1,10 @@
+# Holberton School – Full Stack Development Program - HBNB Project
+
 ![HBnB Banner](assets/banner.png)
 
-# HBnB – Part 1: UML
+## HBnB – Part 1: UML
 
-## 1. Introduction
+### 1. Introduction
 
 HBnB Evolution is a simplified AirBnB-like application designed to manage users, places, reviews, and amenities.
 
@@ -10,34 +12,34 @@ This first phase focuses on producing technical documentation that defines the s
 
 ---
 
-## 2. Project Scope
+### 2. Project Scope
 
 The application supports four core domains:
 
-### User Management
+#### User Management
 - Users can register, update their profiles, and be deleted.
 - Each user has a first name, last name, email, password, and an administrator flag.
 - Each user is uniquely identified by an ID.
 
-### Place Management
+#### Place Management
 - Users can create, update, delete, and list places.
 - A place includes a title, description, price, latitude, and longitude.
 - Each place is associated with an owner (user).
 - Places can have multiple amenities.
 
-### Review Management
+#### Review Management
 - Users can create, update, delete, and list reviews.
 - Each review is linked to a user and a place.
 - A review includes a rating and a comment.
 
-### Amenity Management
+#### Amenity Management
 - Amenities have a name and description.
 - Amenities can be created, updated, deleted, and listed.
 - Amenities can be associated with multiple places.
 
 ---
 
-## 3. General Requirements
+### 3. General Requirements
 
 - Every entity must have a unique identifier (ID).
 - Creation and update timestamps must be stored for audit purposes.
@@ -45,24 +47,24 @@ The application supports four core domains:
 
 ---
 
-## 4. Architecture Overview
+### 4. Architecture Overview
 
 The application follows a three-layer architecture:
 
-### Presentation Layer
+#### Presentation Layer
 Handles API endpoints, request validation, and HTTP responses.
 
-### Business Logic Layer
+#### Business Logic Layer
 Contains domain models and enforces business rules.
 
-### Persistence Layer
+#### Persistence Layer
 Manages data storage and retrieval from the database (to be implemented in Part 3).
 
 The layers communicate in a structured manner to ensure separation of concerns and maintainability.
 
 ---
 
-## 5. Deliverables for Part 1
+### 5. Deliverables for Part 1
 
 This part includes:
 
@@ -77,7 +79,7 @@ This part includes:
 
 ---
 
-## 6. Objective of This Documentation
+### 6. Objective of This Documentation
 
 This documentation provides:
 
@@ -90,19 +92,19 @@ The diagrams and explanations included in this part ensure consistency and clari
 
 ---
 
-# HBnB – Part 2: BL and API
+## HBnB – Part 2: BL and API
 
 Further implementation details will be provided in the upcoming project phases.
 
 ---
 
-# HBnB – Part 3: Auth abnd DB
+## HBnB – Part 3: Auth abnd DB
 
 Further implementation details will be provided in the upcoming project phases.
 
 ---
 
-# HBnB – Part 4: Simple Web Client
+## HBnB – Part 4: Simple Web Client
 
 Further implementation details will be provided in the upcoming project phases.
 
