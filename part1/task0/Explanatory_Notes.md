@@ -25,124 +25,151 @@ flowchart TB
     style DAL fill:#ffe4e1,stroke:#dc143c
 ```
 
-# Explanatory Notes
+# High-Level Package Diagram – Explanatory Notes
 
-## 1. Overall Architecture
+## Overview
 
-The **HBnB application** follows a three-layered architecture.  
-This structure ensures clear separation of responsibilities, reduced coupling, and improved maintainability and scalability.
-
-The three main layers are:
+The system is structured into three distinct architectural layers:
 
 - **Presentation Layer**
 - **Business Logic Layer**
 - **Persistence Layer**
 
-Each layer has a clearly defined responsibility and communicates only with the adjacent layer.
+This separation ensures clear responsibility boundaries, better maintainability, improved scalability, and easier testing.
 
 ---
 
-## 2. Presentation Layer
+# Presentation Layer
 
-The **Presentation Layer** serves as the entry point of the application.  
-It handles user interaction through API endpoints.
+## Components
 
-### Responsibilities
+- API Endpoints  
+- Controllers:
+  - UserController  
+  - PlaceController  
+  - ReviewController  
+  - AmenityController  
+
+## Responsibilities
+
+The Presentation Layer is responsible for handling all external interactions with clients (e.g., web browsers, REST clients).
+
+Its main responsibilities include:
 
 - Receiving HTTP requests  
-- Validating input format  
-- Managing HTTP response codes  
-- Forwarding requests to the Business Logic layer  
+- Validating and parsing incoming data  
+- Calling the appropriate business operation through the Facade  
+- Formatting and returning HTTP responses (JSON, status codes, error messages)  
 
-This layer does not contain business rules.  
-It does not access the database directly nor manipulate domain models.
-
-Its purpose is strictly to expose services and manage communication between the client and the system.
+This layer **does not implement business rules**. It only coordinates communication between the client and the Business Logic layer.
 
 ---
 
-## 3. Business Logic Layer
+# Business Logic Layer
 
-The **Business Logic Layer** represents the core of the application.
+## Components
 
-### It contains:
+- Models:
+  - User  
+  - Place  
+  - Review  
+  - Amenity  
 
-- Domain models (`User`, `Place`, `Review`, `Amenity`)  
-- Business validation rules  
-- Use cases (`RegisterUser`, `CreatePlace`, `SubmitReview`, etc.)  
-- The Facade (internal entry point)  
+- Use Cases:
+  - RegisterUser  
+  - CreatePlace  
+  - SubmitReview  
+  - SearchPlaces  
 
-### Responsibilities
+## Responsibilities
 
-- Applying business rules  
-- Ensuring data consistency  
-- Orchestrating operations  
-- Coordinating between models and persistence  
+The Business Logic Layer contains the core rules and behaviors of the application.
 
-It remains independent from the Presentation Layer and does not depend on database implementation details.
+Its main responsibilities include:
 
-Centralizing business logic in this layer ensures system consistency and avoids duplication of rules.
+- Implementing business rules  
+- Enforcing validation and constraints  
+- Managing relationships between entities  
+- Orchestrating workflows (e.g., creating a place and linking it to a user)  
 
----
-
-## 4. Persistence Layer
-
-The **Persistence Layer** is responsible for data storage and retrieval.
-
-### It includes:
-
-- Repositories (`UserRepository`, `PlaceRepository`, etc.)  
-- Database access mechanisms (SQL, ORM, DAO)  
-
-### Responsibilities
-
-- Executing CRUD operations  
-- Managing SQL queries  
-- Handling communication with the database  
-- Encapsulating storage-related technical details  
-
-This isolation allows the Business Logic to remain independent of database technology.
-
-As a result, the storage solution can be changed without affecting business logic.
+This layer is independent of HTTP and database technologies.  
+It focuses purely on domain logic.
 
 ---
 
-## 5. Role of the Facade Pattern
+# Persistence Layer
 
-The **Facade Pattern** simplifies communication between the Presentation and Business Logic layers.
+## Components
 
-### The facade:
+- Repositories:
+  - UserRepo  
+  - PlaceRepo  
+  - ReviewRepo  
+  - AmenityRepo  
 
-- Provides a single entry point  
-- Exposes high-level methods  
-- Hides internal complexity  
+- Database Access Object (DAO)
+
+## Responsibilities
+
+The Persistence Layer is responsible for data storage and retrieval.
+
+Its main responsibilities include:
+
+- Executing database operations (CRUD)  
+- Managing database connections  
+- Translating domain objects into database records  
+- Isolating database-specific logic from the rest of the system  
+
+This layer ensures that changes in the database technology do not affect the Business Logic or Presentation layers.
+
+---
+
+# Communication Between Layers
+
+## Layer Interaction Flow
+
+1. The client sends an HTTP request to the Presentation Layer.
+2. A Controller forwards the request to the Business Logic Layer through the Facade.
+3. The Business Logic Layer processes the request.
+4. If data storage or retrieval is required, it communicates with the Persistence Layer.
+5. The result is returned back through the same path to the client.
+
+---
+
+# Facade Pattern Explanation
+
+The **Facade Pattern** acts as a simplified interface between the Presentation Layer and the Business Logic Layer.
+
+## Why Use a Facade?
+
+Without a facade:
+- Controllers would directly interact with multiple models and services.
+- The Presentation Layer would become tightly coupled to internal logic.
+
+With a facade:
+- Controllers call a single unified interface.
+- Internal complexity remains hidden.
+- Business logic changes do not impact controllers.
+- The system becomes easier to maintain and extend.
+
+## Benefits of the Facade Pattern
+
 - Reduces coupling between layers  
-
-Without the facade, the Presentation Layer would need to directly interact with multiple models or services, increasing complexity and dependency.
-
-By using a facade:
-
-- The Presentation Layer interacts with one unified interface  
-- The internal organization of the Business Layer remains protected  
-- Internal changes do not affect the API layer  
-
-This improves maintainability, readability, and architectural robustness.
+- Improves code organization  
+- Simplifies controller implementation  
+- Provides a centralized entry point to business operations  
+- Enhances testability  
 
 ---
 
-## 6. Layer Communication Flow
+# Architectural Benefits
 
-The communication flow is strictly unidirectional:
+This layered architecture combined with the Facade Pattern provides:
 
-Presentation → Business Logic (via Facade)
-Business Logic → Persistence (via Repositories)
+- Clear separation of concerns  
+- Improved maintainability  
+- Easier scalability  
+- Better test isolation  
+- Cleaner dependency management  
 
-
-No layer directly accesses a non-adjacent layer.
-
-This structure ensures:
-
-- High cohesion  
-- Low coupling  
-- Scalability  
-- Better testability  
+Each layer has a well-defined role, ensuring that responsibilities are not mixed across the system. 
