@@ -101,7 +101,7 @@ A singleton instance of the facade is created to ensure a single access point ac
 ### Clone the repository
 
 ```
-git clone <repository-url>
+git clone https://github.com/GwenP88/holbertonschool-hbnb.git
 cd holbertonschool-hbnb/part2/hbnbc
 ```
 
