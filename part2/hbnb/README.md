@@ -1,3 +1,5 @@
+![HBnB Banner](assets/banner.png)
+
 # HBnB – Part 2: Project Setup and Package Initialization
 
 ## Overview
