@@ -163,6 +163,6 @@ By the end of this setup:
 
 ---
 
-**Author:****Gwenaelle PICHOT** Student at Holberton School  
+**Author:** **Gwenaelle PICHOT** Student at Holberton School  
 **Repository:** holbertonschool-hbnb  
 **Directory:** part2/hbnb
