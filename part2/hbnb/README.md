@@ -16,6 +16,8 @@ This structure prepares the project for future integration of database-backed pe
 ---
 
 ## Project Structure
+
+```
 hbnb/
 ├── app/
 │ ├── init.py
@@ -43,6 +45,7 @@ hbnb/
 ├── config.py
 ├── requirements.txt
 ├── README.md
+```
 
 ---
 
