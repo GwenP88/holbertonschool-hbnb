@@ -20,27 +20,27 @@ This structure prepares the project for future integration of database-backed pe
 ```
 hbnb/
 ├── app/
-│ ├── init.py
-│ ├── api/
-│ │ ├── init.py
-│ │ ├── v1/
-│ │ ├── init.py
-│ │ ├── users.py
-│ │ ├── places.py
-│ │ ├── reviews.py
-│ │ ├── amenities.py
-│ ├── models/
-│ │ ├── init.py
-│ │ ├── user.py
-│ │ ├── place.py
-│ │ ├── review.py
-│ │ ├── amenity.py
-│ ├── services/
-│ │ ├── init.py
-│ │ ├── facade.py
-│ ├── persistence/
-│ ├── init.py
-│ ├── repository.py
+│   ├── init.py
+│   ├── api/
+│   │   ├── init.py
+│   │   ├── v1/
+│   │       ├── init.py
+│   │       ├── users.py
+│   │       ├── places.py
+│   │       ├── reviews.py
+│   │       ├── amenities.py
+│   ├── models/
+│   │   ├── init.py
+│   │   ├── user.py
+│   │   ├── place.py
+│   │   ├── review.py
+│   │   ├── amenity.py
+│   ├── services/
+│   │   ├── init.py
+│   │   ├── facade.py
+│   ├── persistence/
+│       ├── init.py
+│       ├── repository.py
 ├── run.py
 ├── config.py
 ├── requirements.txt
