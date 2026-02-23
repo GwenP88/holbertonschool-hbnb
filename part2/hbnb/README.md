@@ -54,8 +54,16 @@ hbnb/
 ## Architecture Explanation
 
 ### Presentation Layer (`app/api/`)
+
 Handles API endpoints using **Flask-RESTX**.  
 Routes are organized by version (`v1/`).
+
+The `v1/` directory contains:
+
+- `users.py` – User-related endpoints
+- `places.py` – Place-related endpoints
+- `reviews.py` – Review-related endpoints
+- `amenities.py` – Amenity-related endpoints
 
 This layer communicates only with the **Facade**, not directly with models or repositories.
 
