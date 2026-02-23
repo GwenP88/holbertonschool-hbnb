@@ -162,15 +162,6 @@ By the end of this setup:
 
 ---
 
-## 📚 Resources
-
-- Flask Documentation: https://flask.palletsprojects.com/
-- Flask-RESTX Documentation: https://flask-restx.readthedocs.io/
-- Python Project Structure Best Practices: https://docs.python-guide.org/writing/structure/
-- Facade Design Pattern: https://refactoring.guru/design-patterns/facade
-
----
-
 **Author:** **Gwenaelle PICHOT** - Student at Holberton School  
 **Repository:** holbertonschool-hbnb  
 **Directory:** part2/hbnb
