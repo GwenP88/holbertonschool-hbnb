@@ -67,6 +67,11 @@ class User(BaseModel):
         has_digit = any(digit.isdigit() for digit in pswd)
         if not has_letter or not has_digit:
             raise ValueError("password must have 1 letter and 1 digit")
+        
+    def set_password(self, password):
+        self._validate_password(password)
+        self._password = generate_password_hash(password.strip())
+        self.save()
 
     @classmethod
     def _email_exists(cls, email):
@@ -74,12 +79,7 @@ class User(BaseModel):
             if user.email == email:
                 return True
         return False
-    
-    def set_password(self, password):
-        self._validate_password(password)
-        self._password = generate_password_hash(password.strip())
-        self.save()
-    
+  
     @classmethod
     def create_user(cls, data):
         if not data or not isinstance(data, dict):
@@ -95,7 +95,6 @@ class User(BaseModel):
         email = cls._validate_email(email)
         if cls._email_exists(email): 
             raise ValueError("Email already exists")
-        cls._validate_password(password)
         user = cls(first_name, last_name, email, is_admin=False)
         user.set_password(password)
         cls._storage[user.id] = user
@@ -129,7 +128,7 @@ class User(BaseModel):
             self._first_name = data["first_name"]
         if "last_name" in data:
             self._validate_last_name(data["last_name"])
-            self._first_name = data["last_name"]
+            self._last_name = data["last_name"]
         if "email" in data:
             new_email = self._validate_email(data["email"])
             if new_email != self.email:
@@ -138,7 +137,8 @@ class User(BaseModel):
                 self._email = new_email
         if "password" in data:
             self.set_password(data["password"])
-        self.save()
+        else :
+            self.save()
 
     def delete(self):
         storage = self.__class__._storage
