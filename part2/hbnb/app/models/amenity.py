@@ -4,7 +4,7 @@ class Amenity(BaseModel):
 
     _storage = {}
 
-    def __init__(self, name: str, description: str = ""):
+    def __init__(self, name, description):
         super().__init__()
         self._name = name
         self._description = description
