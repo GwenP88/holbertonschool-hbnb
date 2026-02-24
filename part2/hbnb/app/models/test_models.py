@@ -1,28 +1,40 @@
 from amenity import Amenity
+from pprint import pprint
 
 def main():
-    # CREATE
-    a = Amenity.create_amenity({"name": "WiFi"})
-    print("Created:", a.get_details())
-    print("In storage:", a.id in Amenity._storage)
+    # Ajout d'un amenity sans description
+    a1 = Amenity.create_amenity({"name": "WiFi"})
+    print("Amenity:")
+    pprint(a1.get_details(), sort_dicts=False)
+    print("\n")
 
-    # READ
-    same = Amenity._storage.get(a.id)
-    print("Read by id works:", same is a)
-    print("Read details:", same.get_details() if same else None)
+    # Ajout d'un deuxième avec description
+    a2 = Amenity.create_amenity({
+        "name": "Machine à café",
+        "description": "Nespresso"
+    })
+    print("Amenity:")
+    pprint(a2.get_details(), sort_dicts=False)
+    print("\n")
 
-    # UPDATE
-    old = a.updated_at
-    a.update_amenity({"description": "Fast internet"})
-    print("Updated description:", a.description)
-    print("updated_at changed:", a.updated_at != old)
+    # Ajout d'une description au premier amenity
+    a1.update_amenity({"description": "Connexion fibre"})
+    print("Amenity:")
+    pprint(a1.get_details(), sort_dicts=False)
+    print("\n")
 
-    # DELETE
-    a.delete()
-    print("Deleted, still in storage:", a.id in Amenity._storage)
+    # Affichage de tous les amenities
+    print("Amenities:")
+    pprint(Amenity.get_all_amenities(), sort_dicts=False)
+    print("\n")
 
-    # READ after delete
-    print("Read after delete:", Amenity._storage.get(a.id))
+    # Suppression du premier amenity
+    a1.delete()
+
+    # Affichage de tous les amenities après suppression
+    print("Amenities:")
+    pprint(Amenity.get_all_amenities(), sort_dicts=False)
+    print("\n")
 
 if __name__ == "__main__":
     main()

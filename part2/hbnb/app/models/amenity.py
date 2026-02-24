@@ -41,7 +41,14 @@ class Amenity(BaseModel):
         amenity = cls(name=name, description=description)
         cls._storage[amenity.id] = amenity
         return amenity
-
+    
+    @classmethod
+    def get_all_amenities(cls):
+        list_amenities = []
+        for a in cls._storage.values():
+            list_amenities.append(a.get_details())
+        return list_amenities
+    
     def get_details(self):
         return {
             "id": self.id,
