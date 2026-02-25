@@ -6,8 +6,13 @@ class User(BaseModel):
 
     def __init__(self, first_name, last_name, email, is_admin=False):
         super().__init__()
-        self._first_name = first_name
-        self._last_name = last_name
+
+        self._validate_first_name(first_name)
+        self._validate_last_name(last_name)
+        email = self._validate_email(email)
+
+        self._first_name = first_name.strip()
+        self._last_name = last_name.strip()
         self._email = email
         self._password = None
         self._is_admin = is_admin
@@ -81,19 +86,16 @@ class User(BaseModel):
         if "is_admin" in data:
             raise ValueError("Only an administrator can set is_admin.")
 
-        first_name = data.get("first_name")
-        last_name = data.get("last_name")
-        email = data.get("email")
         password = data.get("password")
-
-        cls._validate_first_name(first_name)
-        cls._validate_last_name(last_name)
-        email = cls._validate_email(email)
         cls._validate_password(password)
 
-        user = cls(first_name.strip(), last_name.strip(), email)
-        user.set_password(password)
+        user = cls(
+            first_name=data.get("first_name"),
+            last_name=data.get("last_name"),
+            email=data.get("email")
+        )
 
+        user.set_password(password)
         return user
 
     # ----- get profile user -----
