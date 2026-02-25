@@ -20,6 +20,48 @@ class Place(BaseModel):
         self._owner_id = owner_id
         self._amenities = []
 
+    @staticmethod
+    def _validate_title(title):
+        if not title or not isinstance(title, str) or not title.strip():
+            raise ValueError("Title is required and must be a non-empty string.")
+        if len(title.strip()) > 100:
+            raise ValueError("Title must not exceed 100 characters.")
+
+    @staticmethod
+    def _validate_desc(description):
+        if description is not None:
+            if not isinstance(description, str):
+                raise ValueError("Description must be a string.")
+            if len(description) > 255:
+                raise ValueError("Description must not exceed 255 characters.")
+
+    @staticmethod
+    def _validate_price(price):
+        if price is None:
+            raise ValueError("Price is required.")
+        if not isinstance(price, (int, float)) or isinstance(price, bool):
+            raise ValueError("Price must be a number.")
+        if price <= 0:
+            raise ValueError("Price must be greater than 0.")
+
+    @staticmethod
+    def _validate_latitude(latitude):
+        if latitude is None:
+            raise ValueError("Latitude is required.")
+        if not isinstance(latitude, (int, float)) or isinstance(latitude, bool):
+            raise ValueError("Latitude must be a number.")
+        if latitude < -90 or latitude > 90:
+            raise ValueError("Latitude must be between -90 and 90.")
+
+    @staticmethod
+    def _validate_longitude(longitude):
+        if longitude is None:
+            raise ValueError("Longitude is required.")
+        if not isinstance(longitude, (int, float)) or isinstance(longitude, bool):
+            raise ValueError("Longitude must be a number.")
+        if longitude < -180 or longitude > 180:
+            raise ValueError("Longitude must be between -180 and 180.")
+
     @classmethod
     def create_place(cls, data: dict, owner_id):
         if not data or not isinstance(data, dict):
@@ -39,7 +81,7 @@ class Place(BaseModel):
 
         if "title" in data:
             self._validate_title(data["title"])
-            self._title = data["title"]
+            self._title = data["title"].strip()
 
         if "description" in data:
             self._validate_desc(data["description"])
