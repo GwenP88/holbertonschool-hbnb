@@ -1,6 +1,5 @@
 from basemodel import BaseModel
 from user import User
-from place import Place
 
 class Review(BaseModel):
 
@@ -52,6 +51,7 @@ class Review(BaseModel):
     
     @classmethod
     def _validate_place(cls, place_id):
+        from place import Place
         if isinstance(place_id, str) and place_id.strip():
             if place_id in Place._storage:
                 return True
@@ -59,6 +59,7 @@ class Review(BaseModel):
     
     @classmethod
     def create_review(cls, data, author_id, place_id):
+        from place import Place
         if not data or not isinstance(data, dict):
             raise ValueError("Review data must be a non-empty dictionary")
         comment = data.get("comment")
@@ -102,6 +103,7 @@ class Review(BaseModel):
         self.save()
 
     def delete(self):
+        from place import Place
         storage = self.__class__._storage
         if self.id not in storage:
             raise ValueError("Review not found in storage.")
