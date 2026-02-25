@@ -78,7 +78,6 @@ class User(BaseModel):
     def create_user(cls, data):
         if not data or not isinstance(data, dict):
             raise ValueError("User data must be a non-empty dictionary.")
-
         if "is_admin" in data:
             raise ValueError("Only an administrator can set is_admin.")
 

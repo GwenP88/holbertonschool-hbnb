@@ -28,11 +28,17 @@ class HBnBFacade:
         self.user_repo.add(user)
         return user
 
-    def get_user(self):
+    def get_users(self):
         return self.user_repo.get_all()
+    
+    def get_user(self, user_id):
+        return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email):
-        return self.user_repo.get_by_attribute('email', email)
+        if not email:
+            raise ValueError("Email is required.")
+        email = email.strip().lower()
+        return self.user_repo.get_by_attribute("_email", email)
 
     def update_user(self, user_id, user_data):
         if not user_data or not isinstance(user_data, dict):
