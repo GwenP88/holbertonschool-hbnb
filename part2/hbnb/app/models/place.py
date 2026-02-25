@@ -214,4 +214,7 @@ class Place(BaseModel):
         storage = self.__class__._storage
         if self.id not in storage:
             raise ValueError("Place not found in storage.")
+        for review_id in self._reviews:
+            if review_id in Review._storage:
+                del Review._storage[review_id]
         del storage[self.id]
