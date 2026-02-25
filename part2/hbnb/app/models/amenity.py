@@ -34,8 +34,8 @@ class Amenity(BaseModel):
 
     @classmethod
     def create_amenity(cls, data):
-        name = data.get("name", "")
-        description = data.get("description", "")
+        name = data.get("name")
+        description = data.get("description")
         cls._validate_name(name)
         cls._validate_desc(description)
         amenity = cls(name=name, description=description)
