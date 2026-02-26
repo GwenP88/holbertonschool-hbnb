@@ -43,19 +43,15 @@ class Amenity(BaseModel):
             description=data.get("description")
         )
 
-    def update_amenity(self, data: dict):
+    def update(self, data):
         if not data or not isinstance(data, dict):
             raise ValueError("No data to update.")
-
         if "name" in data:
             self._validate_name(data["name"])
-            self._name = data["name"]
-
+            data["name"] = data["name"].strip().lower()
         if "description" in data:
             self._validate_desc(data["description"])
-            self._description = data["description"]
-
-        self.save()
+        super().update(data)
 
     def get_details(self):
         return {
