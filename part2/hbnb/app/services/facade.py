@@ -1,11 +1,14 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.amenity import Amenity
+from app.models.place import Place
 
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
+        self.place_repo = InMemoryRepository()
+        self.review_repo = InMemoryRepository()
 
     # ==========================
     # ------ USER METHODS ------
@@ -111,9 +114,74 @@ class HBnBFacade:
     # ------ PLACES METHODS ------
     # =============================
 
+    def create_place(self, place_data):
+        if not place_data or not isinstance(place_data, dict):
+            raise ValueError("Place data must be a non-empty dictionary.")
 
+        owner_id = place_data.get("owner_id")
+        if not owner_id:
+            raise ValueError("Owner is required.")
+        existing_owner = self.user_repo.get(owner_id)
+        if not existing_owner:
+            raise ValueError("Owner not found")
+        
+        amenities_ids = place_data.get("amenities")
+        if amenities_ids is None:
+            amenities_ids = []
+        else:
+            if not isinstance(amenities_ids, list):
+                raise ValueError("Amenities must be a list")
+            for amenity_id in amenities_ids:
+                amenity = self.amenity_repo.get(amenity_id)
+                if not amenity:
+                    raise ValueError("Invalid amenity ID")
 
+        place = Place.create_place(place_data, owner_id)
+        for amenity_id in amenities_ids:
+            place.add_amenity(amenity_id)
+        self.place_repo.add(place)
+        return place
+    
+    def get_place(self, place_id):
+        place = self.place_repo.get(place_id)
+        if place is None:
+            return None
+        data = place.get_details()
+        owner = self.user_repo.get(data["owner_id"])
+        data["owner"] = {
+            "id": owner.id,
+            "first_name": owner.first_name,
+            "last_name": owner.last_name,
+            "email": owner.email
+            }
+        amenities_list = []
+        for amenity_id in data["amenities"]:
+            a = self.amenity_repo.get(amenity_id)
+            if a is None:
+                raise ValueError("Invalid amenity ID")
+            amenities_list.append({"id": a.id, "name": a.name})
+        data["amenities"] = amenities_list
+        return data
 
+    def get_all_places(self):
+        list_place = []
+        places = self.place_repo.get_all()
+        for p in places:
+            list_place.append(p.to_list_item())
+        return list_place
+
+    def update_place(self, place_id, place_data):
+        if not place_data or not isinstance(place_data, dict):
+            raise ValueError("Place data must be a non-empty dictionary.")
+        place = self.place_repo.get(place_id)
+        if place is None:
+            return None
+        if "owner_id" in place_data:
+            raise ValueError("Only an administrator can modify the owner.")
+        if "amenities" in place_data:
+            raise ValueError("Amenities must be modified using add_amenity or remove_amenity.")
+        self.place_repo.update(place_id, place_data)
+        return place
 
     # =============================
     # ------ REVIEWS METHODS ------

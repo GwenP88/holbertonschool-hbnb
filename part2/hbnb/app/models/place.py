@@ -1,4 +1,4 @@
-from basemodel import BaseModel
+from app.models.basemodel import BaseModel
 
 
 class Place(BaseModel):
@@ -7,7 +7,7 @@ class Place(BaseModel):
         super().__init__()
 
         self._validate_title(title)
-        self._validate_desc(description)
+        self._validate_description(description)
 
         price = self._to_number(price, "Price", float)
         latitude = self._to_number(latitude, "Latitude", float)
@@ -25,7 +25,7 @@ class Place(BaseModel):
         self._owner_id = owner_id
         self._amenities = []
 
-    # ---------- Helpers ----------
+    # -------- Helpers --------
 
     @staticmethod
     def _to_number(value, field_name, number_type=float):
@@ -40,7 +40,7 @@ class Place(BaseModel):
         except (TypeError, ValueError):
             raise ValueError(f"{field_name} must be a number.")
 
-    # ---------- Validations ----------
+    # ------- Validations -----
 
     @staticmethod
     def _validate_title(title):
@@ -50,7 +50,7 @@ class Place(BaseModel):
             raise ValueError("Title must not exceed 100 characters.")
 
     @staticmethod
-    def _validate_desc(description):
+    def _validate_description(description):
         if description is not None:
             if not isinstance(description, str):
                 raise ValueError("Description must be a string.")
@@ -72,7 +72,7 @@ class Place(BaseModel):
         if longitude < -180 or longitude > 180:
             raise ValueError("Longitude must be between -180 and 180.")
 
-    # ---------- Create place ----------
+    # ------- Creation --------
 
     @classmethod
     def create_place(cls, data: dict, owner_id):
@@ -88,7 +88,7 @@ class Place(BaseModel):
             owner_id=owner_id
         )
 
-    # ---------- Serialization ----------
+    # ------- Serialization ---
 
     def get_details(self):
         return {
@@ -99,7 +99,7 @@ class Place(BaseModel):
             "latitude": self._latitude,
             "longitude": self._longitude,
             "owner_id": self._owner_id,
-            "amenities": list(self._amenities),  # copie pour sécurité
+            "amenities": list(self._amenities),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -113,9 +113,9 @@ class Place(BaseModel):
             "longitude": self._longitude,
         }
 
-    # ---------- Update place----------
+    # -------- Update ---------
 
-    def update_details(self, data: dict):
+    def update(self, data: dict):
         if not data or not isinstance(data, dict):
             raise ValueError("No data to update.")
 
@@ -124,7 +124,7 @@ class Place(BaseModel):
             self._title = data["title"].strip()
 
         if "description" in data:
-            self._validate_desc(data["description"])
+            self._validate_description(data["description"])
             self._description = data["description"]
 
         if "price" in data:
@@ -144,7 +144,7 @@ class Place(BaseModel):
 
         self.save()
 
-    # ---------- Amenities management ----------
+    # ----- Amenities ---------
 
     def add_amenity(self, amenity_id):
         if amenity_id in self._amenities:
@@ -158,7 +158,7 @@ class Place(BaseModel):
         self._amenities.remove(amenity_id)
         self.save()
 
-    # ---------- Delete ----------
+    # -------- Delete ---------
 
     def delete(self):
         pass  # handled by repository

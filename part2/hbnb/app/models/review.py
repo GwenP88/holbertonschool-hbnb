@@ -1,4 +1,4 @@
-from basemodel import BaseModel
+from app.models.basemodel import BaseModel
 
 
 class Review(BaseModel):
@@ -16,7 +16,7 @@ class Review(BaseModel):
         self._author_id = author_id
         self._place_id = place_id
 
-    # ---------- Helper ----------
+    # -------- Helpers --------
 
     @staticmethod
     def _to_number(value, field_name, number_type=int):
@@ -31,7 +31,7 @@ class Review(BaseModel):
         except (TypeError, ValueError):
             raise ValueError(f"{field_name} must be a number.")
 
-    # ---------- Properties ----------
+    # ------- Properties ------
 
     @property
     def comment(self):
@@ -41,7 +41,7 @@ class Review(BaseModel):
     def rating(self):
         return self._rating
 
-    # ---------- Validations ----------
+    # ------- Validations -----
 
     @staticmethod
     def _validate_comment(comment):
@@ -53,7 +53,7 @@ class Review(BaseModel):
         if rating < 1 or rating > 5:
             raise ValueError("Rating must be between 1 and 5.")
 
-    # ---------- Create review ----------
+    # -------- Creation -------
 
     @classmethod
     def create_review(cls, data: dict, author_id, place_id):
@@ -67,7 +67,7 @@ class Review(BaseModel):
             place_id=place_id
         )
 
-    # ---------- Serialization ----------
+    # ------- Serialization ---
 
     def get_details(self):
         return {
@@ -80,9 +80,9 @@ class Review(BaseModel):
             "updated_at": self.updated_at.isoformat(),
         }
 
-    # ---------- Update review ----------
+    # -------- Update ---------
 
-    def update_review(self, data: dict):
+    def update(self, data: dict):
         if not data or not isinstance(data, dict):
             raise ValueError("No data to update.")
 
@@ -97,7 +97,7 @@ class Review(BaseModel):
 
         self.save()
 
-    # ---------- Delete ----------
+    # -------- Delete ---------
 
     def delete(self):
         pass  # handled by repository

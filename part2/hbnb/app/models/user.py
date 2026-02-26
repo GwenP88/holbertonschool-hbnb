@@ -1,4 +1,4 @@
-from basemodel import BaseModel
+from app.models.basemodel import BaseModel
 from werkzeug.security import generate_password_hash
 
 

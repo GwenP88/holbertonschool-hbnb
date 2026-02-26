@@ -1,0 +1,98 @@
+from flask_restx import Namespace, Resource, fields
+from app.services import facade
+
+api = Namespace('places', description='Place operations')
+
+# Define the models for related entities
+amenity_model = api.model('PlaceAmenity', {
+    'id': fields.String(description='Amenity ID'),
+    'name': fields.String(description='Name of the amenity'),
+    'description': fields.String(description='Name of the amenity')
+})
+
+user_model = api.model('PlaceUser', {
+    'id': fields.String(description='User ID'),
+    'first_name': fields.String(description='First name of the owner'),
+    'last_name': fields.String(description='Last name of the owner'),
+    'email': fields.String(description='Email of the owner')
+})
+
+# Define the place model for input validation and documentation
+place_model_create = api.model('PlaceCreate', {
+    'title': fields.String(required=True, description='Title of the place'),
+    'description': fields.String(required=True, description='Description of the place'),
+    'price': fields.Float(required=True, description='Price per night'),
+    'latitude': fields.Float(required=True, description='Latitude of the place'),
+    'longitude': fields.Float(required=True, description='Longitude of the place'),
+    'owner_id': fields.String(required=True, description='ID of the owner'),
+    'amenities': fields.List(fields.String, required=False, description="List of amenities ID's")
+})
+
+place_model_update = api.model('PlaceUpdate', {
+    'title': fields.String(required=False, description='Title of the place'),
+    'description': fields.String(required=False, description='Description of the place'),
+    'price': fields.Float(required=False, description='Price per night'),
+    'latitude': fields.Float(required=False, description='Latitude of the place'),
+    'longitude': fields.Float(required=False, description='Longitude of the place'),
+})
+
+@api.route('/')
+class PlaceList(Resource):
+    @api.expect(place_model_create)
+    @api.response(201, 'Place successfully created')
+    @api.response(400, 'Invalid input data')
+    def post(self):
+        """Register a new place"""
+        place_data = api.payload
+        try:
+            new_place = facade.create_place(place_data)
+        except ValueError as e:
+            return {'error': str(e)}, 400
+        return new_place.get_details(), 201
+
+    @api.response(200, 'List of places retrieved successfully')
+    def get(self):
+        """Retrieve a list of all places"""
+        places = facade.get_all_places()
+        return places, 200
+
+@api.route('/<place_id>')
+class PlaceResource(Resource):
+    @api.response(200, 'Place details retrieved successfully')
+    @api.response(404, 'Place not found')
+    def get(self, place_id):
+        """Get place details by ID"""
+        place = facade.get_place(place_id)
+        if not place:
+            return {'error': 'Place not found'}, 404
+        return place, 200
+        
+
+    @api.expect(place_model_update)
+    @api.response(200, 'Place updated successfully')
+    @api.response(404, 'Place not found')
+    @api.response(400, 'Invalid input data')
+    def put(self, place_id):
+        """Update a place's information"""
+        payload = api.payload
+        try : 
+            place = facade.update_place(place_id, payload)
+        except ValueError as e:
+            return {'error': str(e)}, 400
+        if not place:
+            return {'error': 'Place not found'}, 404
+        return {"message": "Place updated successfully"}, 200
+    
+@api.route('/<place_id>/amenities/<amenity_id>')
+class PlaceAmenityResource(Resource):
+    @api.response(200, 'Amenity added successfully')
+    @api.response(404, 'Not found')
+    def post(self, place_id, amenity_id):
+        place = self.place_repo.get(place_id)
+        if place is None:
+            return None, 404
+        try:
+            amenity = facade.add_amenity_to_place(place_id, amenity_id)
+        except ValueError as e:
+            return {'error': str(e)}, 404
+        return place, 200
