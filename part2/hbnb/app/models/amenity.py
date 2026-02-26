@@ -8,7 +8,7 @@ class Amenity(BaseModel):
         self._validate_name(name)
         self._validate_desc(description)
 
-        self._name = name.strip()
+        self._name = name.strip().lower()
         self._description = description
 
     @property

@@ -1,9 +1,11 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
+from app.models.amenity import Amenity
 
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
+        self.amenity_repo = InMemoryRepository()
 
     # ==========================
     # ------ USER METHODS ------
@@ -61,3 +63,48 @@ class HBnBFacade:
         if user_data:
             self.user_repo.update(user_id, user_data)
         return user
+
+    # ==========================
+    # ------ AMENITY METHODS ------
+    # ========================== 
+
+    def create_amenity(self, amenity_data):
+        if not amenity_data or not isinstance(amenity_data, dict):
+            raise ValueError("Amenity data must be a non-empty dictionary.")
+        
+        name = amenity_data.get("name")
+        if not name:
+            raise ValueError("Name is required.")
+
+        name = name.strip().lower()
+        existing_amenity = self.amenity_repo.get_by_attribute("_name", name)
+        if existing_amenity:
+            raise ValueError("Name already exists.")
+        
+        amenity = Amenity.create_amenity(amenity_data)
+        self.amenity_repo.add(amenity)
+        return amenity
+
+    def get_amenity(self, amenity_id):
+        return self.amenity_repo.get(amenity_id)
+
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()
+
+    def update_amenity(self, amenity_id, amenity_data):
+        if not amenity_data or not isinstance(amenity_data, dict):
+            raise ValueError("Amenity data must be a non-empty dictionary.")
+        
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
+            return None
+        
+        if "name" in amenity_data:
+            new_name = amenity_data["name"].strip().lower()
+            existing_amenity = self.amenity_repo.get_by_attribute("_name", new_name)
+            if existing_amenity and existing_amenity.id != amenity.id:
+                raise ValueError("Name already exists.")
+            amenity_data["name"] = new_name
+        if amenity_data:
+            self.amenity_repo.update(amenity_id, amenity_data)
+        return amenity
