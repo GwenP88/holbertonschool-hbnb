@@ -104,9 +104,7 @@ class HBnBFacade:
             existing_amenity = self.amenity_repo.get_by_attribute("_name", new_name)
             if existing_amenity and existing_amenity.id != amenity.id:
                 raise ValueError("Name already exists.")
-            amenity_data["name"] = new_name
-        if amenity_data:
-            self.amenity_repo.update(amenity_id, amenity_data)
+        self.amenity_repo.update(amenity_id, amenity_data)
         return amenity
     
     # =============================
