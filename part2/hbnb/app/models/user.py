@@ -35,7 +35,7 @@ class User(BaseModel):
     def is_admin(self):
         return self._is_admin
 
-    # ----- Validation -----
+    # ----- Validations -----
 
     @staticmethod
     def _validate_first_name(first_name):
@@ -110,6 +110,22 @@ class User(BaseModel):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
+    
+    # ----- Update User -----
+
+    def update(self, data):
+        if not data or not isinstance(data, dict):
+            raise ValueError("No data to update.")
+        if "first_name" in data:
+            self._validate_first_name(data["first_name"])
+            data["first_name"] = data["first_name"].strip()
+        if "last_name" in data:
+            self._validate_last_name(data["last_name"])
+            data["last_name"] = data["last_name"].strip()
+        if "email" in data:
+            email = self._validate_email(data["email"])
+            data["email"] = email
+        super().update(data)
 
     # ----- delete profile -----
 

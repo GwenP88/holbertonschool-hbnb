@@ -56,7 +56,6 @@ class HBnBFacade:
             existing_user = self.user_repo.get_by_attribute("_email", new_email)
             if existing_user and existing_user.id != user.id:
                 raise ValueError("Email already exists.")
-            user_data["email"] = new_email
         if "password" in user_data:
             user.set_password(user_data["password"])
             del user_data["password"]
