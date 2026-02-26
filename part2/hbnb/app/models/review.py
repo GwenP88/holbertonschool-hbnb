@@ -7,6 +7,8 @@ class Review(BaseModel):
         super().__init__()
 
         self._validate_comment(comment)
+
+        rating = self._to_number(rating, "Rating", int)
         self._validate_rating(rating)
 
         self._comment = comment.strip()
@@ -14,16 +16,32 @@ class Review(BaseModel):
         self._author_id = author_id
         self._place_id = place_id
 
-    @classmethod
-    def create_review(cls, data: dict, author_id, place_id):
-        if not data or not isinstance(data, dict):
-            raise ValueError("Review data must be a dictionary.")
-        return cls(
-            comment=data.get("comment"),
-            rating=data.get("rating"),
-            author_id=author_id,
-            place_id=place_id
-        )
+    # ---------- Helper ----------
+
+    @staticmethod
+    def _to_number(value, field_name, number_type=int):
+        if value is None:
+            raise ValueError(f"{field_name} is required.")
+
+        if isinstance(value, bool):
+            raise ValueError(f"{field_name} must be a number.")
+
+        try:
+            return number_type(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"{field_name} must be a number.")
+
+    # ---------- Properties ----------
+
+    @property
+    def comment(self):
+        return self._comment
+
+    @property
+    def rating(self):
+        return self._rating
+
+    # ---------- Validations ----------
 
     @staticmethod
     def _validate_comment(comment):
@@ -32,10 +50,24 @@ class Review(BaseModel):
 
     @staticmethod
     def _validate_rating(rating):
-        if not isinstance(rating, int):
-            raise ValueError("Rating must be an integer.")
         if rating < 1 or rating > 5:
             raise ValueError("Rating must be between 1 and 5.")
+
+    # ---------- Create review ----------
+
+    @classmethod
+    def create_review(cls, data: dict, author_id, place_id):
+        if not data or not isinstance(data, dict):
+            raise ValueError("Review data must be a dictionary.")
+
+        return cls(
+            comment=data.get("comment"),
+            rating=data.get("rating"),
+            author_id=author_id,
+            place_id=place_id
+        )
+
+    # ---------- Update review ----------
 
     def update_review(self, data: dict):
         if not data or not isinstance(data, dict):
@@ -43,13 +75,16 @@ class Review(BaseModel):
 
         if "comment" in data:
             self._validate_comment(data["comment"])
-            self._comment = data["comment"]
+            self._comment = data["comment"].strip()
 
         if "rating" in data:
-            self._validate_rating(data["rating"])
-            self._rating = data["rating"]
+            rating = self._to_number(data["rating"], "Rating", int)
+            self._validate_rating(rating)
+            self._rating = rating
 
         self.save()
+
+    # ---------- Serialization ----------
 
     def get_details(self):
         return {
@@ -61,6 +96,8 @@ class Review(BaseModel):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
+
+    # ---------- Delete ----------
 
     def delete(self):
         pass  # handled by repository

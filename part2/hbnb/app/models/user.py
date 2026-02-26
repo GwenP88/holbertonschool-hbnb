@@ -97,8 +97,8 @@ class User(BaseModel):
 
         user.set_password(password)
         return user
-
-    # ----- get profile user -----
+    
+    # ---------- Serialization ----------
 
     def get_profile(self):
         return {

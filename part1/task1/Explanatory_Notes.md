@@ -8,6 +8,7 @@ direction TB
 	    #updated_at: DateTime
         +save() void
         +update_time() void
+        +update(data: dict) void
     }
 
     class User {
@@ -18,7 +19,7 @@ direction TB
 	    -is_admin: bool
 	    +create_user(data: dict) User
 	    +get_profile() dict
-	    +update_user(data: dict) void
+        +update(data: dict) void
 	    +set_password(password: str) void
 	    +delete() void
     }
@@ -32,12 +33,12 @@ direction TB
 	    -amenities: list[Amenity]
 	    -owner_id: UUID4
 	    +create_place(data: dict, owner_id: UUID4) Place
+        +update_details(data: dict) void
+        +add_amenity(amenity_id: UUID4) void
+        +remove_amenity(amenity_id: UUID4) void
 	    +get_details(): dict
 		+to_list_item(): dict
-	    +update_details(data: dict) void
 	    +delete() void
-	    +add_amenity(amenity: Amenity) void
-        +remove_amenity(amenity: Amenity) void
     }
 
     class Review {
@@ -56,7 +57,7 @@ direction TB
 	    -description: str
 	    +create_amenity(data: dict) Amenity
 	    +get_details() dict
-	    +update_amenity(data: dict) void
+	    +update(data: dict) void
 	    +delete() void
     }
     BaseModel <|-- User

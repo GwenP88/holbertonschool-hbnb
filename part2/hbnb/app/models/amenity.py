@@ -61,7 +61,7 @@ class Amenity(BaseModel):
             self._validate_desc(data["description"])
         super().update(data)
 
-    # ----- get details amenity-----
+    # ---------- Serialization ----------
 
     def get_details(self):
         return {

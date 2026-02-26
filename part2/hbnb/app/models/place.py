@@ -8,17 +8,39 @@ class Place(BaseModel):
 
         self._validate_title(title)
         self._validate_desc(description)
+
+        price = self._to_number(price, "Price", float)
+        latitude = self._to_number(latitude, "Latitude", float)
+        longitude = self._to_number(longitude, "Longitude", float)
+
         self._validate_price(price)
         self._validate_latitude(latitude)
         self._validate_longitude(longitude)
 
         self._title = title.strip()
         self._description = description
-        self._price = float(price)
-        self._latitude = float(latitude)
-        self._longitude = float(longitude)
+        self._price = price
+        self._latitude = latitude
+        self._longitude = longitude
         self._owner_id = owner_id
         self._amenities = []
+
+    # ---------- Helpers ----------
+
+    @staticmethod
+    def _to_number(value, field_name, number_type=float):
+        if value is None:
+            raise ValueError(f"{field_name} is required.")
+
+        if isinstance(value, bool):
+            raise ValueError(f"{field_name} must be a number.")
+
+        try:
+            return number_type(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"{field_name} must be a number.")
+
+    # ---------- Validations ----------
 
     @staticmethod
     def _validate_title(title):
@@ -37,35 +59,26 @@ class Place(BaseModel):
 
     @staticmethod
     def _validate_price(price):
-        if price is None:
-            raise ValueError("Price is required.")
-        if not isinstance(price, (int, float)) or isinstance(price, bool):
-            raise ValueError("Price must be a number.")
         if price <= 0:
             raise ValueError("Price must be greater than 0.")
 
     @staticmethod
     def _validate_latitude(latitude):
-        if latitude is None:
-            raise ValueError("Latitude is required.")
-        if not isinstance(latitude, (int, float)) or isinstance(latitude, bool):
-            raise ValueError("Latitude must be a number.")
         if latitude < -90 or latitude > 90:
             raise ValueError("Latitude must be between -90 and 90.")
 
     @staticmethod
     def _validate_longitude(longitude):
-        if longitude is None:
-            raise ValueError("Longitude is required.")
-        if not isinstance(longitude, (int, float)) or isinstance(longitude, bool):
-            raise ValueError("Longitude must be a number.")
         if longitude < -180 or longitude > 180:
             raise ValueError("Longitude must be between -180 and 180.")
+
+    # ---------- Create place ----------
 
     @classmethod
     def create_place(cls, data: dict, owner_id):
         if not data or not isinstance(data, dict):
             raise ValueError("Place data must be a dictionary.")
+
         return cls(
             title=data.get("title"),
             description=data.get("description"),
@@ -74,6 +87,8 @@ class Place(BaseModel):
             longitude=data.get("longitude"),
             owner_id=owner_id
         )
+
+    # ---------- Update place----------
 
     def update_details(self, data: dict):
         if not data or not isinstance(data, dict):
@@ -88,18 +103,23 @@ class Place(BaseModel):
             self._description = data["description"]
 
         if "price" in data:
-            self._validate_price(data["price"])
-            self._price = float(data["price"])
+            price = self._to_number(data["price"], "Price", float)
+            self._validate_price(price)
+            self._price = price
 
         if "latitude" in data:
-            self._validate_latitude(data["latitude"])
-            self._latitude = float(data["latitude"])
+            latitude = self._to_number(data["latitude"], "Latitude", float)
+            self._validate_latitude(latitude)
+            self._latitude = latitude
 
         if "longitude" in data:
-            self._validate_longitude(data["longitude"])
-            self._longitude = float(data["longitude"])
+            longitude = self._to_number(data["longitude"], "Longitude", float)
+            self._validate_longitude(longitude)
+            self._longitude = longitude
 
         self.save()
+
+    # ---------- Amenities management ----------
 
     def add_amenity(self, amenity_id):
         if amenity_id in self._amenities:
@@ -113,6 +133,8 @@ class Place(BaseModel):
         self._amenities.remove(amenity_id)
         self.save()
 
+    # ---------- Serialization ----------
+
     def get_details(self):
         return {
             "id": self.id,
@@ -122,7 +144,7 @@ class Place(BaseModel):
             "latitude": self._latitude,
             "longitude": self._longitude,
             "owner_id": self._owner_id,
-            "amenities": self._amenities,
+            "amenities": list(self._amenities),  # copie pour sécurité
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -135,6 +157,8 @@ class Place(BaseModel):
             "latitude": self._latitude,
             "longitude": self._longitude,
         }
+
+    # ---------- Delete ----------
 
     def delete(self):
         pass  # handled by repository
