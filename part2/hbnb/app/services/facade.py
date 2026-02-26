@@ -64,9 +64,9 @@ class HBnBFacade:
             self.user_repo.update(user_id, user_data)
         return user
 
-    # ==========================
+    # =============================
     # ------ AMENITY METHODS ------
-    # ========================== 
+    # =============================
 
     def create_amenity(self, amenity_data):
         if not amenity_data or not isinstance(amenity_data, dict):
@@ -109,3 +109,15 @@ class HBnBFacade:
         if amenity_data:
             self.amenity_repo.update(amenity_id, amenity_data)
         return amenity
+    
+    # =============================
+    # ------ PLACES METHODS ------
+    # =============================
+
+
+
+
+
+    # =============================
+    # ------ REVIEWS METHODS ------
+    # =============================
