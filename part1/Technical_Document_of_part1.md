@@ -2,27 +2,30 @@
 
 # HBnB Technical Documentation
 
-## 1. Introduction
+---
 
-### 1.1 Project Overview
+# 1. Introduction
 
-HBnB is a layered web application designed to manage users, places, reviews, and amenities. The system follows a structured architectural approach to ensure scalability, maintainability, and clear separation of responsibilities.
+## 1.1 Project Overview
 
-The application is built around a domain-driven design where core entities encapsulate business behavior, and API endpoints orchestrate user interactions through clearly defined layers.
+HBnB is a layered web application designed to manage users, places, reviews, and amenities.  
+The system follows a structured architectural approach to ensure scalability, maintainability, and clear separation of responsibilities.
+
+The application is built using a domain-driven design where core entities encapsulate business behavior, and API endpoints orchestrate interactions through clearly defined architectural layers.
 
 ---
 
-### 1.2 Purpose of This Document
+## 1.2 Purpose of This Document
 
 This document serves as a comprehensive technical blueprint for the HBnB project.
 
 Its objectives are to:
 
-- Present the overall system architecture.
-- Describe the Business Logic domain model.
-- Explain API interaction flows.
-- Clarify architectural decisions and design rationale.
-- Provide a reference for future implementation phases.
+- Present the overall system architecture  
+- Describe the Business Logic domain model  
+- Explain API interaction flows  
+- Clarify architectural decisions and design rationale  
+- Provide a reference for future implementation phases  
 
 This document consolidates all diagrams and explanatory notes produced during the design phase.
 
@@ -32,7 +35,7 @@ This document consolidates all diagrams and explanatory notes produced during th
 
 ## 2.1 Layered Architecture Overview
 
-The HBnB system is structured using a three-layer architecture:
+The HBnB system follows a three-layer architecture:
 
 - **Presentation Layer**
 - **Business Logic Layer**
@@ -40,7 +43,7 @@ The HBnB system is structured using a three-layer architecture:
 
 Each layer has a clearly defined responsibility and communicates only with adjacent layers.
 
-The layered design promotes modularity, testability, and maintainability.
+This design promotes modularity, testability, and maintainability.
 
 ```
 flowchart LR
@@ -68,13 +71,13 @@ The facade provides a simplified interface to the domain logic, preventing contr
 
 ### Design Rationale
 
-The use of the Facade pattern:
+The Facade pattern:
 
 - Reduces coupling between layers  
 - Centralizes business operations  
 - Improves maintainability  
 - Simplifies controller responsibilities  
-- Ensures clear separation between request handling and domain logic  
+- Ensures separation between HTTP handling and domain logic  
 
 Controllers delegate operations to a unified entry point instead of directly manipulating domain models.
 
@@ -91,9 +94,9 @@ It is responsible for:
 - Defining domain behavior  
 - Enforcing business constraints  
 - Managing entity relationships  
-- Orchestrating domain workflows  
+- Orchestrating workflows  
 
-This layer is independent of HTTP concerns and database implementation details.
+This layer is independent from HTTP and database implementation details.
 
 ```
 classDiagram
@@ -172,30 +175,32 @@ direction TB
 
 ### BaseModel
 
-`BaseModel` is an abstract class that provides shared attributes and behaviors for all domain entities.
+`BaseModel` is an abstract class shared by all domain entities.
 
-It defines:
+It provides:
 
-- A unique identifier (UUID4)
-- Creation timestamp
-- Update timestamp
-- Core persistence-related methods
+- A unique identifier (UUID4)  
+- Creation timestamp  
+- Update timestamp  
+- Generic persistence-related behavior  
 
-This abstraction ensures consistency across entities and avoids duplication.
+The `update(data: dict)` method allows dynamic attribute modification while maintaining centralized lifecycle handling.
 
 ---
 
 ### User
 
-The `User` entity represents a registered user of the system.
+The `User` entity represents a registered platform user.
 
 A user can:
 
-- Create and manage place listings  
-- Submit reviews  
+- Own multiple places  
+- Submit multiple reviews  
 - Update profile information  
 
-The `is_admin` attribute allows role differentiation within the system.
+The `is_admin` attribute enables role differentiation.
+
+The entity encapsulates identity management and authentication-related logic.
 
 ---
 
@@ -205,29 +210,30 @@ The `Place` entity represents a property listing.
 
 Each place:
 
-- Is owned by a user (referenced via `owner_id`)
-- Can have multiple reviews
-- Can include multiple amenities
+- Is owned by one user (`owner_id`)  
+- Can contain multiple reviews  
+- Can include multiple amenities  
 
-The entity provides methods to:
+The entity provides methods for:
 
-- Create and update listing details
-- Manage associated amenities
-- Return formatted representations for detailed and list views
+- Creating listings  
+- Updating listing information  
+- Managing amenity associations  
+- Returning formatted data representations  
 
 ---
 
 ### Review
 
-The `Review` entity represents user feedback on a specific place.
+The `Review` entity represents feedback left by a user on a place.
 
 Each review:
 
-- Is associated with one user (`author_id`)
-- Is linked to one place (`place_id`)
-- Contains a rating and comment
+- Belongs to exactly one user (`author_id`)  
+- Belongs to exactly one place (`place_id`)  
+- Contains a rating and comment  
 
-The entity enforces business constraints before persistence.
+Reviews are strongly associated with places through composition.
 
 ---
 
@@ -237,30 +243,23 @@ The `Amenity` entity represents reusable features such as WiFi or parking.
 
 Amenities:
 
-- Can be associated with multiple places
-- Exist independently of specific listings
-
-This supports a many-to-many relationship between places and amenities.
+- Exist independently of places  
+- Can be linked to multiple places  
+- Support a many-to-many relationship  
 
 ---
 
 # 4. API Interaction Flow
 
-This section describes how the system processes API requests through the layered architecture.
+This section describes how API requests travel through the layered architecture.
 
-Each sequence diagram illustrates:
-
-- The normal execution flow  
-- Error handling at each architectural layer  
-- Communication between Presentation, Business Logic, and Persistence  
-
-The interaction pattern is consistent across all use cases:
+General pattern:
 
 1. The USER sends an HTTP request.
-2. The API validates and forwards the request.
+2. The API validates the request.
 3. The Business Logic applies domain rules.
-4. The Database performs data retrieval or persistence.
-5. The response propagates back to the USER.
+4. The Persistence Layer performs data operations.
+5. The response is returned to the USER.
 
 ---
 
@@ -269,13 +268,6 @@ The interaction pattern is consistent across all use cases:
 ### Purpose
 
 Creates a new user account.
-
-### Flow Summary
-
-1. The API validates the request input.
-2. The Business Logic checks email uniqueness.
-3. The Database stores the new user.
-4. The API returns the appropriate HTTP response.
 
 ### Error Handling
 
@@ -528,29 +520,25 @@ sequenceDiagram
 
 ---
 
-# 5. Overall Design Considerations
+# 5. Design Considerations
 
 ## 5.1 Separation of Concerns
 
-Each layer has a clearly defined responsibility:
-
-- The **Presentation Layer** handles HTTP communication.
-- The **Business Logic Layer** enforces domain rules.
-- The **Persistence Layer** manages data storage and retrieval.
-
-This separation improves modularity and system clarity.
+- Presentation Layer → Handles HTTP communication  
+- Business Logic Layer → Enforces domain rules  
+- Persistence Layer → Manages data storage  
 
 ---
 
 ## 5.2 Error Handling Strategy
 
-Each layer can fail independently:
+Each layer handles its own failures:
 
-- Input validation errors  
+- Validation errors  
 - Business rule violations  
-- Database errors  
+- Persistence errors  
 
-Handling failures at the appropriate layer ensures robust and predictable system behavior.
+This ensures predictable system behavior.
 
 ---
 
@@ -563,18 +551,23 @@ The layered architecture and facade pattern:
 - Simplify testing  
 - Support future extensions  
 
-The design allows the system to evolve without compromising structural integrity.
-
 ---
 
 # Conclusion
 
-This technical documentation provides a structured blueprint for the HBnB system.
-
-It defines:
+This document defines:
 
 - The high-level architecture  
 - The domain model  
-- The interaction flow between layers  
+- Entity relationships  
+- API interaction flows  
 
-The document serves as a reference guide throughout the implementation phases of the HBnB project and ensures consistency in architectural decisions.
+It serves as a structured blueprint guiding the implementation of the HBnB system while ensuring architectural consistency and scalability.
+
+---
+
+## Author
+
+**Gwenaelle PICHOT**  
+Student at Holberton School   
+Project: Holberton - HBNB

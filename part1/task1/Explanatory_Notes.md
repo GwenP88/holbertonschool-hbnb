@@ -32,11 +32,12 @@ direction TB
 	    -amenities: list[Amenity]
 	    -owner_id: UUID4
 	    +create_place(data: dict, owner_id: UUID4) Place
-        +get_details(): dict
-		+to_list_item(): dict
+        +get_details() dict
+		+to_list_item() dict
+        +get_all_places() list[dict]
         +update_details(data: dict) void
-        +add_amenity(amenity_id: UUID4) void
-        +remove_amenity(amenity_id: UUID4) void
+        +add_amenity(amenity: Amenity) void
+        +remove_amenity(amenity: Amenity) void
 	    +delete() void
     }
 
@@ -69,26 +70,20 @@ direction TB
     Place "0..*" o-- "0..*" Amenity
 ```
 
-# Detailed Class Diagram – Explanatory Notes
+# Detailed Class Diagram – Explanatory Notes (with Method Summaries)
 
 ## Overview
 
-The system follows a domain-driven design centered around four main entities:
+The system is built around four core entities:
 
 - `User`
 - `Place`
 - `Review`
 - `Amenity`
 
-All entities inherit from `BaseModel`, which provides identity management and lifecycle handling.
+All entities inherit from `BaseModel`, which centralizes identity and lifecycle behavior.
 
-The UML diagram represents:
-
-- Inheritance (Generalization)
-- Associations
-- Composition
-- Aggregation
-- Multiplicities
+The UML diagram covers inheritance, associations, composition, aggregation, and multiplicities.
 
 ---
 
@@ -96,28 +91,19 @@ The UML diagram represents:
 
 ## Role
 
-`BaseModel` provides shared identity and lifecycle behavior for all domain entities.
+Provides shared identity and lifecycle handling for all domain entities.
 
 ## Attributes
 
 - `id: UUID4` — Unique identifier for each entity instance.
-- `created_at: DateTime` — Timestamp when the entity was created.
-- `updated_at: DateTime` — Timestamp of the last update.
+- `created_at: DateTime` — Creation timestamp.
+- `updated_at: DateTime` — Last update timestamp.
 
-## Methods
+## Methods (What they do)
 
-- `save(): void` — Persists the entity.
-- `update_time(): void` — Updates the `updated_at` timestamp.
-- `update(data: dict): void` — Generic update method for modifying entity attributes.
-
-## Responsibility
-
-- Centralized identity management.
-- Consistent timestamp handling.
-- Shared update mechanism across entities.
-- Reduction of duplicated logic.
-
-All domain entities inherit from `BaseModel`.
+- `save(): void` — Persists the entity to storage.
+- `update_time(): void` — Refreshes `updated_at` to current time.
+- `update(data: dict): void` — Applies generic field updates from a dictionary.
 
 ---
 
@@ -125,30 +111,23 @@ All domain entities inherit from `BaseModel`.
 
 ## Role
 
-Represents a system user. A user can own places and write reviews.
+Represents a user who can own places and write reviews.
 
 ## Attributes
 
-- `first_name: str`
-- `last_name: str`
-- `email: str`
-- `password: str`
-- `is_admin: bool`
+- `first_name: str` — User first name.
+- `last_name: str` — User last name.
+- `email: str` — Unique email address.
+- `password: str` — User password (stored securely).
+- `is_admin: bool` — Admin privilege flag.
 
-## Methods
+## Methods (What they do)
 
-- `set_password(password: str): void`
-- `create_user(data: dict): User`
-- `get_profile(): dict`
-- `update(data: dict): void`
-- `delete(): void`
-
-## Business Responsibility
-
-- Manages identity and authentication data.
-- Owns multiple places.
-- Writes multiple reviews.
-- Encapsulates profile representation logic.
+- `set_password(password: str): void` — Sets (and hashes) the user password.
+- `create_user(data: dict): User` — Creates a new user from provided data.
+- `get_profile(): dict` — Returns a public profile representation.
+- `update(data: dict): void` — Updates user fields (excluding sensitive rules if needed).
+- `delete(): void` — Removes the user from the system.
 
 ---
 
@@ -156,34 +135,28 @@ Represents a system user. A user can own places and write reviews.
 
 ## Role
 
-Represents a property listing in the system.
+Represents a property listing owned by a user.
 
 ## Attributes
 
-- `title: str`
-- `description: str`
-- `price: float`
-- `latitude: float`
-- `longitude: float`
-- `amenities: list[Amenity]`
-- `owner_id: UUID4`
+- `title: str` — Listing title.
+- `description: str` — Listing description.
+- `price: float` — Price per unit (e.g., per night).
+- `latitude: float` — Geographic latitude.
+- `longitude: float` — Geographic longitude.
+- `amenities: list[Amenity]` — Amenities linked to the place.
+- `owner_id: UUID4` — ID of the owner user.
 
-## Methods
+## Methods (What they do)
 
-- `create_place(data: dict, owner_id: UUID4): Place`
-- `get_details(): dict`
-- `to_list_item(): dict`
-- `update_details(data: dict): void`
-- `add_amenity(amenity_id: UUID4): void`
-- `remove_amenity(amenity_id: UUID4): void`
-- `delete(): void`
-
-## Business Responsibility
-
-- Encapsulates listing information.
-- Maintains association with its owner through `owner_id`.
-- Manages amenity relationships.
-- Provides multiple data representations (detailed and summary views).
+- `create_place(data: dict, owner_id: UUID4): Place` — Creates a place linked to an owner.
+- `get_details(): dict` — Returns full place details.
+- `to_list_item(): dict` — Returns a lighter summary for listings.
+- `get_all_places(): list[dict]` — Returns a list of all places (as dictionaries).
+- `update_details(data: dict): void` — Updates editable place fields.
+- `add_amenity(amenity: Amenity): void` — Links an amenity to the place.
+- `remove_amenity(amenity: Amenity): void` — Unlinks an amenity from the place.
+- `delete(): void` — Removes the place (and its owned reviews logically).
 
 ---
 
@@ -191,27 +164,21 @@ Represents a property listing in the system.
 
 ## Role
 
-Represents feedback written by a user for a specific place.
+Represents a user review for a specific place.
 
 ## Attributes
 
-- `rating: int`
-- `comment: str`
-- `author_id: UUID4`
-- `place_id: UUID4`
+- `rating: int` — Numeric score between 1 and 5.
+- `comment: str` — Review text.
+- `author_id: UUID4` — ID of the review author.
+- `place_id: UUID4` — ID of the reviewed place.
 
-## Methods
+## Methods (What they do)
 
-- `create_review(data: dict, author_id: UUID4, place_id: UUID4): Review`
-- `get_details(): dict`
-- `update_review(data: dict): void`
-- `delete(): void`
-
-## Business Responsibility
-
-- Connects a user to a place through evaluation.
-- Stores rating and comment data.
-- Maintains referential integrity via UUID references.
+- `create_review(data: dict, author_id: UUID4, place_id: UUID4): Review` — Creates a review linked to author + place.
+- `get_details(): dict` — Returns review content/details.
+- `update_review(data: dict): void` — Updates rating/comment fields.
+- `delete(): void` — Removes the review.
 
 ---
 
@@ -219,111 +186,54 @@ Represents feedback written by a user for a specific place.
 
 ## Role
 
-Represents a reusable feature available at a place (e.g., Wi-Fi, parking).
+Represents a reusable feature (e.g., Wi-Fi, parking).
 
 ## Attributes
 
-- `name: str`
-- `description: str`
+- `name: str` — Amenity name.
+- `description: str` — Amenity description.
 
-## Methods
+## Methods (What they do)
 
-- `create_amenity(data: dict): Amenity`
-- `get_details(): dict`
-- `update(data: dict): void`
-- `delete(): void`
-
-## Business Responsibility
-
-- Defines reusable listing features.
-- Exists independently of places.
-- Can be associated with multiple places.
+- `create_amenity(data: dict): Amenity` — Creates a new amenity.
+- `get_details(): dict` — Returns amenity details.
+- `update(data: dict): void` — Updates amenity fields.
+- `delete(): void` — Removes the amenity from the system.
 
 ---
 
 # Relationships Between Entities
 
-## 1. Inheritance
+## Inheritance
 
-All entities inherit from `BaseModel`:
+All entities inherit from `BaseModel`.
 
-- `BaseModel <|-- User`
-- `BaseModel <|-- Place`
-- `BaseModel <|-- Review`
-- `BaseModel <|-- Amenity`
+## User → Place (1 to many)
 
-This ensures shared lifecycle and identity logic.
+A user can own multiple places; each place has one owner via `owner_id`.
 
----
+## User → Review (1 to many)
 
-## 2. User – Place (One-to-Many)
+A user can write multiple reviews; each review has one author via `author_id`.
 
-- A `User` can own multiple `Place` entities.
-- Each `Place` is associated with exactly one owner via `owner_id`.
+## Place *-- Review (composition)
 
-Multiplicity:
+A place owns its reviews logically: deleting a place implies deleting its reviews.
 
-- `User "1" --> "0..*" Place`
+## Place o-- Amenity (aggregation, many-to-many)
 
-Ownership is modeled using a UUID reference.
+Amenities exist independently and can be reused across multiple places.
 
 ---
 
-## 3. User – Review (One-to-Many)
+# Architectural Impact
 
-- A `User` can write multiple `Review` entities.
-- Each `Review` is authored by exactly one user via `author_id`.
-
-Multiplicity:
-
-- `User "1" --> "0..*" Review`
-
-This models review authorship.
+UUID references (`owner_id`, `author_id`, `place_id`) keep the domain loosely coupled, repository-friendly, and compatible with persistence layers while preserving clear responsibility boundaries.
 
 ---
 
-## 4. Place – Review (Composition, One-to-Many)
+## Author
 
-- A `Place` can contain multiple reviews.
-- Each `Review` belongs to exactly one place via `place_id`.
-
-Multiplicity:
-
-- `Place "1" *-- "0..*" Review`
-
-Composition indicates strong ownership:  
-If a `Place` is removed, its associated reviews are logically removed as well.
-
----
-
-## 5. Place – Amenity (Many-to-Many, Aggregation)
-
-- A `Place` can have multiple amenities.
-- An `Amenity` can be shared across multiple places.
-
-Multiplicity:
-
-- `Place "0..*" o-- "0..*" Amenity`
-
-Aggregation reflects that amenities exist independently and are reusable.
-
----
-
-# Contribution to Overall Business Logic
-
-The domain model supports the system’s core workflows:
-
-- Users create and manage places.
-- Users retrieve place data in different formats.
-- Users write reviews for places.
-- Places aggregate reviews and amenities.
-- Amenities are reusable domain features.
-
-The use of UUID-based references (`owner_id`, `author_id`, `place_id`) ensures:
-
-- Decoupling between entities.
-- Clear identity management.
-- Compatibility with repository and persistence layers.
-- Clean separation of responsibilities.
-
-This structured domain model provides a solid foundation for implementing business rules, enforcing constraints, and supporting API operations while maintaining maintainable and scalable architecture.
+**Gwenaelle PICHOT**  
+Student at Holberton School   
+Project: Holberton - HBNB

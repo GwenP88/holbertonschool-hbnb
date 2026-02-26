@@ -162,3 +162,11 @@ This layered architecture combined with the Facade Pattern provides:
 - Cleaner dependency management  
 
 Each layer has a well-defined role, ensuring that responsibilities are not mixed across the system. 
+
+---
+
+## Author
+
+**Gwenaelle PICHOT**  
+Student at Holberton School   
+Project: Holberton - HBNB

@@ -331,3 +331,11 @@ This consistent layered interaction demonstrates:
 - Structured request lifecycle management
 
 These sequence diagrams collectively validate the understanding of how the HBnB application processes API calls within a layered architecture.
+
+---
+
+## Author
+
+**Gwenaelle PICHOT**  
+Student at Holberton School   
+Project: Holberton - HBNB
