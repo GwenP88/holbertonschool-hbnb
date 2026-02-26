@@ -67,6 +67,19 @@ class Review(BaseModel):
             place_id=place_id
         )
 
+    # ---------- Serialization ----------
+
+    def get_details(self):
+        return {
+            "id": self.id,
+            "comment": self._comment,
+            "rating": self._rating,
+            "author_id": self._author_id,
+            "place_id": self._place_id,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
     # ---------- Update review ----------
 
     def update_review(self, data: dict):
@@ -83,19 +96,6 @@ class Review(BaseModel):
             self._rating = rating
 
         self.save()
-
-    # ---------- Serialization ----------
-
-    def get_details(self):
-        return {
-            "id": self.id,
-            "comment": self._comment,
-            "rating": self._rating,
-            "author_id": self._author_id,
-            "place_id": self._place_id,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-        }
 
     # ---------- Delete ----------
 

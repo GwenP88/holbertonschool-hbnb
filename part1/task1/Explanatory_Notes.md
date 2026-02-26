@@ -2,7 +2,6 @@
 classDiagram
 direction TB
     class BaseModel {
-        <<abstract>>
 	    #id: UUID4
 	    #created_at: DateTime
 	    #updated_at: DateTime
@@ -17,10 +16,10 @@ direction TB
 	    -email: str
 	    -password: str
 	    -is_admin: bool
+        +set_password(password: str) void
 	    +create_user(data: dict) User
 	    +get_profile() dict
         +update(data: dict) void
-	    +set_password(password: str) void
 	    +delete() void
     }
 
@@ -33,11 +32,11 @@ direction TB
 	    -amenities: list[Amenity]
 	    -owner_id: UUID4
 	    +create_place(data: dict, owner_id: UUID4) Place
+        +get_details(): dict
+		+to_list_item(): dict
         +update_details(data: dict) void
         +add_amenity(amenity_id: UUID4) void
         +remove_amenity(amenity_id: UUID4) void
-	    +get_details(): dict
-		+to_list_item(): dict
 	    +delete() void
     }
 
@@ -56,8 +55,8 @@ direction TB
 	    -name: str
 	    -description: str
 	    +create_amenity(data: dict) Amenity
-	    +get_details() dict
-	    +update(data: dict) void
+        +get_details() dict
+        +update(data: dict) void
 	    +delete() void
     }
     BaseModel <|-- User

@@ -88,6 +88,31 @@ class Place(BaseModel):
             owner_id=owner_id
         )
 
+    # ---------- Serialization ----------
+
+    def get_details(self):
+        return {
+            "id": self.id,
+            "title": self._title,
+            "description": self._description,
+            "price": self._price,
+            "latitude": self._latitude,
+            "longitude": self._longitude,
+            "owner_id": self._owner_id,
+            "amenities": list(self._amenities),  # copie pour sécurité
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
+    def to_list_item(self):
+        return {
+            "id": self.id,
+            "title": self._title,
+            "price": self._price,
+            "latitude": self._latitude,
+            "longitude": self._longitude,
+        }
+
     # ---------- Update place----------
 
     def update_details(self, data: dict):
@@ -132,31 +157,6 @@ class Place(BaseModel):
             raise ValueError("Amenity not linked.")
         self._amenities.remove(amenity_id)
         self.save()
-
-    # ---------- Serialization ----------
-
-    def get_details(self):
-        return {
-            "id": self.id,
-            "title": self._title,
-            "description": self._description,
-            "price": self._price,
-            "latitude": self._latitude,
-            "longitude": self._longitude,
-            "owner_id": self._owner_id,
-            "amenities": list(self._amenities),  # copie pour sécurité
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-        }
-
-    def to_list_item(self):
-        return {
-            "id": self.id,
-            "title": self._title,
-            "price": self._price,
-            "latitude": self._latitude,
-            "longitude": self._longitude,
-        }
 
     # ---------- Delete ----------
 

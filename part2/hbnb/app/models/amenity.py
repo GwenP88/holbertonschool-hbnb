@@ -48,6 +48,18 @@ class Amenity(BaseModel):
             name=data.get("name"),
             description=data.get("description")
         )
+
+    # ---------- Serialization ----------
+
+    def get_details(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
     
     # ----- Update Amenity -----
 
@@ -61,16 +73,6 @@ class Amenity(BaseModel):
             self._validate_desc(data["description"])
         super().update(data)
 
-    # ---------- Serialization ----------
-
-    def get_details(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "description": self.description,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-        }
 
     # ----- delete amenity -----
 
