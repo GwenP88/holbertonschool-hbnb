@@ -77,6 +77,7 @@ class HBnBFacade:
             raise ValueError("Name is required.")
 
         name = name.strip().lower()
+        amenity_data["name"] = name
         existing_amenity = self.amenity_repo.get_by_attribute("_name", name)
         if existing_amenity:
             raise ValueError("Name already exists.")
