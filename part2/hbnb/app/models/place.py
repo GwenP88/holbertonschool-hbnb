@@ -58,7 +58,7 @@ class Place(BaseModel):
 
     @staticmethod
     def _validate_price(price):
-        if price < 0:
+        if price <= 0:
             raise ValueError("Price must be non-negative.")
 
     @staticmethod
