@@ -109,6 +109,11 @@ class Place(BaseModel):
             "longitude": self._longitude,
         }
 
+    @classmethod
+    def get_all_places(cls, place_repo):
+        places = place_repo.get_all()
+        return [place.to_list_item() for place in places]
+
     # -------- Update ---------
 
     def update(self, data: dict):

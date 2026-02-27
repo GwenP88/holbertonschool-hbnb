@@ -171,11 +171,7 @@ class HBnBFacade:
         return data
 
     def get_all_places(self):
-        list_place = []
-        places = self.place_repo.get_all()
-        for p in places:
-            list_place.append(p.to_list_item())
-        return list_place
+        return Place.get_all_places(self.place_repo)
 
     def update_place(self, place_id, place_data):
         if not place_data or not isinstance(place_data, dict):
