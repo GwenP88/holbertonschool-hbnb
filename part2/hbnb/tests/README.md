@@ -1,3 +1,5 @@
+![Banner](assets/banner.png)
+
 # HBnB API — Testing & Validation Documentation
 _Task 6 — Implement Testing and Validation of the Endpoints_
 

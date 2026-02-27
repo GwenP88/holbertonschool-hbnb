@@ -1,4 +1,4 @@
-![Banner](assets/banner.png.png)
+![Banner](assets/banner.png)
 
 # HBnB API — Manual Testing Report (Swagger UI)
 _Date: 27 Feb 2026_  
