@@ -2,13 +2,14 @@ from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
+from app.models.review import Review
 
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
+        self.review_repo = InMemoryRepository() 
 
     # ==========================
     # ------ USER METHODS ------
@@ -166,6 +167,7 @@ class HBnBFacade:
                 raise ValueError("Invalid amenity ID.")
             amenities_list.append({"id": a.id, "name": a.name, "description": a.description})
         data["amenities"] = amenities_list
+        data["reviews"] = self.get_reviews_by_place(place_id)
         return data
 
     def get_all_places(self):
@@ -211,3 +213,78 @@ class HBnBFacade:
     # =============================
     # ------ REVIEWS METHODS ------
     # =============================
+
+    def create_review(self, review_data):
+        if not review_data or not isinstance(review_data, dict):
+            raise ValueError("Review data must be a non-empty dictionary.")
+
+        place_id = review_data.get("place_id")
+        author_id = review_data.get("author_id")
+
+        if place_id is None or author_id is None:
+            raise ValueError("author_id and place_id are required.")
+
+        if self.place_repo.get(place_id) is None:
+            return None
+
+        if self.user_repo.get(author_id) is None:
+            raise ValueError("User not found.")
+
+        for review in self.review_repo.get_all():
+            if review.place_id == place_id and review.author_id == author_id:
+                raise ValueError("Review already exists for this user and place.")
+
+        comment = review_data.get("comment")
+        rating = review_data.get("rating")
+
+        if comment is None or rating is None:
+            raise ValueError("comment and rating are required.")
+
+        review = Review.create_review(review_data, author_id, place_id)
+        self.review_repo.add(review)
+
+        return review
+
+    def get_review(self, review_id):
+        review = self.review_repo.get(review_id)
+        if review is None:
+            return None
+        return review.get_details()
+
+    def get_all_reviews(self):
+        reviews = self.review_repo.get_all()
+        list_review = []
+        for review in reviews:
+            details = review.get_details()
+            list_review.append(details)
+        return list_review
+
+    def get_reviews_by_place(self, place_id):
+        if self.place_repo.get(place_id) is None:
+            return None
+        reviews = self.review_repo.get_all()
+        list_review_by_place = []
+        for review in reviews:
+            if review.place_id == place_id:
+                list_review_by_place.append(review.get_details())
+        return list_review_by_place
+
+
+    def update_review(self, review_id, review_data):
+        if not review_data or not isinstance(review_data, dict):
+            raise ValueError("Review data must be a non-empty dictionary.")
+
+        review = self.review_repo.get(review_id)
+        if review is None:
+            return None
+        if "author_id" in review_data or "place_id" in review_data:
+            raise ValueError("author_id and place_id cannot be modified.")
+        review.update(review_data)
+        return review
+
+    def delete_review(self, review_id):
+        review = self.review_repo.get(review_id)
+        if review is None:
+            return None
+        self.review_repo.delete(review_id)
+        return True

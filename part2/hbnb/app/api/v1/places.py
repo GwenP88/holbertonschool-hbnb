@@ -17,15 +17,24 @@ user_model = api.model('PlaceUser', {
     'email': fields.String(description='Email of the owner')
 })
 
+review_model = api.model('PlaceReview', {
+    'id': fields.String(description='Review ID'),
+    'comment': fields.String(description='Comment of the review'),
+    'rating': fields.Integer(description='Rating of the place (1-5)'),
+    'author_id': fields.String(description='ID of the author')
+})
+
 # Define the place model for input validation and documentation
 place_model_create = api.model('PlaceCreate', {
     'title': fields.String(required=True, description='Title of the place'),
-    'description': fields.String(required=True, description='Description of the place'),
+    'description': fields.String(description='Description of the place'),
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(required=True, description='ID of the owner'),
-    'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
+    'owner': fields.Nested(user_model, description='Owner of the place'),
+    'amenities': fields.List(fields.Nested(amenity_model), description='List of amenities'),
+    'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
 })
 
 place_model_update = api.model('PlaceUpdate', {
@@ -130,3 +139,13 @@ class PlaceAmenityResource(Resource):
 
         place_details = facade.get_place(place_id)
         return place_details, 200
+
+@api.route('/<place_id>/reviews')
+class PlaceReviewList(Resource):
+    @api.response(200, 'List of reviews for the place retrieved successfully')
+    @api.response(404, 'Place not found')
+    def get(self, place_id):
+        reviews = facade.get_reviews_by_place(place_id)
+        if reviews is None:
+            return {'error': 'Place not found'}, 404
+        return reviews, 200

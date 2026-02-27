@@ -40,6 +40,14 @@ class Review(BaseModel):
     @property
     def rating(self):
         return self._rating
+    
+    @property
+    def author_id(self):
+        return self._author_id
+
+    @property
+    def place_id(self):
+        return self._place_id
 
     # ------- Validations -----
 
