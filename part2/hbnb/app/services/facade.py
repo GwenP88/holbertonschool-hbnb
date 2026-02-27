@@ -121,24 +121,27 @@ class HBnBFacade:
         owner_id = place_data.get("owner_id")
         if not owner_id:
             raise ValueError("Owner is required.")
+
         existing_owner = self.user_repo.get(owner_id)
         if not existing_owner:
-            raise ValueError("Owner not found")
-        
+            raise ValueError("Owner not found.")
+
+        if "amenities" not in place_data:
+            raise ValueError("Amenities field is required (can be an empty list).")
+
         amenities_ids = place_data.get("amenities")
-        if amenities_ids is None:
-            amenities_ids = []
-        else:
-            if not isinstance(amenities_ids, list):
-                raise ValueError("Amenities must be a list")
-            for amenity_id in amenities_ids:
-                amenity = self.amenity_repo.get(amenity_id)
-                if not amenity:
-                    raise ValueError("Invalid amenity ID")
+        if not isinstance(amenities_ids, list):
+            raise ValueError("Amenities must be a list.")
+
+        for amenity_id in amenities_ids:
+            if not self.amenity_repo.get(amenity_id):
+                raise ValueError("Invalid amenity ID.")
 
         place = Place.create_place(place_data, owner_id)
+
         for amenity_id in amenities_ids:
             place.add_amenity(amenity_id)
+
         self.place_repo.add(place)
         return place
     
@@ -148,6 +151,8 @@ class HBnBFacade:
             return None
         data = place.get_details()
         owner = self.user_repo.get(data["owner_id"])
+        if not owner:
+            raise ValueError("Owner not found.")
         data["owner"] = {
             "id": owner.id,
             "first_name": owner.first_name,
@@ -158,8 +163,8 @@ class HBnBFacade:
         for amenity_id in data["amenities"]:
             a = self.amenity_repo.get(amenity_id)
             if a is None:
-                raise ValueError("Invalid amenity ID")
-            amenities_list.append({"id": a.id, "name": a.name})
+                raise ValueError("Invalid amenity ID.")
+            amenities_list.append({"id": a.id, "name": a.name, "description": a.description})
         data["amenities"] = amenities_list
         return data
 
@@ -181,6 +186,26 @@ class HBnBFacade:
         if "amenities" in place_data:
             raise ValueError("Amenities must be modified using add_amenity or remove_amenity.")
         self.place_repo.update(place_id, place_data)
+        return place
+    
+    def add_amenity_to_place(self, place_id, amenity_id):
+        place = self.place_repo.get(place_id)
+        if place is None:
+            return None
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
+            raise ValueError("Amenity not found.")
+        place.add_amenity(amenity_id)
+        return place
+
+    def remove_amenity_from_place(self, place_id, amenity_id):
+        place = self.place_repo.get(place_id)
+        if place is None:
+            return None
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
+            raise ValueError("Amenity not found.")
+        place.remove_amenity(amenity_id)
         return place
 
     # =============================

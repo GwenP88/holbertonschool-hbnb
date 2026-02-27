@@ -7,7 +7,7 @@ api = Namespace('places', description='Place operations')
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity'),
-    'description': fields.String(description='Name of the amenity')
+    'description': fields.String(description='Details of the amenity')
 })
 
 user_model = api.model('PlaceUser', {
@@ -25,7 +25,7 @@ place_model_create = api.model('PlaceCreate', {
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(required=True, description='ID of the owner'),
-    'amenities': fields.List(fields.String, required=False, description="List of amenities ID's")
+    'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
 place_model_update = api.model('PlaceUpdate', {
@@ -38,6 +38,7 @@ place_model_update = api.model('PlaceUpdate', {
 
 @api.route('/')
 class PlaceList(Resource):
+
     @api.expect(place_model_create)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
@@ -46,9 +47,12 @@ class PlaceList(Resource):
         place_data = api.payload
         try:
             new_place = facade.create_place(place_data)
+            place_details = facade.get_place(new_place.id)
         except ValueError as e:
             return {'error': str(e)}, 400
-        return new_place.get_details(), 201
+
+        return place_details, 201
+
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
@@ -58,6 +62,7 @@ class PlaceList(Resource):
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
+
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
@@ -66,7 +71,7 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
         return place, 200
-        
+
 
     @api.expect(place_model_update)
     @api.response(200, 'Place updated successfully')
@@ -75,24 +80,53 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Update a place's information"""
         payload = api.payload
-        try : 
+        try:
             place = facade.update_place(place_id, payload)
         except ValueError as e:
             return {'error': str(e)}, 400
+
         if not place:
             return {'error': 'Place not found'}, 404
-        return {"message": "Place updated successfully"}, 200
+
+        place_details = facade.get_place(place_id)
+        return place_details, 200
     
 @api.route('/<place_id>/amenities/<amenity_id>')
 class PlaceAmenityResource(Resource):
+
     @api.response(200, 'Amenity added successfully')
-    @api.response(404, 'Not found')
+    @api.response(404, 'Place or Amenity not found')
+    @api.response(400, 'Invalid operation')
     def post(self, place_id, amenity_id):
-        place = self.place_repo.get(place_id)
-        if place is None:
-            return None, 404
+        """Add an amenity to a place"""
         try:
-            amenity = facade.add_amenity_to_place(place_id, amenity_id)
+            place = facade.add_amenity_to_place(place_id, amenity_id)
         except ValueError as e:
-            return {'error': str(e)}, 404
-        return place, 200
+            if str(e) == "Amenity not found.":
+                return {'error': str(e)}, 404
+            return {'error': str(e)}, 400
+
+        if not place:
+            return {'error': 'Place not found'}, 404
+
+        place_details = facade.get_place(place_id)
+        return place_details, 200
+
+
+    @api.response(200, 'Amenity removed successfully')
+    @api.response(404, 'Place or Amenity not found')
+    @api.response(400, 'Invalid operation')
+    def delete(self, place_id, amenity_id):
+        """Remove an amenity from a place"""
+        try:
+            place = facade.remove_amenity_from_place(place_id, amenity_id)
+        except ValueError as e:
+            if str(e) == "Amenity not found.":
+                return {'error': str(e)}, 404
+            return {'error': str(e)}, 400
+
+        if not place:
+            return {'error': 'Place not found'}, 404
+
+        place_details = facade.get_place(place_id)
+        return place_details, 200

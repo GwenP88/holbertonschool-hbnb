@@ -51,16 +51,15 @@ class Place(BaseModel):
 
     @staticmethod
     def _validate_description(description):
-        if description is not None:
-            if not isinstance(description, str):
-                raise ValueError("Description must be a string.")
-            if len(description) > 255:
-                raise ValueError("Description must not exceed 255 characters.")
+        if not description or not isinstance(description, str) or not description.strip():
+            raise ValueError("Description is required and must be a non-empty string.")
+        if len(description.strip()) > 255:
+            raise ValueError("Description must not exceed 255 characters.")
 
     @staticmethod
     def _validate_price(price):
-        if price <= 0:
-            raise ValueError("Price must be greater than 0.")
+        if price < 0:
+            raise ValueError("Price must be non-negative.")
 
     @staticmethod
     def _validate_latitude(latitude):
@@ -75,10 +74,7 @@ class Place(BaseModel):
     # ------- Creation --------
 
     @classmethod
-    def create_place(cls, data: dict, owner_id):
-        if not data or not isinstance(data, dict):
-            raise ValueError("Place data must be a dictionary.")
-
+    def create_place(cls, data, owner_id):
         return cls(
             title=data.get("title"),
             description=data.get("description"),
