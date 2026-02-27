@@ -18,7 +18,7 @@ review_model_update = api.model('ReviewUpdate', {
 
 @api.route('/')
 class ReviewList(Resource):
-    @api.expect(review_model_create)
+    @api.expect(review_model_create, validate=True)
     @api.response(201, 'Review successfully created')
     @api.response(400, 'Invalid input data')
     @api.response(404, 'Place or User not found')
@@ -51,7 +51,7 @@ class ReviewResource(Resource):
             return {'error': 'Review not found'}, 404
         return review, 200
         
-    @api.expect(review_model_update)
+    @api.expect(review_model_update, validate=True)
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')

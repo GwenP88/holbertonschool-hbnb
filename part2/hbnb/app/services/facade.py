@@ -127,9 +127,6 @@ class HBnBFacade:
         if not existing_owner:
             raise ValueError("Owner not found.")
 
-        if "amenities" not in place_data:
-            raise ValueError("Amenities field is required (can be an empty list).")
-
         amenities_ids = place_data.get("amenities")
         if not isinstance(amenities_ids, list):
             raise ValueError("Amenities must be a list.")

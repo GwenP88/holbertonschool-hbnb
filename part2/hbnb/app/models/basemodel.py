@@ -28,11 +28,18 @@ class BaseModel:
     def update(self, data):
         if not isinstance(data, dict) or not data:
             raise ValueError("Update data must be a non-empty dictionary")
+
         protected_fields = {"id", "created_at", "updated_at"}
-        for key, value in data.items():
+
+        for key in data:
             if key in protected_fields:
-                continue
+                raise ValueError(f"{key} cannot be modified.")
+
             attr = "_" + key
-            if hasattr(self, attr):
-                setattr(self, attr, value)
+            if not hasattr(self, attr):
+                raise ValueError(f"{key} is not a valid field.")
+
+        for key, value in data.items():
+            setattr(self, "_" + key, value)
+
         self.save()

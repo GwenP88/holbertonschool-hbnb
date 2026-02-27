@@ -27,14 +27,12 @@ review_model = api.model('PlaceReview', {
 # Define the place model for input validation and documentation
 place_model_create = api.model('PlaceCreate', {
     'title': fields.String(required=True, description='Title of the place'),
-    'description': fields.String(description='Description of the place'),
+    'description': fields.String(required=True, description='Description of the place'),
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(required=True, description='ID of the owner'),
-    'owner': fields.Nested(user_model, description='Owner of the place'),
-    'amenities': fields.List(fields.Nested(amenity_model), description='List of amenities'),
-    'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
+    'amenities': fields.List(fields.String, required=False, description='List of amenity IDs')
 })
 
 place_model_update = api.model('PlaceUpdate', {
@@ -48,7 +46,7 @@ place_model_update = api.model('PlaceUpdate', {
 @api.route('/')
 class PlaceList(Resource):
 
-    @api.expect(place_model_create)
+    @api.expect(place_model_create, validate=True)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
@@ -82,7 +80,7 @@ class PlaceResource(Resource):
         return place, 200
 
 
-    @api.expect(place_model_update)
+    @api.expect(place_model_update, validate=True)
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')

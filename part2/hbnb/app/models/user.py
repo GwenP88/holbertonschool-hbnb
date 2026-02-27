@@ -39,7 +39,7 @@ class User(BaseModel):
 
     @staticmethod
     def _validate_first_name(first_name):
-        if not first_name or not isinstance(first_name, str):
+        if not first_name or not isinstance(first_name, str) or not first_name.strip():
             raise ValueError("first_name is required and must be a non-empty string.")
         if len(first_name.strip()) > 50:
             raise ValueError("first_name must not exceed 50 characters.")
