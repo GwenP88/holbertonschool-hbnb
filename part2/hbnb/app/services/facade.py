@@ -128,6 +128,8 @@ class HBnBFacade:
             raise ValueError("Owner not found.")
 
         amenities_ids = place_data.get("amenities")
+        if amenities_ids is None:
+            amenities_ids = []
         if not isinstance(amenities_ids, list):
             raise ValueError("Amenities must be a list.")
 
