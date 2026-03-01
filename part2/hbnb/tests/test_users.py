@@ -18,8 +18,21 @@ class TestUserEndpoints(unittest.TestCase):
         facade.review_repo._storage.clear()
 
     # -------------------------
-    # CREATE SUCCESS
+    # Helper
     # -------------------------
+    def _create_default_user(self, email="jane@example.com"):
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "email": email,
+            "password": "Password123"
+        })
+        return response.get_json()["id"]
+
+    # =========================================================
+    # CREATE — Success
+    # =========================================================
+
     def test_create_user_success(self):
         response = self.client.post('/api/v1/users/', json={
             "first_name": "Jane",
@@ -29,28 +42,115 @@ class TestUserEndpoints(unittest.TestCase):
         })
 
         self.assertEqual(response.status_code, 201)
-
         data = response.get_json()
         self.assertIsNotNone(data)
         self.assertIn("id", data)
         self.assertEqual(data["email"], "jane.doe@example.com")
 
-    # -------------------------
-    # CREATE INVALID
-    # -------------------------
-    def test_create_user_invalid_data(self):
+    def test_create_user_password_not_returned(self):
+        """Password must never appear in the response."""
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "email": "jane@example.com",
+            "password": "Password123"
+        })
+
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertNotIn("password", data)
+
+    def test_create_user_email_normalized(self):
+        """Email must be stored in lowercase."""
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "email": "JANE@EXAMPLE.COM",
+            "password": "Password123"
+        })
+
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertEqual(data["email"], "jane@example.com")
+
+    # =========================================================
+    # CREATE — Invalid input
+    # =========================================================
+
+    def test_create_user_empty_first_name(self):
         response = self.client.post('/api/v1/users/', json={
             "first_name": "",
+            "last_name": "Doe",
+            "email": "jane@example.com",
+            "password": "Password123"
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_user_empty_last_name(self):
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Jane",
             "last_name": "",
+            "email": "jane@example.com",
+            "password": "Password123"
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_user_invalid_email_no_at(self):
+        """Email without '@' must be rejected."""
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Test",
+            "last_name": "User",
             "email": "invalid-email",
             "password": "Password123"
         })
 
         self.assertEqual(response.status_code, 400)
 
-    # -------------------------
-    # CREATE DUPLICATE EMAIL
-    # -------------------------
+    def test_create_user_invalid_email_no_dot_in_domain(self):
+        """Email like 'a@b' (no dot in domain) must be rejected."""
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "test@nodot",
+            "password": "Password123"
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_user_invalid_email_empty_local_part(self):
+        """Email like '@example.com' must be rejected."""
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "@example.com",
+            "password": "Password123"
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_user_invalid_email_with_spaces(self):
+        """Email containing spaces must be rejected."""
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "test @example.com",
+            "password": "Password123"
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_user_password_too_short(self):
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "email": "jane@example.com",
+            "password": "short"
+        })
+
+        self.assertEqual(response.status_code, 400)
+
     def test_create_user_duplicate_email(self):
         self.client.post('/api/v1/users/', json={
             "first_name": "Jane",
@@ -68,98 +168,148 @@ class TestUserEndpoints(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-    # -------------------------
-    # GET NOT FOUND
-    # -------------------------
+    def test_create_user_invalid_data(self):
+        """Multiple invalid fields at once."""
+        response = self.client.post('/api/v1/users/', json={
+            "first_name": "",
+            "last_name": "",
+            "email": "invalid-email",
+            "password": "Password123"
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    # =========================================================
+    # GET — Success
+    # =========================================================
+
+    def test_get_user_success(self):
+        """GET on an existing user returns 200 with correct fields."""
+        user_id = self._create_default_user()
+        response = self.client.get(f'/api/v1/users/{user_id}')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data["id"], user_id)
+        self.assertIn("first_name", data)
+        self.assertIn("last_name", data)
+        self.assertIn("email", data)
+        self.assertNotIn("password", data)
+
+    def test_list_users_success(self):
+        """GET /users/ returns a list with created users."""
+        self._create_default_user("user1@example.com")
+        self._create_default_user("user2@example.com")
+
+        response = self.client.get('/api/v1/users/')
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 2)
+
+    # =========================================================
+    # GET — Not found
+    # =========================================================
+
     def test_get_user_not_found(self):
         fake_id = str(uuid.uuid4())
         response = self.client.get(f'/api/v1/users/{fake_id}')
 
         self.assertEqual(response.status_code, 404)
 
-    # -------------------------
-    # UPDATE SUCCESS
-    # -------------------------
-    def test_update_user_success(self):
-        response = self.client.post('/api/v1/users/', json={
-            "first_name": "Jane",
-            "last_name": "Doe",
-            "email": "jane@example.com",
-            "password": "Password123"
-        })
+    # =========================================================
+    # UPDATE — Success
+    # =========================================================
 
-        user_id = response.get_json()["id"]
-
-        update_response = self.client.put(f'/api/v1/users/{user_id}', json={
+    def test_update_user_first_name(self):
+        user_id = self._create_default_user()
+        response = self.client.put(f'/api/v1/users/{user_id}', json={
             "first_name": "Updated"
         })
 
-        self.assertEqual(update_response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["first_name"], "Updated")
 
-        data = update_response.get_json()
+    def test_update_user_success(self):
+        user_id = self._create_default_user()
+        response = self.client.put(f'/api/v1/users/{user_id}', json={
+            "first_name": "Updated",
+            "last_name": "Name"
+        })
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
         self.assertEqual(data["first_name"], "Updated")
+        self.assertEqual(data["last_name"], "Name")
 
-    # -------------------------
-    # UPDATE DUPLICATE EMAIL
-    # -------------------------
+    def test_update_user_email_normalized(self):
+        """Email update must be normalized to lowercase."""
+        user_id = self._create_default_user()
+        response = self.client.put(f'/api/v1/users/{user_id}', json={
+            "email": "NEW.EMAIL@EXAMPLE.COM"
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["email"], "new.email@example.com")
+
+    def test_update_user_password_success(self):
+        """Password update must succeed and not be returned."""
+        user_id = self._create_default_user()
+        response = self.client.put(f'/api/v1/users/{user_id}', json={
+            "password": "NewPass123"
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("password", response.get_json())
+
+    # =========================================================
+    # UPDATE — Invalid / forbidden
+    # =========================================================
+
     def test_update_user_duplicate_email(self):
-        user1 = self.client.post('/api/v1/users/', json={
-            "first_name": "User1",
-            "last_name": "Test",
-            "email": "user1@example.com",
-            "password": "Password123"
-        }).get_json()
+        self._create_default_user("user1@example.com")
+        user2_id = self._create_default_user("user2@example.com")
 
-        user2 = self.client.post('/api/v1/users/', json={
-            "first_name": "User2",
-            "last_name": "Test",
-            "email": "user2@example.com",
-            "password": "Password123"
-        }).get_json()
-
-        response = self.client.put(f'/api/v1/users/{user2["id"]}', json={
+        response = self.client.put(f'/api/v1/users/{user2_id}', json={
             "email": "user1@example.com"
         })
 
         self.assertEqual(response.status_code, 400)
 
-    # -------------------------
-    # UPDATE FORBIDDEN FIELD
-    # -------------------------
     def test_update_user_is_admin_forbidden(self):
-        response = self.client.post('/api/v1/users/', json={
-            "first_name": "Jane",
-            "last_name": "Doe",
-            "email": "jane@example.com",
-            "password": "Password123"
-        })
-
-        user_id = response.get_json()["id"]
-
-        update_response = self.client.put(f'/api/v1/users/{user_id}', json={
+        user_id = self._create_default_user()
+        response = self.client.put(f'/api/v1/users/{user_id}', json={
             "is_admin": True
         })
 
-        self.assertEqual(update_response.status_code, 400)
+        self.assertEqual(response.status_code, 400)
 
-    # -------------------------
-    # PASSWORD TOO SHORT
-    # -------------------------
     def test_update_password_too_short(self):
-        response = self.client.post('/api/v1/users/', json={
-            "first_name": "Jane",
-            "last_name": "Doe",
-            "email": "jane@example.com",
-            "password": "Password123"
-        })
-
-        user_id = response.get_json()["id"]
-
-        update_response = self.client.put(f'/api/v1/users/{user_id}', json={
+        user_id = self._create_default_user()
+        response = self.client.put(f'/api/v1/users/{user_id}', json={
             "password": "short"
         })
 
-        self.assertEqual(update_response.status_code, 400)
+        self.assertEqual(response.status_code, 400)
+
+    def test_update_user_unknown_field(self):
+        """Unknown fields like 'nickname' must be rejected."""
+        user_id = self._create_default_user()
+        response = self.client.put(f'/api/v1/users/{user_id}', json={
+            "nickname": "JayJay"
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_update_user_invalid_email_format(self):
+        """Updating to a malformed email must be rejected."""
+        user_id = self._create_default_user()
+        response = self.client.put(f'/api/v1/users/{user_id}', json={
+            "email": "not-an-email"
+        })
+
+        self.assertEqual(response.status_code, 400)
 
 
 if __name__ == "__main__":
