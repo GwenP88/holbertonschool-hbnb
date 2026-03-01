@@ -46,7 +46,7 @@ class User(BaseModel):
 
     @staticmethod
     def _validate_last_name(last_name):
-        if not last_name or not isinstance(last_name, str):
+        if not last_name or not isinstance(last_name, str) or not last_name.strip():
             raise ValueError("last_name is required and must be a non-empty string.")
         if len(last_name.strip()) > 50:
             raise ValueError("last_name must not exceed 50 characters.")
@@ -56,8 +56,15 @@ class User(BaseModel):
         if not email or not isinstance(email, str):
             raise ValueError("email is required and must be a string.")
         email = email.strip().lower()
+        if " " in email:
+            raise ValueError("Email must not contain spaces.")
         if email.count("@") != 1:
             raise ValueError("Email must contain exactly one '@'.")
+        local, domain = email.split("@")
+        if not local:
+            raise ValueError("Email must have a non-empty part before '@'.")
+        if not domain or "." not in domain or domain.startswith(".") or domain.endswith("."):
+            raise ValueError("Email must have a valid domain with a '.' (ex: b.c).")
         return email
 
     @staticmethod
