@@ -90,6 +90,7 @@ class PlaceList(Resource):
         places = facade.get_all_places()
         return places, 200
 
+
 @api.route('/<place_id>')
 class PlaceResource(Resource):
 
@@ -102,7 +103,6 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
         return place, 200
-
 
     @api.expect(place_model_update, validate=True)
     @api.response(200, 'Place updated successfully')
@@ -121,7 +121,8 @@ class PlaceResource(Resource):
 
         place_details = facade.get_place(place_id)
         return place_details, 200
-    
+
+
 @api.route('/<place_id>/amenities/<amenity_id>')
 class PlaceAmenityResource(Resource):
 
@@ -143,7 +144,6 @@ class PlaceAmenityResource(Resource):
         place_details = facade.get_place(place_id)
         return place_details, 200
 
-
     @api.response(200, 'Amenity removed successfully')
     @api.response(404, 'Place or Amenity not found')
     @api.response(400, 'Invalid operation')
@@ -161,6 +161,7 @@ class PlaceAmenityResource(Resource):
 
         place_details = facade.get_place(place_id)
         return place_details, 200
+
 
 @api.route('/<place_id>/reviews')
 class PlaceReviewList(Resource):

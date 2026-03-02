@@ -14,6 +14,7 @@ amenity_model_update = api.model('AmenityUpdate', {
     'description': fields.String(required=False, description='Name of the amenity')
 })
 
+
 @api.route('/')
 class AmenityList(Resource):
     @api.expect(amenity_model, validate=True)
@@ -23,7 +24,7 @@ class AmenityList(Resource):
         amenity_data = api.payload
         try:
             new_amenity = facade.create_amenity(amenity_data)
-        except ValueError as e: 
+        except ValueError as e:
             return {'error': str(e)}, 400
         return {'id': new_amenity.id, 'name': new_amenity.name, 'description': new_amenity.description}, 201
 
@@ -32,9 +33,10 @@ class AmenityList(Resource):
         amenities = facade.get_all_amenities()
         list_amenities = []
         for amenity in amenities:
-           list_amenities.append({'id': amenity.id, 'name': amenity.name, 'description': amenity.description})
+            list_amenities.append({'id': amenity.id, 'name': amenity.name, 'description': amenity.description})
         return list_amenities, 200
-    
+
+
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
     @api.response(200, 'Amenity details retrieved successfully')
@@ -51,7 +53,7 @@ class AmenityResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, amenity_id):
         payload = api.payload
-        try :
+        try:
             amenity = facade.update_amenity(amenity_id, payload)
         except ValueError as e:
             return {'error': str(e)}, 400

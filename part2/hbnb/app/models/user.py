@@ -104,7 +104,7 @@ class User(BaseModel):
 
         user.set_password(password)
         return user
-    
+
     # ---------- Serialization ----------
 
     def get_profile(self):
@@ -117,7 +117,7 @@ class User(BaseModel):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
-    
+
     # ----- Update User -----
 
     def update(self, data):

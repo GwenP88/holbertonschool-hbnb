@@ -24,13 +24,11 @@ class UserList(Resource):
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
     @api.response(400, 'Invalid input data')
-
     def post(self):
-        """Register a new user"""
         user_data = api.payload
         try:
             new_user = facade.create_user(user_data)
-        except ValueError as e: 
+        except ValueError as e:
             return {'error': str(e)}, 400
         return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
 
@@ -39,28 +37,28 @@ class UserList(Resource):
         users = facade.get_users()
         list_users = []
         for user in users:
-           list_users.append({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email})
+            list_users.append({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email})
         return list_users, 200
-            
+
+
 @api.route('/<user_id>')
 class UserResource(Resource):
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
-
     def get(self, user_id):
         """Get user details by ID"""
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
-    
+
     @api.expect(user_update_model, validate=True)
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
         payload = api.payload
-        try : 
+        try:
             user = facade.update_user(user_id, payload)
         except ValueError as e:
             return {'error': str(e)}, 400

@@ -16,6 +16,7 @@ review_model_update = api.model('ReviewUpdate', {
     'rating': fields.Integer(required=False, description='Rating of the place (1-5)'),
 })
 
+
 @api.route('/')
 class ReviewList(Resource):
     @api.expect(review_model_create, validate=True)
@@ -41,6 +42,7 @@ class ReviewList(Resource):
         reviews = facade.get_all_reviews()
         return reviews, 200
 
+
 @api.route('/<review_id>')
 class ReviewResource(Resource):
     @api.response(200, 'Review details retrieved successfully')
@@ -50,7 +52,7 @@ class ReviewResource(Resource):
         if not review:
             return {'error': 'Review not found'}, 404
         return review, 200
-        
+
     @api.expect(review_model_update, validate=True)
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')

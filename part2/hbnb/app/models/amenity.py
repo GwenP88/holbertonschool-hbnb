@@ -12,7 +12,6 @@ class Amenity(BaseModel):
         self._description = description
 
     # ----- Properties -----
-
     @property
     def name(self):
         return self._name
@@ -20,9 +19,8 @@ class Amenity(BaseModel):
     @property
     def description(self):
         return self._description
-    
-    # ----- Validations -----
 
+    # ----- Validations -----
     @staticmethod
     def _validate_name(name):
         if not name or not isinstance(name, str) or not name.strip():
@@ -39,7 +37,6 @@ class Amenity(BaseModel):
                 raise ValueError("Description must not exceed 255 characters.")
 
     # ----- Creation user -----
-
     @classmethod
     def create_amenity(cls, data: dict):
         if not data or not isinstance(data, dict):
@@ -50,7 +47,6 @@ class Amenity(BaseModel):
         )
 
     # ---------- Serialization ----------
-
     def get_details(self):
         return {
             "id": self.id,
@@ -60,9 +56,7 @@ class Amenity(BaseModel):
             "updated_at": self.updated_at.isoformat(),
         }
 
-    
     # ----- Update Amenity -----
-
     def update(self, data):
         if not data or not isinstance(data, dict):
             raise ValueError("No data to update.")
@@ -73,8 +67,6 @@ class Amenity(BaseModel):
             self._validate_desc(data["description"])
         super().update(data)
 
-
     # ----- delete amenity -----
-
     def delete(self):
         pass  # handled by repository

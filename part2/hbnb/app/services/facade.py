@@ -4,12 +4,13 @@ from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
 
+
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository() 
+        self.review_repo = InMemoryRepository()
 
     # ==========================
     # ------ USER METHODS ------
@@ -36,7 +37,7 @@ class HBnBFacade:
 
     def get_users(self):
         return self.user_repo.get_all()
-    
+
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
 
@@ -74,7 +75,7 @@ class HBnBFacade:
     def create_amenity(self, amenity_data):
         if not amenity_data or not isinstance(amenity_data, dict):
             raise ValueError("Amenity data must be a non-empty dictionary.")
-        
+
         name = amenity_data.get("name")
         if not name:
             raise ValueError("Name is required.")
@@ -84,7 +85,7 @@ class HBnBFacade:
         existing_amenity = self.amenity_repo.get_by_attribute("_name", name)
         if existing_amenity:
             raise ValueError("Amenity already exists.")
-        
+
         amenity = Amenity.create_amenity(amenity_data)
         self.amenity_repo.add(amenity)
         return amenity
@@ -98,11 +99,11 @@ class HBnBFacade:
     def update_amenity(self, amenity_id, amenity_data):
         if not amenity_data or not isinstance(amenity_data, dict):
             raise ValueError("Amenity data must be a non-empty dictionary.")
-        
+
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             return None
-        
+
         if "name" in amenity_data:
             new_name = amenity_data["name"].strip().lower()
             existing_amenity = self.amenity_repo.get_by_attribute("_name", new_name)
@@ -110,7 +111,7 @@ class HBnBFacade:
                 raise ValueError("Name already exists.")
         self.amenity_repo.update(amenity_id, amenity_data)
         return amenity
-    
+
     # =============================
     # ------ PLACES METHODS ------
     # =============================
@@ -144,7 +145,7 @@ class HBnBFacade:
 
         self.place_repo.add(place)
         return place
-    
+
     def get_place(self, place_id):
         place = self.place_repo.get(place_id)
         if place is None:
@@ -184,7 +185,7 @@ class HBnBFacade:
             raise ValueError("Amenities must be modified using add_amenity or remove_amenity.")
         self.place_repo.update(place_id, place_data)
         return place
-    
+
     def add_amenity_to_place(self, place_id, amenity_id):
         place = self.place_repo.get(place_id)
         if place is None:
@@ -263,7 +264,6 @@ class HBnBFacade:
             if review.place_id == place_id:
                 list_review_by_place.append(review.get_details())
         return list_review_by_place
-
 
     def update_review(self, review_id, review_data):
         if not review_data or not isinstance(review_data, dict):
