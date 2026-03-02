@@ -1,9 +1,12 @@
+"""Place model with validation, serialization, amenity linking, and update helpers."""
 from app.models.basemodel import BaseModel
 
 
 class Place(BaseModel):
+    """Represent a place with location, price, owner, and linked amenities."""
 
     def __init__(self, title, description, price, latitude, longitude, owner_id):
+        """Initialize a place with validated fields and normalized numeric values."""
         super().__init__()
 
         self._validate_title(title)
@@ -26,9 +29,9 @@ class Place(BaseModel):
         self._amenities = []
 
     # -------- Helpers --------
-
     @staticmethod
     def _to_number(value, field_name, number_type=float):
+        """Convert a value to a number type and raise a clear validation error."""
         if value is None:
             raise ValueError(f"{field_name} is required.")
 
@@ -41,9 +44,9 @@ class Place(BaseModel):
             raise ValueError(f"{field_name} must be a number.")
 
     # ------- Validations -----
-
     @staticmethod
     def _validate_title(title):
+        """Validate that title is a non-empty string within 100 characters."""
         if not title or not isinstance(title, str) or not title.strip():
             raise ValueError("Title is required and must be a non-empty string.")
         if len(title.strip()) > 100:
@@ -51,6 +54,7 @@ class Place(BaseModel):
 
     @staticmethod
     def _validate_description(description):
+        """Validate that description is a non-empty string within 255 characters."""
         if not description or not isinstance(description, str) or not description.strip():
             raise ValueError("Description is required and must be a non-empty string.")
         if len(description.strip()) > 255:
@@ -58,23 +62,26 @@ class Place(BaseModel):
 
     @staticmethod
     def _validate_price(price):
+        """Validate that price is non-negative."""
         if price <= 0:
             raise ValueError("Price must be non-negative.")
 
     @staticmethod
     def _validate_latitude(latitude):
+        """Validate that latitude is between -90 and 90."""
         if latitude < -90 or latitude > 90:
             raise ValueError("Latitude must be between -90 and 90.")
 
     @staticmethod
     def _validate_longitude(longitude):
+        """Validate that longitude is between -180 and 180."""
         if longitude < -180 or longitude > 180:
             raise ValueError("Longitude must be between -180 and 180.")
 
     # ------- Creation --------
-
     @classmethod
     def create_place(cls, data, owner_id):
+        """Create a Place instance from input data and an owner id."""
         return cls(
             title=data.get("title"),
             description=data.get("description"),
@@ -85,8 +92,8 @@ class Place(BaseModel):
         )
 
     # ------- Serialization ---
-
     def get_details(self):
+        """Return a serializable dictionary of place fields and amenities."""
         return {
             "id": self.id,
             "title": self._title,
@@ -101,6 +108,7 @@ class Place(BaseModel):
         }
 
     def to_list_item(self):
+        """Return a lightweight dictionary representation for place listings."""
         return {
             "id": self.id,
             "title": self._title,
@@ -111,49 +119,45 @@ class Place(BaseModel):
 
     @classmethod
     def get_all_places(cls, place_repo):
+        """Return a list of serialized places from the given repository."""
         places = place_repo.get_all()
         return [place.to_list_item() for place in places]
 
     # -------- Update ---------
-
     def update(self, data: dict):
+        """Update place fields with validation and persistence."""
         if not data or not isinstance(data, dict):
             raise ValueError("No data to update.")
-
         if "title" in data:
             self._validate_title(data["title"])
             self._title = data["title"].strip()
-
         if "description" in data:
             self._validate_description(data["description"])
             self._description = data["description"]
-
         if "price" in data:
             price = self._to_number(data["price"], "Price", float)
             self._validate_price(price)
             self._price = price
-
         if "latitude" in data:
             latitude = self._to_number(data["latitude"], "Latitude", float)
             self._validate_latitude(latitude)
             self._latitude = latitude
-
         if "longitude" in data:
             longitude = self._to_number(data["longitude"], "Longitude", float)
             self._validate_longitude(longitude)
             self._longitude = longitude
-
         self.save()
 
     # ----- Amenities ---------
-
     def add_amenity(self, amenity_id):
+        """Link an amenity id to the place and persist the change."""
         if amenity_id in self._amenities:
             raise ValueError("Amenity already added.")
         self._amenities.append(amenity_id)
         self.save()
 
     def remove_amenity(self, amenity_id):
+        """Unlink an amenity id from the place and persist the change."""
         if amenity_id not in self._amenities:
             raise ValueError("Amenity not linked.")
         self._amenities.remove(amenity_id)
@@ -162,4 +166,5 @@ class Place(BaseModel):
     # -------- Delete ---------
 
     def delete(self):
+        """Delete the place."""
         pass  # handled by repository

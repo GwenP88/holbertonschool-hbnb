@@ -1,3 +1,4 @@
+"""Unit tests for Place API endpoints (create, retrieve, and list behaviors)."""
 import unittest
 import uuid
 from app import create_app
@@ -7,10 +8,10 @@ from app.services import facade
 class TestPlaceEndpoints(unittest.TestCase):
 
     def setUp(self):
+        """Create a test client, reset storage, and seed a user and an amenity."""
         self.app = create_app()
         self.app.config["TESTING"] = True
         self.client = self.app.test_client()
-
         facade.user_repo._storage.clear()
         facade.amenity_repo._storage.clear()
         facade.place_repo._storage.clear()
@@ -34,7 +35,9 @@ class TestPlaceEndpoints(unittest.TestCase):
     # -------------------------
     # Helper
     # -------------------------
+
     def _create_place(self, **overrides):
+        """Helper to create a place using default payload with optional overrides."""
         payload = {
             "title": "Studio",
             "description": "Nice place",
@@ -52,19 +55,19 @@ class TestPlaceEndpoints(unittest.TestCase):
     # =========================================================
 
     def test_create_place_success(self):
+        """POST /places creates a place and returns 201."""
         response = self._create_place()
         self.assertEqual(response.status_code, 201)
 
     def test_create_place_with_amenity(self):
-        """Creating a place with a valid amenity_id must succeed."""
+        """POST /places accepts a valid amenity id and returns 201."""
         response = self._create_place(amenities=[self.amenity_id])
-
         self.assertEqual(response.status_code, 201)
         data = response.get_json()
         self.assertIn("id", data)
 
     def test_create_place_empty_amenities(self):
-        """Creating a place with an empty amenities list must succeed."""
+        """POST /places accepts an empty amenities list and returns 201."""
         response = self._create_place(amenities=[])
         self.assertEqual(response.status_code, 201)
 
@@ -73,7 +76,7 @@ class TestPlaceEndpoints(unittest.TestCase):
     # =========================================================
 
     def test_create_place_no_amenities_field(self):
-        """Missing 'amenities' key: API accepts it and defaults to empty list."""
+        """POST /places accepts missing amenities field and defaults to empty list."""
         payload = {
             "title": "Studio",
             "description": "Nice place",
@@ -86,32 +89,37 @@ class TestPlaceEndpoints(unittest.TestCase):
         self.assertIn(response.status_code, [200, 201])
 
     def test_create_place_invalid_price_negative(self):
-        """Negative price must be rejected."""
+        """POST /places rejects a negative price and returns 400."""
         response = self._create_place(price=-10)
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_price_zero(self):
-        """Price of 0 must be rejected (must be > 0)."""
+        """POST /places rejects a zero price and returns 400."""
         response = self._create_place(price=0)
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_latitude(self):
+        """POST /places rejects latitude above 90 and returns 400."""
         response = self._create_place(latitude=200)
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_latitude_negative(self):
+        """POST /places rejects latitude below -90 and returns 400."""
         response = self._create_place(latitude=-91)
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_longitude(self):
+        """POST /places rejects longitude above 180 and returns 400."""
         response = self._create_place(longitude=181)
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_owner(self):
+        """POST /places rejects an unknown owner_id and returns 400."""
         response = self._create_place(owner_id=str(uuid.uuid4()))
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_amenity(self):
+        """POST /places rejects an invalid amenity id and returns 400."""
         response = self._create_place(amenities=[str(uuid.uuid4())])
         self.assertEqual(response.status_code, 400)
 
@@ -120,17 +128,17 @@ class TestPlaceEndpoints(unittest.TestCase):
     # =========================================================
 
     def test_get_place_success(self):
+        """GET /places/<id> returns 200 and the correct place id."""
         place_id = self._create_place().get_json()["id"]
         response = self.client.get(f'/api/v1/places/{place_id}')
-
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertEqual(data["id"], place_id)
 
     def test_list_places_success(self):
+        """GET /places returns 200 and lists all created places."""
         self._create_place(title="Place 1")
         self._create_place(title="Place 2")
-
         response = self.client.get('/api/v1/places/')
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.get_json(), list)
@@ -141,6 +149,7 @@ class TestPlaceEndpoints(unittest.TestCase):
     # =========================================================
 
     def test_get_place_not_found(self):
+        """GET /places/<id> returns 404 when the place does not exist."""
         fake_id = str(uuid.uuid4())
         response = self.client.get(f'/api/v1/places/{fake_id}')
         self.assertEqual(response.status_code, 404)

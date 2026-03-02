@@ -1,3 +1,4 @@
+"""Flask application factory that configures the HBnB REST API namespaces."""
 from flask import Flask
 from flask_restx import Api
 from app.api.v1.users import api as users_ns
@@ -7,6 +8,7 @@ from app.api.v1.reviews import api as reviews_ns
 
 
 def create_app():
+    """Create and configure the Flask app and register API namespaces."""
     app = Flask(__name__)
     api = Api(
         app, version='1.0',

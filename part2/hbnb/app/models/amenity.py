@@ -1,9 +1,12 @@
+"""Amenity model with validation, serialization, and update helpers."""
 from app.models.basemodel import BaseModel
 
 
 class Amenity(BaseModel):
+    """Represent an amenity with a validated name and optional description."""
 
     def __init__(self, name, description=None):
+        """Initialize an amenity with a validated name and optional description."""
         super().__init__()
         self._validate_name(name)
         self._validate_desc(description)
@@ -14,15 +17,18 @@ class Amenity(BaseModel):
     # ----- Properties -----
     @property
     def name(self):
+        """Return the amenity name."""
         return self._name
 
     @property
     def description(self):
+        """Return the amenity description."""
         return self._description
 
     # ----- Validations -----
     @staticmethod
     def _validate_name(name):
+        """Validate that the name is a non-empty string within 50 characters."""
         if not name or not isinstance(name, str) or not name.strip():
             raise ValueError("Name is required and must be a non-empty string.")
         if len(name.strip()) > 50:
@@ -30,6 +36,7 @@ class Amenity(BaseModel):
 
     @staticmethod
     def _validate_desc(description):
+        """Validate that the description is a string within 255 characters when provided."""
         if description is not None:
             if not isinstance(description, str):
                 raise ValueError("Description must be a string.")
@@ -39,6 +46,7 @@ class Amenity(BaseModel):
     # ----- Creation user -----
     @classmethod
     def create_amenity(cls, data: dict):
+        """Create an Amenity instance from a validated data dictionary."""
         if not data or not isinstance(data, dict):
             raise ValueError("Amenity data must be a dictionary.")
         return cls(
@@ -48,6 +56,7 @@ class Amenity(BaseModel):
 
     # ---------- Serialization ----------
     def get_details(self):
+        """Return a serializable dictionary of amenity fields."""
         return {
             "id": self.id,
             "name": self.name,
@@ -58,6 +67,7 @@ class Amenity(BaseModel):
 
     # ----- Update Amenity -----
     def update(self, data):
+        """Update amenity fields with validation and normalization."""
         if not data or not isinstance(data, dict):
             raise ValueError("No data to update.")
         if "name" in data:
@@ -69,4 +79,5 @@ class Amenity(BaseModel):
 
     # ----- delete amenity -----
     def delete(self):
+        """Delete the amenity."""
         pass  # handled by repository
