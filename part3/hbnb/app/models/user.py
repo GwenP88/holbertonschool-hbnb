@@ -1,7 +1,6 @@
 """User model with validation, password hashing, serialization, and update helpers."""
 from app.models.basemodel import BaseModel
-from werkzeug.security import generate_password_hash
-
+from app import bcrypt
 
 class User(BaseModel):
     """Represent a user with validated identity fields and optional admin flag."""
@@ -89,10 +88,14 @@ class User(BaseModel):
     # ----- Password management -----
 
     def set_password(self, password):
-        """Hash, store, and persist the user's password."""
+        """Hashes the password before storing it."""
         self._validate_password(password)
-        self._password = generate_password_hash(password.strip())
-        self.save()
+        self._password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verifies if the provided password matches the hashed password."""
+        return bcrypt.check_password_hash(self._password, password)
+
 
     # ----- Creation user -----
 
