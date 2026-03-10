@@ -33,7 +33,6 @@ def create_app(config_class="config.DevelopmentConfig"):
         description='HBnB Application API',
         doc='/api/v1/',
         authorizations=authorizations,
-        security='Bearer'
     )
     
     bcrypt.init_app(app)
