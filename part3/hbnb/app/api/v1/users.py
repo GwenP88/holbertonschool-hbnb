@@ -63,6 +63,7 @@ class UserResource(Resource):
     @api.response(200, 'User details updated successfully')
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, user_id):
@@ -86,6 +87,7 @@ class UserEmailResource(Resource):
     @api.response(200, 'User email updated successfully')
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, user_id):
@@ -107,6 +109,7 @@ class UserPasswordResource(Resource):
     @api.response(200, 'User password updated successfully')
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, user_id):

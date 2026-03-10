@@ -61,6 +61,7 @@ class ReviewResource(Resource):
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, review_id):
@@ -80,6 +81,7 @@ class ReviewResource(Resource):
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
+    @api.response(403, 'Unauthorized action')
     @api.doc(security='Bearer')
     @jwt_required()
     def delete(self, review_id):
