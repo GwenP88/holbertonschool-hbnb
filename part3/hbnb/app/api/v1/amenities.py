@@ -22,6 +22,7 @@ class AmenityList(Resource):
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
     @api.response(403, 'Admin privileges required')
+    @api.doc(security='Bearer')
     @jwt_required()
     def post(self):
         claims = get_jwt()
@@ -58,6 +59,7 @@ class AmenityResource(Resource):
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
     @api.response(403, 'Admin privileges required')
+    @api.doc(security='Bearer')
     @jwt_required()
     def put(self, amenity_id):
         claims = get_jwt()
