@@ -65,14 +65,16 @@ class ReviewResource(Resource):
     @jwt_required()
     def put(self, review_id):
         payload = api.payload
-        try:
-            review = facade.update_review(review_id, payload)
-        except ValueError as e:
-            return {'error': str(e)}, 400
-
+        current_user = get_jwt_identity()
+        review = facade.get_review(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
-
+        if review["author_id"] != current_user:
+            return {'error': 'Unauthorized action'}, 403
+        try:
+            facade.update_review(review_id, payload)
+        except ValueError as e:
+            return {'error': str(e)}, 400
         review_details = facade.get_review(review_id)
         return review_details, 200
 
@@ -81,7 +83,11 @@ class ReviewResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def delete(self, review_id):
-        review = facade.delete_review(review_id)
-        if review is None:
+        current_user = get_jwt_identity()
+        review = facade.get_review(review_id)
+        if not review:
             return {'error': 'Review not found'}, 404
+        if review["author_id"] != current_user:
+            return {'error': 'Unauthorized action'}, 403
+        facade.delete_review(review_id)
         return {'message': 'Review deleted successfully.'}, 200
