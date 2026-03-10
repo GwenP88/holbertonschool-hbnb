@@ -142,10 +142,22 @@ class User(BaseModel):
         if "last_name" in data:
             self._validate_last_name(data["last_name"])
             data["last_name"] = data["last_name"].strip()
-        if "email" in data:
-            email = self._validate_email(data["email"])
-            data["email"] = email
         super().update(data)
+
+    def update_email(self, email):
+        """Update user email field with validation and normalization."""
+        if not email:
+            raise ValueError("No email to update.")
+        email = self._validate_email(email)
+        self._email = email
+        self.save()
+
+    def update_password(self, password):
+        """Update user password field with validation."""
+        if not password:
+            raise ValueError("No password to update.")
+        self.set_password(password)
+        self.save()
 
     # ----- delete profile -----
 

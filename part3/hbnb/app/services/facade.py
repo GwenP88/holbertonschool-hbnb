@@ -52,7 +52,7 @@ class HBnBFacade:
         return self.user_repo.get_by_attribute("_email", email)
 
     def update_user(self, user_id, user_data):
-        """Update a user with validation, email uniqueness, and optional password change."""
+        """Update a user profile (first_name and last_name only)"""
         if not user_data or not isinstance(user_data, dict):
             raise ValueError("Update data must be a non-empty dictionary.")
         user = self.user_repo.get(user_id)
@@ -60,16 +60,40 @@ class HBnBFacade:
             return None
         if "is_admin" in user_data:
             raise ValueError("Only an administrator can modify is_admin.")
-        if "email" in user_data:
-            new_email = user_data["email"].strip().lower()
-            existing_user = self.user_repo.get_by_attribute("_email", new_email)
-            if existing_user and existing_user.id != user.id:
-                raise ValueError("Email already exists.")
-        if "password" in user_data:
-            user.set_password(user_data["password"])
-            del user_data["password"]
+        if "email" in user_data or "password" in user_data:
+            raise ValueError("You cannot modify email or password.")
         if user_data:
             self.user_repo.update(user_id, user_data)
+        return user
+    
+    def update_user_email(self, user_id, user_data):
+        """Update a user's email with validation and uniqueness check."""
+        if not user_data or not isinstance(user_data, dict):
+            raise ValueError("Update data must be a non-empty dictionary.")
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+        if "email" not in user_data:
+            raise ValueError("Email is required.")
+        new_email = user_data["email"].strip().lower()
+        existing_user = self.user_repo.get_by_attribute("_email", new_email)
+        if existing_user and existing_user.id != user.id:
+            raise ValueError("Email already exists.")
+        user.update_email(new_email)    
+        return user
+        
+
+    def update_user_password(self, user_id, user_data):
+        """Update a user's password with validation."""
+        if not user_data or not isinstance(user_data, dict):
+            raise ValueError("Update data must be a non-empty dictionary.")
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+        if "password" not in user_data:
+            raise ValueError("Password is required.")
+        new_password = user_data["password"]
+        user.update_password(new_password)
         return user
 
     # =============================
