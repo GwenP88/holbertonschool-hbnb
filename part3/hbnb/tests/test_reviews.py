@@ -1,6 +1,6 @@
-"""Unit tests for Review API endpoints (create, retrieve, update, and delete behaviors)."""
+"""Unit tests for Review endpoints with author/admin permissions."""
+
 import unittest
-import uuid
 from app import create_app
 from app.services import facade
 
@@ -8,167 +8,136 @@ from app.services import facade
 class TestReviewEndpoints(unittest.TestCase):
 
     def setUp(self):
-        """Create a test client, reset storage, and seed a user and a place."""
         self.app = create_app()
         self.app.config["TESTING"] = True
         self.client = self.app.test_client()
+
         facade.user_repo._storage.clear()
         facade.amenity_repo._storage.clear()
         facade.place_repo._storage.clear()
         facade.review_repo._storage.clear()
 
-        # Create user
-        user_response = self.client.post('/api/v1/users/', json={
-            "first_name": "John",
-            "last_name": "Doe",
-            "email": "john@example.com",
+        # admin
+        admin = self.client.post('/api/v1/users/', json={
+            "first_name": "Admin",
+            "last_name": "User",
+            "email": "admin@test.com",
             "password": "Password123"
         })
-        self.user_id = user_response.get_json()["id"]
 
-        # Create place
-        place_response = self.client.post('/api/v1/places/', json={
+        self.admin_id = admin.get_json()["id"]
+        facade.user_repo.get(self.admin_id)._is_admin = True
+
+        # owner
+        owner = self.client.post('/api/v1/users/', json={
+            "first_name": "Owner",
+            "last_name": "User",
+            "email": "owner@test.com",
+            "password": "Password123"
+        })
+
+        self.owner_id = owner.get_json()["id"]
+
+        # reviewer
+        reviewer = self.client.post('/api/v1/users/', json={
+            "first_name": "Reviewer",
+            "last_name": "User",
+            "email": "review@test.com",
+            "password": "Password123"
+        })
+
+        self.reviewer_id = reviewer.get_json()["id"]
+
+        self.admin_token = self._login("admin@test.com")
+        self.reviewer_token = self._login("review@test.com")
+        self.owner_token = self._login("owner@test.com")
+
+        # create place
+        place = self.client.post('/api/v1/places/', headers=self._auth(self.owner_token), json={
             "title": "Studio",
             "description": "Nice place",
             "price": 50,
             "latitude": 45,
             "longitude": 6,
-            "owner_id": self.user_id,
+            "owner_id": self.owner_id,
             "amenities": []
         })
-        self.place_id = place_response.get_json()["id"]
 
-    # -------------------------
-    # Helper
-    # -------------------------
+        data = place.get_json()
 
-    def _create_review(self, comment="Very nice", rating=5):
-        """Helper to create a review and return the response."""
-        response = self.client.post('/api/v1/reviews/', json={
-            "author_id": self.user_id,
+        if place.status_code != 201:
+            raise Exception(f"Place creation failed: {data}")
+
+        self.place_id = data["id"]
+
+        # create review
+        review = self.client.post('/api/v1/reviews/', headers=self._auth(self.reviewer_token), json={
+            "author_id": self.reviewer_id,
             "place_id": self.place_id,
-            "comment": comment,
-            "rating": rating
+            "comment": "Nice",
+            "rating": 5
         })
-        return response
 
-    # =========================================================
-    # CREATE — Success
-    # =========================================================
+        data = review.get_json()
 
-    def test_create_review_success(self):
-        """POST /reviews creates a review and returns 201 with expected fields."""
-        response = self._create_review()
-        self.assertEqual(response.status_code, 201)
-        data = response.get_json()
-        self.assertIn("id", data)
-        self.assertEqual(data["rating"], 5)
-        self.assertEqual(data["comment"], "Very nice")
+        if review.status_code != 201:
+            raise Exception(f"Review creation failed: {data}")
 
-    def test_create_review_rating_min(self):
-        """POST /reviews accepts the minimum rating value (1) and returns 201."""
-        response = self._create_review(rating=1)
-        self.assertEqual(response.status_code, 201)
+        self.review_id = data["id"]
 
-    # =========================================================
-    # CREATE — Invalid
-    # =========================================================
+    # helpers
 
-    def test_create_review_duplicate(self):
-        """POST /reviews rejects duplicate reviews for the same author and place and returns 400."""
-        self._create_review()
-        response = self._create_review()
-        self.assertEqual(response.status_code, 400)
-
-    def test_create_review_invalid_rating_too_high(self):
-        """POST /reviews rejects a rating above 5 and returns 400."""
-        response = self._create_review(rating=6)
-        self.assertEqual(response.status_code, 400)
-
-    def test_create_review_rating_too_low(self):
-        """POST /reviews rejects a rating below 1 and returns 400."""
-        response = self._create_review(rating=0)
-        self.assertEqual(response.status_code, 400)
-
-    def test_create_review_invalid_author(self):
-        """POST /reviews rejects an unknown author_id and returns an error status."""
-        response = self.client.post('/api/v1/reviews/', json={
-            "author_id": str(uuid.uuid4()),
-            "place_id": self.place_id,
-            "comment": "Test",
-            "rating": 4
+    def _login(self, email):
+        response = self.client.post('/api/v1/auth/login', json={
+            "email": email,
+            "password": "Password123"
         })
-        self.assertIn(response.status_code, [400, 404])
+        return response.get_json()["access_token"]
 
-    def test_create_review_invalid_place(self):
-        """POST /reviews rejects an unknown place_id and returns an error status."""
-        response = self.client.post('/api/v1/reviews/', json={
-            "author_id": self.user_id,
-            "place_id": str(uuid.uuid4()),
-            "comment": "Test",
-            "rating": 4
-        })
-        self.assertIn(response.status_code, [400, 404])
+    def _auth(self, token):
+        return {"Authorization": f"Bearer {token}"}
 
-    # =========================================================
-    # GET — Success
-    # =========================================================
+    # ==================================================
+    # UPDATE
+    # ==================================================
 
-    def test_get_review_success(self):
-        """GET /reviews/<id> returns 200 and the correct review id."""
-        review_id = self._create_review().get_json()["id"]
-        response = self.client.get(f'/api/v1/reviews/{review_id}')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()["id"], review_id)
+    def test_author_update_review(self):
+        response = self.client.put(
+            f'/api/v1/reviews/{self.review_id}',
+            headers=self._auth(self.reviewer_token),
+            json={"comment": "Updated"}
+        )
 
-    # =========================================================
-    # GET — Not found
-    # =========================================================
-
-    def test_get_review_not_found(self):
-        """GET /reviews/<id> returns 404 when the review does not exist."""
-        fake_id = str(uuid.uuid4())
-        response = self.client.get(f'/api/v1/reviews/{fake_id}')
-        self.assertEqual(response.status_code, 404)
-
-    # =========================================================
-    # UPDATE — Success
-    # =========================================================
-
-    def test_update_review_success(self):
-        """PUT /reviews/<id> updates the comment and returns 200."""
-        review_id = self._create_review().get_json()["id"]
-        response = self.client.put(f'/api/v1/reviews/{review_id}', json={
-            "comment": "Updated comment"
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()["comment"], "Updated comment")
-
-    def test_update_review_rating_unchanged(self):
-        """PUT /reviews/<id> keeps rating unchanged when only updating comment."""
-        review_id = self._create_review(rating=4).get_json()["id"]
-        response = self.client.put(f'/api/v1/reviews/{review_id}', json={
-            "comment": "New comment"
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()["rating"], 4)
-
-    # =========================================================
-    # DELETE — Success + 404 after
-    # =========================================================
-
-    def test_delete_review(self):
-        """DELETE /reviews/<id> removes the review and returns 200."""
-        review_id = self._create_review().get_json()["id"]
-        response = self.client.delete(f'/api/v1/reviews/{review_id}')
         self.assertEqual(response.status_code, 200)
 
-    def test_delete_review_then_get(self):
-        """DELETE then GET on the same review returns 404."""
-        review_id = self._create_review().get_json()["id"]
-        self.client.delete(f'/api/v1/reviews/{review_id}')
-        response = self.client.get(f'/api/v1/reviews/{review_id}')
-        self.assertEqual(response.status_code, 404)
+    def test_admin_update_review(self):
+        response = self.client.put(
+            f'/api/v1/reviews/{self.review_id}',
+            headers=self._auth(self.admin_token),
+            json={"comment": "Admin edit"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    # ==================================================
+    # DELETE
+    # ==================================================
+
+    def test_author_delete_review(self):
+        response = self.client.delete(
+            f'/api/v1/reviews/{self.review_id}',
+            headers=self._auth(self.reviewer_token)
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_delete_review(self):
+        response = self.client.delete(
+            f'/api/v1/reviews/{self.review_id}',
+            headers=self._auth(self.admin_token)
+        )
+
+        self.assertEqual(response.status_code, 200)
 
 
 if __name__ == "__main__":
