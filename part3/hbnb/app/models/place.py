@@ -28,6 +28,13 @@ class Place(BaseModel):
         self._owner_id = owner_id
         self._amenities = []
 
+    # ----- Properties -----
+
+    @property
+    def owner_id(self):
+        """Return the owner's id."""
+        return self._owner_id
+
     # -------- Helpers --------
     @staticmethod
     def _to_number(value, field_name, number_type=float):

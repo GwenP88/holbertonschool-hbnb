@@ -244,10 +244,13 @@ class HBnBFacade:
         author_id = review_data.get("author_id")
         if place_id is None or author_id is None:
             raise ValueError("author_id and place_id are required.")
-        if self.place_repo.get(place_id) is None:
+        place = self.place_repo.get(place_id)
+        if place is None:
             return None
         if self.user_repo.get(author_id) is None:
             raise ValueError("User not found.")
+        if place.owner_id == author_id:
+            raise ValueError("You cannot review your own place.")
         for review in self.review_repo.get_all():
             if review.place_id == place_id and review.author_id == author_id:
                 raise ValueError("Review already exists for this user and place.")
