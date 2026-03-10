@@ -1,5 +1,5 @@
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services import facade
 
 api = Namespace('users', description='User operations')
@@ -44,7 +44,7 @@ class UserList(Resource):
         users = facade.get_users()
         list_users = []
         for user in users:
-            list_users.append({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email})
+            list_users.append({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email, 'is_admin': user.is_admin})
         return list_users, 200
 
 
@@ -57,7 +57,7 @@ class UserResource(Resource):
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
-        return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
+        return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email, 'is_admin': user.is_admin}, 200
 
     @api.expect(user_update_model, validate=True)
     @api.response(200, 'User details updated successfully')
@@ -69,7 +69,8 @@ class UserResource(Resource):
     def put(self, user_id):
         payload = api.payload
         current_user = get_jwt_identity()
-        if user_id != current_user:
+        claims = get_jwt()
+        if user_id != current_user and not claims.get("is_admin"):
             return {'error': 'Unauthorized action'}, 403
         if "email" in payload or "password" in payload:
             return {'error': 'You cannot modify email or password.'}, 400
@@ -93,7 +94,8 @@ class UserEmailResource(Resource):
     def put(self, user_id):
         payload = api.payload
         current_user = get_jwt_identity()
-        if user_id != current_user:
+        claims = get_jwt()
+        if user_id != current_user and not claims.get("is_admin"):
             return {'error': 'Unauthorized action'}, 403
         try:
             user = facade.update_user_email(user_id, payload)
@@ -115,7 +117,8 @@ class UserPasswordResource(Resource):
     def put(self, user_id):
         payload = api.payload
         current_user = get_jwt_identity()
-        if user_id != current_user:
+        claims = get_jwt()
+        if user_id != current_user and not claims.get("is_admin"):
             return {'error': 'Unauthorized action'}, 403
         try:
             user = facade.update_user_password(user_id, payload)

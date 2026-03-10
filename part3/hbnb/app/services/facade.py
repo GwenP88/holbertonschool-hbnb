@@ -10,7 +10,12 @@ class HBnBFacade:
     """Coordinate user, amenity, place, and review operations through repositories."""
     def __init__(self):
         """Initialize repositories used by the facade."""
+        # Seed admin user for testing admin endpoints in development
         self.user_repo = InMemoryRepository()
+        admin = User(first_name="Gwen", last_name="Aelle", email="monemail@email.fr", is_admin=True)
+        admin.set_password("password123")
+        self.user_repo.add(admin)
+
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
