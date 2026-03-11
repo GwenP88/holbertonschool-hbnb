@@ -2,6 +2,14 @@ from app.models.review import Review
 from app.persistence.repository import SQLAlchemyRepository
 
 class ReviewRepository(SQLAlchemyRepository):
+    """Specialized repository for Review persistence and future custom queries."""
+
     def __init__(self):
+        """Initialize the repository with the Review model."""
         super().__init__(Review)
-    # Specialized repository for reviews, designed to support place-specific queries later.
+
+    # Future custom method for retrieving all reviews linked to a place
+    # def get_reviews_by_place(self, place_id):
+    #   """Return all reviews for a given place id."""
+    #   return self.model.query.filter_by(place_id=place_id).all()
+    #     pass
