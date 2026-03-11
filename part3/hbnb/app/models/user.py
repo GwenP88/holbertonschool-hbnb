@@ -1,43 +1,30 @@
 """User model with validation, password hashing, serialization, and update helpers."""
+from app import db, bcrypt
 from app.models.basemodel import BaseModel
-from app import bcrypt
 
 class User(BaseModel):
     """Represent a user with validated identity fields and optional admin flag."""
+    __tablename__ = 'users'
+
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+
+
     def __init__(self, first_name, last_name, email, is_admin=False):
         """Initialize a user with validated names, email, and optional admin flag."""
-        super().__init__()
 
         self._validate_first_name(first_name)
         self._validate_last_name(last_name)
         email = self._validate_email(email)
 
-        self._first_name = first_name.strip()
-        self._last_name = last_name.strip()
-        self._email = email
-        self._password = None
-        self._is_admin = is_admin
-
-    # ----- Properties -----
-    @property
-    def first_name(self):
-        """Return the user's first name."""
-        return self._first_name
-
-    @property
-    def last_name(self):
-        """Return the user's last name."""
-        return self._last_name
-
-    @property
-    def email(self):
-        """Return the user's email address."""
-        return self._email
-
-    @property
-    def is_admin(self):
-        """Return whether the user has admin privileges."""
-        return self._is_admin
+        self.first_name = first_name.strip()
+        self.last_name = last_name.strip()
+        self.email = email
+        self.password = None
+        self.is_admin = is_admin
 
     # ----- Validations -----
 
@@ -90,11 +77,11 @@ class User(BaseModel):
     def set_password(self, password):
         """Hashes the password before storing it."""
         self._validate_password(password)
-        self._password = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password."""
-        return bcrypt.check_password_hash(self._password, password)
+        return bcrypt.check_password_hash(self.password, password)
 
 
     # ----- Creation user -----
@@ -149,15 +136,13 @@ class User(BaseModel):
         if not email:
             raise ValueError("No email to update.")
         email = self._validate_email(email)
-        self._email = email
-        self.save()
+        self.email = email
 
     def update_password(self, password):
         """Update user password field with validation."""
         if not password:
             raise ValueError("No password to update.")
         self.set_password(password)
-        self.save()
 
     # ----- delete profile -----
 
