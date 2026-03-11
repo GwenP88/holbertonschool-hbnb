@@ -1,6 +1,6 @@
 """HBnB facade providing high-level services over in-memory repositories."""
 from app.persistence.repository import InMemoryRepository
-from app.persistence.repository import SQLAlchemyRepository
+from app.persistence.user_repository import UserRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
@@ -11,7 +11,7 @@ class HBnBFacade:
     """Coordinate user, amenity, place, and review operations through repositories."""
     def __init__(self):
         """Initialize repositories used by the facade."""
-        self.user_repo = SQLAlchemyRepository(User)
+        self.user_repo = UserRepository()
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
@@ -30,7 +30,7 @@ class HBnBFacade:
         if not email:
             raise ValueError("Email is required.")
         email = email.strip().lower()
-        existing_user = self.user_repo.get_by_attribute("_email", email)
+        existing_user = self.user_repo.get_user_by_email(email)
         if existing_user:
             raise ValueError("Email already exists.")
         user = User.create_user(user_data)
@@ -50,7 +50,7 @@ class HBnBFacade:
         if not email:
             raise ValueError("Email is required.")
         email = email.strip().lower()
-        return self.user_repo.get_by_attribute("_email", email)
+        return self.user_repo.get_user_by_email(email)
 
     def update_user(self, user_id, user_data):
         """Update a user profile (first_name and last_name only)"""
@@ -77,7 +77,7 @@ class HBnBFacade:
         if "email" not in user_data:
             raise ValueError("Email is required.")
         new_email = user_data["email"].strip().lower()
-        existing_user = self.user_repo.get_by_attribute("_email", new_email)
+        existing_user = self.user_repo.get_user_by_email(new_email)
         if existing_user and existing_user.id != user.id:
             raise ValueError("Email already exists.")
         self.user_repo.update(user_id, {"email": new_email})   
