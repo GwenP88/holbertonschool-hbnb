@@ -1,9 +1,14 @@
 """Amenity model with validation, serialization, and update helpers."""
+from app import db
 from app.models.basemodel import BaseModel
 
 
 class Amenity(BaseModel):
     """Represent an amenity with a validated name and optional description."""
+    __tablename__ = 'amenities'
+
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(255))
 
     def __init__(self, name, description=None):
         """Initialize an amenity with a validated name and optional description."""
@@ -11,19 +16,8 @@ class Amenity(BaseModel):
         self._validate_name(name)
         self._validate_desc(description)
 
-        self._name = name.strip().lower()
-        self._description = description
-
-    # ----- Properties -----
-    @property
-    def name(self):
-        """Return the amenity name."""
-        return self._name
-
-    @property
-    def description(self):
-        """Return the amenity description."""
-        return self._description
+        self.name = name.strip().lower()
+        self.description = description
 
     # ----- Validations -----
     @staticmethod
