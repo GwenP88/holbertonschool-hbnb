@@ -91,16 +91,17 @@ class Review(BaseModel):
 
     # -------- Update ---------
     def update(self, data: dict):
-        """Update review fields with validation and persistence."""
+        """Update review fields with validation."""
         if not data or not isinstance(data, dict):
             raise ValueError("No data to update.")
         if "comment" in data:
             self._validate_comment(data["comment"])
-            self.comment = data["comment"].strip()
+            data["comment"] = data["comment"].strip()
         if "rating" in data:
             rating = self._to_number(data["rating"], "Rating", int)
             self._validate_rating(rating)
-            self.rating = rating
+            data["rating"] = rating
+        super().update(data)
 
     # -------- Delete ---------
     def delete(self):
