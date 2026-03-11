@@ -1,4 +1,4 @@
-"""Repository interfaces and an in-memory implementation for CRUD operations."""
+"""Repository interfaces and SQLAlchemy-based implementations for CRUD operations."""
 from abc import ABC, abstractmethod
 from app import db
 
@@ -35,6 +35,11 @@ class Repository(ABC):
         """Return the first object matching an attribute value."""
         pass
 
+    @abstractmethod
+    def save(self, obj):
+        """Persist changes made to an existing object."""
+        pass
+
 
 class InMemoryRepository(Repository):
     """Implement repository operations using an in-memory dictionary."""
@@ -68,6 +73,11 @@ class InMemoryRepository(Repository):
     def get_by_attribute(self, attr_name, attr_value):
         """Find an object by attribute value in storage."""
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+    
+    def save(self, obj):
+        """Store the updated object in memory using its id."""
+        self._storage[obj.id] = obj
+
 
 class SQLAlchemyRepository(Repository):
     """Implement repository operations using SQLAlchemy persistence."""
@@ -92,9 +102,7 @@ class SQLAlchemyRepository(Repository):
         """Update a stored object by id if it exists."""
         obj = self.get(obj_id)
         if obj:
-            for key, value in data.items():
-                setattr(obj, "_" + key, value)
-            obj.update_time()
+            obj.update(data)
             db.session.commit()
 
     def delete(self, obj_id):
@@ -107,3 +115,8 @@ class SQLAlchemyRepository(Repository):
     def get_by_attribute(self, attr_name, attr_value):
         """Find an object by attribute value in the database."""
         return self.model.query.filter_by(**{attr_name: attr_value}).first()
+    
+    def save(self, obj):
+        """Commit changes made to an existing database object."""
+        db.session.add(obj)
+        db.session.commit()

@@ -1,6 +1,9 @@
-"""HBnB facade providing high-level services over in-memory repositories."""
-from app.persistence.repository import InMemoryRepository
+"""HBnB facade coordinating business operations through SQLAlchemy repositories."""
+from app.persistence.repository import SQLAlchemyRepository
 from app.persistence.user_repository import UserRepository
+from app.persistence.place_repository import PlaceRepository
+from app.persistence.review_repository import ReviewRepository
+
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
@@ -12,9 +15,9 @@ class HBnBFacade:
     def __init__(self):
         """Initialize repositories used by the facade."""
         self.user_repo = UserRepository()
-        self.amenity_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
+        self.place_repo = PlaceRepository()
+        self.review_repo = ReviewRepository()
 
     # ==========================
     # ------ USER METHODS ------
@@ -83,7 +86,6 @@ class HBnBFacade:
         self.user_repo.update(user_id, {"email": new_email})   
         return user
         
-
     def update_user_password(self, user_id, user_data):
         """Update a user's password with validation."""
         if not user_data or not isinstance(user_data, dict):
@@ -95,6 +97,7 @@ class HBnBFacade:
             raise ValueError("Password is required.")
         new_password = user_data["password"]
         user.update_password(new_password)
+        self.user_repo.save(user)
         return user
 
     # =============================
@@ -110,7 +113,7 @@ class HBnBFacade:
             raise ValueError("Name is required.")
         name = name.strip().lower()
         amenity_data["name"] = name
-        existing_amenity = self.amenity_repo.get_by_attribute("_name", name)
+        existing_amenity = self.amenity_repo.get_by_attribute("name", name)
         if existing_amenity:
             raise ValueError("Amenity already exists.")
         amenity = Amenity.create_amenity(amenity_data)
@@ -134,7 +137,7 @@ class HBnBFacade:
             return None
         if "name" in amenity_data:
             new_name = amenity_data["name"].strip().lower()
-            existing_amenity = self.amenity_repo.get_by_attribute("_name", new_name)
+            existing_amenity = self.amenity_repo.get_by_attribute("name", new_name)
             if existing_amenity and existing_amenity.id != amenity.id:
                 raise ValueError("Name already exists.")
         self.amenity_repo.update(amenity_id, amenity_data)
@@ -192,7 +195,6 @@ class HBnBFacade:
             amenities_list.append({"id": a.id, "name": a.name, "description": a.description})
         data["amenities"] = amenities_list
         data["reviews"] = self.get_reviews_by_place(place_id)
-        
         return data
 
     def get_all_places(self):
@@ -222,6 +224,7 @@ class HBnBFacade:
         if not amenity:
             raise ValueError("Amenity not found.")
         place.add_amenity(amenity_id)
+        self.place_repo.save(place)
         return place
 
     def remove_amenity_from_place(self, place_id, amenity_id):
@@ -233,6 +236,7 @@ class HBnBFacade:
         if not amenity:
             raise ValueError("Amenity not found.")
         place.remove_amenity(amenity_id)
+        self.place_repo.save(place)
         return place
 
     # =============================
@@ -301,7 +305,7 @@ class HBnBFacade:
             return None
         if "author_id" in review_data or "place_id" in review_data:
             raise ValueError("author_id and place_id cannot be modified.")
-        review.update(review_data)
+        self.review_repo.update(review_id, review_data)
         return review
 
     def delete_review(self, review_id):
