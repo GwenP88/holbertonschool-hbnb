@@ -119,10 +119,10 @@ class PlaceResource(Resource):
         payload = api.payload
         current_user = get_jwt_identity()
         claims = get_jwt()
-        place = facade.get_place(place_id)
+        place = facade.place_repo.get(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
-        if place["owner_id"] != current_user and not claims.get("is_admin"):
+        if place.owner_id != current_user and not claims.get("is_admin"):
             return {'error': 'Unauthorized action'}, 403
         try:
             facade.update_place(place_id, payload)
@@ -146,15 +146,15 @@ class PlaceAmenityResource(Resource):
         """Add an amenity to a place"""
         current_user = get_jwt_identity()
         claims = get_jwt()
-        place = facade.get_place(place_id)
+        place = facade.place_repo.get(place_id)
         if not place:
-            return {'error': 'Place not found'}, 404
-        if place["owner"]["id"] != current_user and not claims.get("is_admin"):
+            return {'error': 'Place not found.'}, 404
+        if place.owner_id != current_user and not claims.get("is_admin"):
             return {'error': 'Unauthorized action'}, 403
         try:
-            place = facade.add_amenity_to_place(place_id, amenity_id)
+            facade.add_amenity_to_place(place_id, amenity_id)
         except ValueError as e:
-            if str(e) == "Amenity not found.":
+            if str(e) == "Amenity not found." or str(e) == "Place not found.":
                 return {'error': str(e)}, 404
             return {'error': str(e)}, 400
         place_details = facade.get_place(place_id)
@@ -170,15 +170,15 @@ class PlaceAmenityResource(Resource):
         """Remove an amenity from a place"""
         current_user = get_jwt_identity()
         claims = get_jwt()
-        place = facade.get_place(place_id)
+        place = facade.place_repo.get(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
-        if place["owner"]["id"] != current_user and not claims.get("is_admin"):
+        if place.owner_id != current_user and not claims.get("is_admin"):
             return {'error': 'Unauthorized action'}, 403
         try:
-            place = facade.remove_amenity_from_place(place_id, amenity_id)
+            facade.remove_amenity_from_place(place_id, amenity_id)
         except ValueError as e:
-            if str(e) == "Amenity not found.":
+            if str(e) == "Amenity not found." or str(e) == "Place not found.":
                 return {'error': str(e)}, 404
             return {'error': str(e)}, 400
         place_details = facade.get_place(place_id)

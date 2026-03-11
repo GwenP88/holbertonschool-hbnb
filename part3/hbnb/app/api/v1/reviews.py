@@ -33,11 +33,9 @@ class ReviewList(Resource):
         try:
             new_review = facade.create_review(review_data)
         except ValueError as e:
-            if str(e) == "User not found.":
+            if str(e) == "User not found." or str(e) == "Place not found.":
                 return {'error': str(e)}, 404
             return {'error': str(e)}, 400
-        if new_review is None:
-            return {'error': 'Place not found'}, 404
         return new_review.get_details(), 201
 
     @api.response(200, 'List of reviews retrieved successfully')
@@ -68,10 +66,10 @@ class ReviewResource(Resource):
         payload = api.payload
         current_user = get_jwt_identity()
         claims = get_jwt()
-        review = facade.get_review(review_id)
+        review = facade.review_repo.get(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
-        if review["author_id"] != current_user and not claims.get("is_admin"):
+        if review.author_id != current_user and not claims.get("is_admin"):
             return {'error': 'Unauthorized action'}, 403
         try:
             facade.update_review(review_id, payload)
@@ -88,10 +86,10 @@ class ReviewResource(Resource):
     def delete(self, review_id):
         current_user = get_jwt_identity()
         claims = get_jwt()
-        review = facade.get_review(review_id)
+        review = facade.review_repo.get(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
-        if review["author_id"] != current_user and not claims.get("is_admin"):
+        if review.author_id != current_user and not claims.get("is_admin"):
             return {'error': 'Unauthorized action'}, 403
         facade.delete_review(review_id)
         return {'message': 'Review deleted successfully.'}, 200

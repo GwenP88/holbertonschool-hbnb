@@ -187,6 +187,7 @@ class HBnBFacade:
             "last_name": owner.last_name,
             "email": owner.email
             }
+        del data["owner_id"]
         amenities_list = []
         for amenity_id in data["amenities"]:
             a = self.amenity_repo.get(amenity_id)
@@ -195,6 +196,7 @@ class HBnBFacade:
             amenities_list.append({"id": a.id, "name": a.name, "description": a.description})
         data["amenities"] = amenities_list
         data["reviews"] = self.get_reviews_by_place(place_id)
+        
         return data
 
     def get_all_places(self):
@@ -219,7 +221,7 @@ class HBnBFacade:
         """Link an amenity to a place after validating both ids."""
         place = self.place_repo.get(place_id)
         if place is None:
-            return None
+            raise ValueError("Place not found.")
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             raise ValueError("Amenity not found.")
@@ -230,7 +232,7 @@ class HBnBFacade:
         """Unlink an amenity from a place after validating both ids."""
         place = self.place_repo.get(place_id)
         if place is None:
-            return None
+            raise ValueError("Place not found.")
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             raise ValueError("Amenity not found.")
@@ -251,7 +253,7 @@ class HBnBFacade:
             raise ValueError("author_id and place_id are required.")
         place = self.place_repo.get(place_id)
         if place is None:
-            return None
+            raise ValueError("Place not found.")
         if self.user_repo.get(author_id) is None:
             raise ValueError("User not found.")
         if place.owner_id == author_id:
