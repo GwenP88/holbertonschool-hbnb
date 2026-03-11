@@ -93,7 +93,8 @@ class SQLAlchemyRepository(Repository):
         obj = self.get(obj_id)
         if obj:
             for key, value in data.items():
-                setattr(obj, key, value)
+                setattr(obj, "_" + key, value)
+            obj.update_time()
             db.session.commit()
 
     def delete(self, obj_id):

@@ -80,7 +80,7 @@ class HBnBFacade:
         existing_user = self.user_repo.get_by_attribute("_email", new_email)
         if existing_user and existing_user.id != user.id:
             raise ValueError("Email already exists.")
-        user.update_email(new_email)    
+        self.user_repo.update(user_id, {"email": new_email})   
         return user
         
 
