@@ -1,21 +1,25 @@
 """Review model with validation, serialization, and update helpers."""
+from app import db
 from app.models.basemodel import BaseModel
 
 
 class Review(BaseModel):
     """Represent a review with a comment, rating, author id, and place id."""
+    __tablename__ = 'reviews'
+
+    comment = db.Column(db.String(500), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
 
     def __init__(self, comment, rating, author_id, place_id):
         """Initialize a review with a validated comment and rating."""
-        super().__init__()
 
         self._validate_comment(comment)
 
         rating = self._to_number(rating, "Rating", int)
         self._validate_rating(rating)
 
-        self._comment = comment.strip()
-        self._rating = rating
+        self.comment = comment.strip()
+        self.rating = rating
         self._author_id = author_id
         self._place_id = place_id
 
@@ -33,15 +37,6 @@ class Review(BaseModel):
             raise ValueError(f"{field_name} must be a number.")
 
     # ------- Properties ------
-    @property
-    def comment(self):
-        """Return the review comment."""
-        return self._comment
-
-    @property
-    def rating(self):
-        """Return the review rating."""
-        return self._rating
 
     @property
     def author_id(self):
@@ -59,6 +54,8 @@ class Review(BaseModel):
         """Validate that comment is a non-empty string."""
         if not comment or not isinstance(comment, str) or not comment.strip():
             raise ValueError("Comment is required.")
+        if len(comment.strip()) > 500:
+            raise ValueError("Comment must not exceed 500 characters.")
 
     @staticmethod
     def _validate_rating(rating):
@@ -84,8 +81,8 @@ class Review(BaseModel):
         """Return a serializable dictionary of review fields."""
         return {
             "id": self.id,
-            "comment": self._comment,
-            "rating": self._rating,
+            "comment": self.comment,
+            "rating": self.rating,
             "author_id": self._author_id,
             "place_id": self._place_id,
             "created_at": self.created_at.isoformat(),
@@ -99,12 +96,11 @@ class Review(BaseModel):
             raise ValueError("No data to update.")
         if "comment" in data:
             self._validate_comment(data["comment"])
-            self._comment = data["comment"].strip()
+            self.comment = data["comment"].strip()
         if "rating" in data:
             rating = self._to_number(data["rating"], "Rating", int)
             self._validate_rating(rating)
-            self._rating = rating
-        self.save()
+            self.rating = rating
 
     # -------- Delete ---------
     def delete(self):

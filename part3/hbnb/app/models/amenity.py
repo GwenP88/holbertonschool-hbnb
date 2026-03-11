@@ -12,7 +12,6 @@ class Amenity(BaseModel):
 
     def __init__(self, name, description=None):
         """Initialize an amenity with a validated name and optional description."""
-        super().__init__()
         self._validate_name(name)
         self._validate_desc(description)
 
