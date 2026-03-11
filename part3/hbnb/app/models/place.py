@@ -1,13 +1,21 @@
 """Place model with validation, serialization, amenity linking, and update helpers."""
+from app import db
 from app.models.basemodel import BaseModel
 
 
 class Place(BaseModel):
     """Represent a place with location, price, owner, and linked amenities."""
+    __tablename__ = 'places'
+
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
 
     def __init__(self, title, description, price, latitude, longitude, owner_id):
         """Initialize a place with validated fields and normalized numeric values."""
-        super().__init__()
+
 
         self._validate_title(title)
         self._validate_description(description)
@@ -20,11 +28,12 @@ class Place(BaseModel):
         self._validate_latitude(latitude)
         self._validate_longitude(longitude)
 
-        self._title = title.strip()
-        self._description = description
-        self._price = price
-        self._latitude = latitude
-        self._longitude = longitude
+        self.title = title.strip()
+        self.description = description
+        self.price = price
+        self.latitude = latitude
+        self.longitude = longitude
+
         self._owner_id = owner_id
         self._amenities = []
 
@@ -71,7 +80,7 @@ class Place(BaseModel):
     def _validate_price(price):
         """Validate that price is non-negative."""
         if price <= 0:
-            raise ValueError("Price must be non-negative.")
+            raise ValueError("Price must be a positive number.")
 
     @staticmethod
     def _validate_latitude(latitude):
@@ -103,11 +112,11 @@ class Place(BaseModel):
         """Return a serializable dictionary of place fields and amenities."""
         return {
             "id": self.id,
-            "title": self._title,
-            "description": self._description,
-            "price": self._price,
-            "latitude": self._latitude,
-            "longitude": self._longitude,
+            "title": self.title,
+            "description": self.description,
+            "price": self.price,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
             "owner_id": self._owner_id,
             "amenities": list(self._amenities),
             "created_at": self.created_at.isoformat(),
@@ -118,10 +127,10 @@ class Place(BaseModel):
         """Return a lightweight dictionary representation for place listings."""
         return {
             "id": self.id,
-            "title": self._title,
-            "price": self._price,
-            "latitude": self._latitude,
-            "longitude": self._longitude,
+            "title": self.title,
+            "price": self.price,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
         }
 
     @classmethod
@@ -137,23 +146,23 @@ class Place(BaseModel):
             raise ValueError("No data to update.")
         if "title" in data:
             self._validate_title(data["title"])
-            self._title = data["title"].strip()
+            data["title"] = data["title"].strip()
         if "description" in data:
             self._validate_description(data["description"])
-            self._description = data["description"]
+            data["description"] = data["description"].strip()
         if "price" in data:
             price = self._to_number(data["price"], "Price", float)
             self._validate_price(price)
-            self._price = price
+            data["price"] = price
         if "latitude" in data:
             latitude = self._to_number(data["latitude"], "Latitude", float)
             self._validate_latitude(latitude)
-            self._latitude = latitude
+            data["latitude"] = latitude
         if "longitude" in data:
             longitude = self._to_number(data["longitude"], "Longitude", float)
             self._validate_longitude(longitude)
-            self._longitude = longitude
-        self.save()
+            data["longitude"] = longitude
+        super().update(data)
 
     # ----- Amenities ---------
     def add_amenity(self, amenity_id):
@@ -161,14 +170,12 @@ class Place(BaseModel):
         if amenity_id in self._amenities:
             raise ValueError("Amenity already added.")
         self._amenities.append(amenity_id)
-        self.save()
 
     def remove_amenity(self, amenity_id):
         """Unlink an amenity id from the place and persist the change."""
         if amenity_id not in self._amenities:
             raise ValueError("Amenity not linked.")
         self._amenities.remove(amenity_id)
-        self.save()
 
     # -------- Delete ---------
 
