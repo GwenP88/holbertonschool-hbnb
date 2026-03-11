@@ -1,5 +1,6 @@
 """Flask application factory that configures the HBnB REST API namespaces."""
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
 
@@ -13,6 +14,7 @@ from app.api.v1.places import api as places_ns
 from app.api.v1.reviews import api as reviews_ns
 from app.api.v1.auth import api as auth_ns
 
+db = SQLAlchemy()
 
 def create_app(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
@@ -35,6 +37,7 @@ def create_app(config_class="config.DevelopmentConfig"):
         authorizations=authorizations,
     )
     
+    db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
 

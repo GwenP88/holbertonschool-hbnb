@@ -11,9 +11,9 @@ class Config:
 class DevelopmentConfig(Config):
     """Enable development settings such as debug mode."""
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-
-"""Map environment names to configuration classes."""
 config = {
     'development': DevelopmentConfig,
     'default': DevelopmentConfig
