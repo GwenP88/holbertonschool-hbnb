@@ -29,7 +29,7 @@ class Place(BaseModel):
     # relation Place/Amenity
     amenities = db.relationship('Amenity', secondary=place_amenity, back_populates='places', lazy=True)
 
-    def __init__(self, title, description, price, latitude, longitude, user_id):
+    def __init__(self, title, description, price, latitude, longitude, owner_id):
         """Initialize a place with validated fields and normalized numeric values."""
 
 
@@ -49,7 +49,7 @@ class Place(BaseModel):
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.user_id = user_id
+        self.owner_id = owner_id
 
     # -------- Helpers --------
     @staticmethod
@@ -103,7 +103,7 @@ class Place(BaseModel):
 
     # ------- Creation --------
     @classmethod
-    def create_place(cls, data, user_id):
+    def create_place(cls, data, owner_id):
         """Create a Place instance from input data and an owner id."""
         return cls(
             title=data.get("title"),
@@ -111,7 +111,7 @@ class Place(BaseModel):
             price=data.get("price"),
             latitude=data.get("latitude"),
             longitude=data.get("longitude"),
-            user_id=user_id
+            owner_id=owner_id
         )
 
     # ------- Serialization ---
@@ -124,7 +124,7 @@ class Place(BaseModel):
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,
-            "user_id": self.user_id,
+            "owner_id": self.owner_id,
             "amenities": list(self.amenities),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),

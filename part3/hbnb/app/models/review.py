@@ -18,7 +18,7 @@ class Review(BaseModel):
     place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
     place = db.relationship('Place', back_populates='reviews', lazy=True)
 
-    def __init__(self, comment, rating, user_id, place_id):
+    def __init__(self, comment, rating, author_id, place_id):
         """Initialize a review with a validated comment and rating."""
 
         self._validate_comment(comment)
@@ -28,7 +28,7 @@ class Review(BaseModel):
 
         self.comment = comment.strip()
         self.rating = rating
-        self.user_id = user_id
+        self.author_id = author_id
         self.place_id = place_id
 
     # -------- Helpers --------
@@ -61,14 +61,14 @@ class Review(BaseModel):
 
     # -------- Creation -------
     @classmethod
-    def create_review(cls, data: dict, user_id, place_id):
+    def create_review(cls, data: dict, author_id, place_id):
         """Create a Review instance from input data and related ids."""
         if not data or not isinstance(data, dict):
             raise ValueError("Review data must be a dictionary.")
         return cls(
             comment=data.get("comment"),
             rating=data.get("rating"),
-            user_id=user_id,
+            author_id=author_id,
             place_id=place_id
         )
 
@@ -79,7 +79,7 @@ class Review(BaseModel):
             "id": self.id,
             "comment": self.comment,
             "rating": self.rating,
-            "user_id": self.user_id,
+            "author_id": self.author_id,
             "place_id": self.place_id,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
