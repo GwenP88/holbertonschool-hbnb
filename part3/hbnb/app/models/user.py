@@ -12,6 +12,11 @@ class User(BaseModel):
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
+    # relation User/Place
+    places = db.relationship("Place", back_populates="owner", lazy=True)
+
+    # relation User/Review
+    reviews = db.relationship('Review', back_populates='author', lazy=True)
 
     def __init__(self, first_name, last_name, email, is_admin=False):
         """Initialize a user with validated names, email, and optional admin flag."""

@@ -10,7 +10,15 @@ class Review(BaseModel):
     comment = db.Column(db.String(500), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, comment, rating, author_id, place_id):
+    # relation User/Review
+    author_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    author = db.relationship('User', back_populates='reviews', lazy=True)
+
+    # relation Place/Review
+    place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
+    place = db.relationship('Place', back_populates='reviews', lazy=True)
+
+    def __init__(self, comment, rating, user_id, place_id):
         """Initialize a review with a validated comment and rating."""
 
         self._validate_comment(comment)
@@ -20,8 +28,8 @@ class Review(BaseModel):
 
         self.comment = comment.strip()
         self.rating = rating
-        self._author_id = author_id
-        self._place_id = place_id
+        self.user_id = user_id
+        self.place_id = place_id
 
     # -------- Helpers --------
     @staticmethod
@@ -35,18 +43,6 @@ class Review(BaseModel):
             return number_type(value)
         except (TypeError, ValueError):
             raise ValueError(f"{field_name} must be a number.")
-
-    # ------- Properties ------
-
-    @property
-    def author_id(self):
-        """Return the review author id."""
-        return self._author_id
-
-    @property
-    def place_id(self):
-        """Return the reviewed place id."""
-        return self._place_id
 
     # ------- Validations -----
     @staticmethod
@@ -65,14 +61,14 @@ class Review(BaseModel):
 
     # -------- Creation -------
     @classmethod
-    def create_review(cls, data: dict, author_id, place_id):
+    def create_review(cls, data: dict, user_id, place_id):
         """Create a Review instance from input data and related ids."""
         if not data or not isinstance(data, dict):
             raise ValueError("Review data must be a dictionary.")
         return cls(
             comment=data.get("comment"),
             rating=data.get("rating"),
-            author_id=author_id,
+            user_id=user_id,
             place_id=place_id
         )
 
@@ -83,8 +79,8 @@ class Review(BaseModel):
             "id": self.id,
             "comment": self.comment,
             "rating": self.rating,
-            "author_id": self._author_id,
-            "place_id": self._place_id,
+            "user_id": self.user_id,
+            "place_id": self.place_id,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

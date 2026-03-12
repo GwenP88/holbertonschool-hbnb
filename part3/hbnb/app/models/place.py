@@ -2,6 +2,12 @@
 from app import db
 from app.models.basemodel import BaseModel
 
+# Association table for many-to-many relationship for amenities and places
+place_amenity = db.Table('place_amenity',
+    db.Column('place_id', db.String(36), db.ForeignKey('places.id'), primary_key=True),
+    db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
+)
+
 
 class Place(BaseModel):
     """Represent a place with location, price, owner, and linked amenities."""
@@ -13,7 +19,17 @@ class Place(BaseModel):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
 
-    def __init__(self, title, description, price, latitude, longitude, owner_id):
+    # relation Place/User
+    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    owner = db.relationship('User', back_populates='places', lazy=True)
+
+    # relation Place/Review
+    reviews = db.relationship('Review', back_populates='place', lazy=True)
+
+    # relation Place/Amenity
+    amenities = db.relationship('Amenity', secondary=place_amenity, back_populates='places', lazy=True)
+
+    def __init__(self, title, description, price, latitude, longitude, user_id):
         """Initialize a place with validated fields and normalized numeric values."""
 
 
@@ -33,16 +49,7 @@ class Place(BaseModel):
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-
-        self._owner_id = owner_id
-        self._amenities = []
-
-    # ----- Properties -----
-
-    @property
-    def owner_id(self):
-        """Return the owner's id."""
-        return self._owner_id
+        self.user_id = user_id
 
     # -------- Helpers --------
     @staticmethod
@@ -96,7 +103,7 @@ class Place(BaseModel):
 
     # ------- Creation --------
     @classmethod
-    def create_place(cls, data, owner_id):
+    def create_place(cls, data, user_id):
         """Create a Place instance from input data and an owner id."""
         return cls(
             title=data.get("title"),
@@ -104,7 +111,7 @@ class Place(BaseModel):
             price=data.get("price"),
             latitude=data.get("latitude"),
             longitude=data.get("longitude"),
-            owner_id=owner_id
+            user_id=user_id
         )
 
     # ------- Serialization ---
@@ -117,8 +124,8 @@ class Place(BaseModel):
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,
-            "owner_id": self._owner_id,
-            "amenities": list(self._amenities),
+            "user_id": self.user_id,
+            "amenities": list(self.amenities),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -167,15 +174,15 @@ class Place(BaseModel):
     # ----- Amenities ---------
     def add_amenity(self, amenity_id):
         """Link an amenity id to the place and persist the change."""
-        if amenity_id in self._amenities:
+        if amenity_id in self.amenities:
             raise ValueError("Amenity already added.")
-        self._amenities.append(amenity_id)
+        self.amenities.append(amenity_id)
 
     def remove_amenity(self, amenity_id):
         """Unlink an amenity id from the place and persist the change."""
-        if amenity_id not in self._amenities:
+        if amenity_id not in self.amenities:
             raise ValueError("Amenity not linked.")
-        self._amenities.remove(amenity_id)
+        self.amenities.remove(amenity_id)
 
     # -------- Delete ---------
 

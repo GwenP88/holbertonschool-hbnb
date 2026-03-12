@@ -1,6 +1,7 @@
 """Amenity model with validation, serialization, and update helpers."""
 from app import db
 from app.models.basemodel import BaseModel
+from app.models.place import place_amenity
 
 
 class Amenity(BaseModel):
@@ -9,6 +10,9 @@ class Amenity(BaseModel):
 
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(255))
+
+    # relation Place/Amenity
+    places = db.relationship('Place', secondary=place_amenity, back_populates='amenities', lazy=True)
 
     def __init__(self, name, description=None):
         """Initialize an amenity with a validated name and optional description."""
