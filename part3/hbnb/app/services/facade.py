@@ -227,7 +227,7 @@ class HBnBFacade:
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             raise ValueError("Amenity not found.")
-        place.add_amenity(amenity_id)
+        place.add_amenity(amenity)
         self.place_repo.save(place)
         return place
 
@@ -239,7 +239,7 @@ class HBnBFacade:
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             raise ValueError("Amenity not found.")
-        place.remove_amenity(amenity_id)
+        place.remove_amenity(amenity)
         self.place_repo.save(place)
         return place
 
