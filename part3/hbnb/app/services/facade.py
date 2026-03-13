@@ -1,8 +1,8 @@
 """HBnB facade coordinating business operations through SQLAlchemy repositories."""
-from app.persistence.repository import SQLAlchemyRepository
 from app.persistence.user_repository import UserRepository
 from app.persistence.place_repository import PlaceRepository
 from app.persistence.review_repository import ReviewRepository
+from app.persistence.amenity_repository import AmenityRepository
 
 from app.models.user import User
 from app.models.amenity import Amenity
@@ -15,7 +15,7 @@ class HBnBFacade:
     def __init__(self):
         """Initialize repositories used by the facade."""
         self.user_repo = UserRepository()
-        self.amenity_repo = SQLAlchemyRepository(Amenity)
+        self.amenity_repo = AmenityRepository()
         self.place_repo = PlaceRepository()
         self.review_repo = ReviewRepository()
 
