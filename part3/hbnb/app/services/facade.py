@@ -290,11 +290,11 @@ class HBnBFacade:
         if self.place_repo.get(place_id) is None:
             return None
         reviews = self.review_repo.get_all()
-        list_review_by_place = []
+        review_by_place = []
         for review in reviews:
             if review.place_id == place_id:
-                list_review_by_place.append(review.get_details())
-        return list_review_by_place
+                review_by_place.append(review)
+        return review_by_place
 
     def update_review(self, review_id, review_data):
         """Update a review while preventing author_id and place_id changes."""
