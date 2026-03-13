@@ -8,8 +8,7 @@ class ReviewRepository(SQLAlchemyRepository):
         """Initialize the repository with the Review model."""
         super().__init__(Review)
 
-    # Future custom method for retrieving all reviews linked to a place
-    # def get_reviews_by_place(self, place_id):
-    #   """Return all reviews for a given place id."""
-    #   return self.model.query.filter_by(place_id=place_id).all()
-    #     pass
+    def get_reviews_by_place(self, place_id):
+        """Return all reviews for a given place id."""
+        return self.model.query.filter_by(place_id=place_id).all()
+

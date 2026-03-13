@@ -42,18 +42,21 @@ class HBnBFacade:
 
     def get_users(self):
         """Return all stored users."""
-        return self.user_repo.get_all()
+        users = self.user_repo.get_all()
+        return users
 
     def get_user(self, user_id):
         """Return a user by id."""
-        return self.user_repo.get(user_id)
+        user = self.user_repo.get(user_id)
+        return user
 
     def get_user_by_email(self, email):
         """Return a user by normalized email."""
         if not email:
             raise ValueError("Email is required.")
         email = email.strip().lower()
-        return self.user_repo.get_user_by_email(email)
+        user_by_email = self.user_repo.get_user_by_email(email)
+        return user_by_email
 
     def update_user(self, user_id, user_data):
         """Update a user profile (first_name and last_name only)"""
@@ -123,11 +126,13 @@ class HBnBFacade:
 
     def get_amenity(self, amenity_id):
         """Return an amenity by id or None if not found."""
-        return self.amenity_repo.get(amenity_id)
+        amenity = self.amenity_repo.get(amenity_id)
+        return amenity
 
     def get_all_amenities(self):
         """Return all stored amenities."""
-        return self.amenity_repo.get_all()
+        amenities = self.amenity_repo.get_all()
+        return amenities
 
     def update_amenity(self, amenity_id, amenity_data):
         """Update an amenity with validation and name uniqueness checks."""
@@ -183,8 +188,9 @@ class HBnBFacade:
         return place
 
     def get_all_places(self):
-        """Return a list of serialized places for listing endpoints."""
-        return Place.get_all_places(self.place_repo)
+        """Return a list of all places."""
+        places = self.place_repo.get_all()
+        return places
 
     def update_place(self, place_id, place_data):
         """Update a place while protecting owner and amenities modifications."""
@@ -270,12 +276,8 @@ class HBnBFacade:
         """Return a list of reviews for a place or None if place does not exist."""
         if self.place_repo.get(place_id) is None:
             return None
-        reviews = self.review_repo.get_all()
-        review_by_place = []
-        for review in reviews:
-            if review.place_id == place_id:
-                review_by_place.append(review)
-        return review_by_place
+        reviews_by_place = self.review_repo.get_reviews_by_place(place_id)
+        return reviews_by_place
 
     def update_review(self, review_id, review_data):
         """Update a review while preventing author_id and place_id changes."""
