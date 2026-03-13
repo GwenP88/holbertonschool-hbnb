@@ -262,13 +262,9 @@ class HBnBFacade:
         return review
 
     def get_all_reviews(self):
-        """Return a list of serialized reviews."""
+        """Return a list of reviews."""
         reviews = self.review_repo.get_all()
-        list_review = []
-        for review in reviews:
-            details = review.get_details()
-            list_review.append(details)
-        return list_review
+        return reviews
 
     def get_reviews_by_place(self, place_id):
         """Return a list of reviews for a place or None if place does not exist."""
