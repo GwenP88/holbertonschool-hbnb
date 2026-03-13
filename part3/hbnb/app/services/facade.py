@@ -180,7 +180,7 @@ class HBnBFacade:
         if place is None:
             return None
         data = place.get_details()
-        owner = self.user_repo.get(data["owner_id"])
+        owner = place.owner
         if not owner:
             raise ValueError("Owner not found.")
         data["owner"] = {
