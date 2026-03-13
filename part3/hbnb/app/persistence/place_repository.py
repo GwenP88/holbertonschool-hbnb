@@ -9,7 +9,8 @@ class PlaceRepository(SQLAlchemyRepository):
         super().__init__(Place)
 
     # def get_places_by_owner(self, owner_id):
-    # def get_places_by_price_range(self, price_min, price_max):
-    # def get_places_by_location(self, latitude, longitude):
+    #   return self.model.query.filter_by(owner_id=owner_id).all()
     # def get_places_by_amenity(self, amenity_id):
-    # def get_places_with_min_rating(self, min_rating):
+    #   return self.model.query.filter(Place.amenities.any(id=amenity_id)).all()
+    # def get_places_by_price_range(self, price_min, price_max):
+    #   return self.model.query.filter(Place.price >= price_min,Place.price <= price_max).all()
