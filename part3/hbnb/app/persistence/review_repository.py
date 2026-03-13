@@ -12,3 +12,6 @@ class ReviewRepository(SQLAlchemyRepository):
         """Return all reviews for a given place id."""
         return self.model.query.filter_by(place_id=place_id).all()
 
+    def get_review_by_place_and_author(self, place_id, author_id):
+        "Return all reviews for a place and an author"
+        return self.model.query.filter_by(place_id=place_id, author_id=author_id).first()
