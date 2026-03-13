@@ -116,7 +116,7 @@ class Place(BaseModel):
 
     # ------- Serialization ---
     def get_details(self):
-        """Return a serializable dictionary of place fields and amenities."""
+        """Return a serializable dictionary of place fields."""
         return {
             "id": self.id,
             "title": self.title,
@@ -125,7 +125,6 @@ class Place(BaseModel):
             "latitude": self.latitude,
             "longitude": self.longitude,
             "owner_id": self.owner_id,
-            "amenities": list(self.amenities),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -139,13 +138,7 @@ class Place(BaseModel):
             "latitude": self.latitude,
             "longitude": self.longitude,
         }
-
-    @classmethod
-    def get_all_places(cls, place_repo):
-        """Return a list of serialized places from the given repository."""
-        places = place_repo.get_all()
-        return [place.to_list_item() for place in places]
-
+    
     # -------- Update ---------
     def update(self, data: dict):
         """Update place fields with validation and persistence."""
@@ -172,17 +165,17 @@ class Place(BaseModel):
         super().update(data)
 
     # ----- Amenities ---------
-    def add_amenity(self, amenity_id):
-        """Link an amenity id to the place and persist the change."""
-        if amenity_id in self.amenities:
+    def add_amenity(self, amenity):
+        """Link an amenity object to the place."""
+        if amenity in self.amenities:
             raise ValueError("Amenity already added.")
-        self.amenities.append(amenity_id)
+        self.amenities.append(amenity)
 
-    def remove_amenity(self, amenity_id):
-        """Unlink an amenity id from the place and persist the change."""
-        if amenity_id not in self.amenities:
+    def remove_amenity(self, amenity):
+        """Unlink an amenity object from the place."""
+        if amenity not in self.amenities:
             raise ValueError("Amenity not linked.")
-        self.amenities.remove(amenity_id)
+        self.amenities.remove(amenity)
 
     # -------- Delete ---------
 
