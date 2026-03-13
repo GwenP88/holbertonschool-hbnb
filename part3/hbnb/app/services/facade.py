@@ -162,12 +162,15 @@ class HBnBFacade:
             amenities_ids = []
         if not isinstance(amenities_ids, list):
             raise ValueError("Amenities must be a list.")
+        amenities = []
         for amenity_id in amenities_ids:
-            if not self.amenity_repo.get(amenity_id):
+            amenity = self.amenity_repo.get(amenity_id) 
+            if not amenity:
                 raise ValueError("Invalid amenity ID.")
+            amenities.append(amenity)
         place = Place.create_place(place_data, owner_id)
-        for amenity_id in amenities_ids:
-            place.add_amenity(amenity_id)
+        for amenity in amenities:
+            place.add_amenity(amenity)
         self.place_repo.add(place)
         return place
 
