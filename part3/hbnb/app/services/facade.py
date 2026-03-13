@@ -194,7 +194,11 @@ class HBnBFacade:
         for amenity in place.amenities:
             amenities.append({"id": amenity.id, "name": amenity.name, "description": amenity.description})
         data["amenities"] = amenities
-        data["reviews"] = self.get_reviews_by_place(place_id)
+        reviews = []
+        place_reviews = self.get_reviews_by_place(place_id)
+        for review in place_reviews:
+            reviews.append(review.get_details())
+        data["reviews"] = reviews
         return data
 
     def get_all_places(self):
