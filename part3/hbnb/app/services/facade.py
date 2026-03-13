@@ -176,31 +176,11 @@ class HBnBFacade:
         return place
 
     def get_place(self, place_id):
-        """Return a detailed place representation with owner, amenities, and reviews."""
+        """Return a detailed place."""
         place = self.place_repo.get(place_id)
         if place is None:
             return None
-        data = place.get_details()
-        owner = place.owner
-        if not owner:
-            raise ValueError("Owner not found.")
-        data["owner"] = {
-            "id": owner.id,
-            "first_name": owner.first_name,
-            "last_name": owner.last_name,
-            "email": owner.email
-            }
-        del data["owner_id"]
-        amenities = []
-        for amenity in place.amenities:
-            amenities.append({"id": amenity.id, "name": amenity.name, "description": amenity.description})
-        data["amenities"] = amenities
-        reviews = []
-        place_reviews = self.get_reviews_by_place(place_id)
-        for review in place_reviews:
-            reviews.append(review.get_details())
-        data["reviews"] = reviews
-        return data
+        return place
 
     def get_all_places(self):
         """Return a list of serialized places for listing endpoints."""
