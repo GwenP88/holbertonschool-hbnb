@@ -255,11 +255,11 @@ class HBnBFacade:
         return review
 
     def get_review(self, review_id):
-        """Return review details by id or None if not found."""
+        """Return review or None if not found."""
         review = self.review_repo.get(review_id)
         if review is None:
             return None
-        return review.get_details()
+        return review
 
     def get_all_reviews(self):
         """Return a list of serialized reviews."""
