@@ -190,13 +190,10 @@ class HBnBFacade:
             "email": owner.email
             }
         del data["owner_id"]
-        amenities_list = []
-        for amenity_id in data["amenities"]:
-            a = self.amenity_repo.get(amenity_id)
-            if a is None:
-                raise ValueError("Invalid amenity ID.")
-            amenities_list.append({"id": a.id, "name": a.name, "description": a.description})
-        data["amenities"] = amenities_list
+        amenities = []
+        for amenity in place.amenities:
+            amenities.append({"id": amenity.id, "name": amenity.name, "description": amenity.description})
+        data["amenities"] = amenities
         data["reviews"] = self.get_reviews_by_place(place_id)
         return data
 
