@@ -1,167 +1,408 @@
 ![HBnB Banner](assets/banner.png)
 
-# HBnB – Part 2: Project Setup and Package Initialization
+# HBnB
 
-## Overview
+HBnB is a RESTful API built with Flask, inspired by AirBnB. It allows users to manage places, reviews, amenities, and authentication through a clean layered architecture using SQLAlchemy and JWT.
 
-This project sets up the initial architecture of the HBnB application.  
-The goal of this phase is to create a clean, modular, and scalable structure following best practices for Python applications.
+This project was built during the first year at [Holberton School](https://www.holbertonschool.com/).
 
-The application is organized into three main layers:
+---
 
-- **Presentation Layer** (API)
-- **Business Logic Layer** (Models)
-- **Persistence Layer** (In-memory repository)
+## Table of Contents
 
-This structure prepares the project for future integration of database-backed persistence (Part 3 using SQLAlchemy).
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the Application](#running-the-application)
+- [Database](#database)
+  - [Schema](#schema)
+  - [Initial Data](#initial-data)
+- [API Documentation](#api-documentation)
+  - [Authentication](#authentication)
+  - [Users](#users)
+  - [Amenities](#amenities)
+  - [Places](#places)
+  - [Reviews](#reviews)
+- [Testing](#testing)
+  - [CRUD Tests](#crud-tests)
+  - [Swagger Tests](#swagger-tests)
+- [Authors](#authors)
+
+---
+
+## Features
+
+- User registration and authentication with JWT
+- Role-based access control (admin vs regular user)
+- Full CRUD for users, places, amenities, and reviews
+- Many-to-many relationship between places and amenities
+- Password hashing with bcrypt
+- Input validation at model level
+- SQLite database with SQLAlchemy ORM
+- Interactive API documentation via Swagger UI
+
+---
+
+## Tech Stack
+
+| Technology | Usage |
+|------------|-------|
+| Python 3.x | Main language |
+| Flask | Web framework |
+| Flask-RESTX | REST API + Swagger UI |
+| Flask-JWT-Extended | JWT authentication |
+| Flask-SQLAlchemy | ORM |
+| Flask-Bcrypt | Password hashing |
+| SQLite | Database |
 
 ---
 
 ## Project Structure
 
 ```
-hbnb/
+part3/hbnb/
 ├── app/
-│   ├── __init__.py
+│   ├── __init__.py               <- Flask app factory
 │   ├── api/
-│   │   ├── __init__.py
-│   │   ├── v1/
-│   │       ├── __init__.py
-│   │       ├── users.py
-│   │       ├── places.py
-│   │       ├── reviews.py
-│   │       ├── amenities.py
+│   │   └── v1/
+│   │       ├── auth.py           <- Authentication endpoints
+│   │       ├── users.py          <- User endpoints
+│   │       ├── amenities.py      <- Amenity endpoints
+│   │       ├── places.py         <- Place endpoints
+│   │       └── reviews.py        <- Review endpoints
 │   ├── models/
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── place.py
-│   │   ├── review.py
-│   │   ├── amenity.py
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── facade.py
+│   │   ├── basemodel.py          <- Base model (id, timestamps)
+│   │   ├── user.py               <- User model
+│   │   ├── place.py              <- Place model
+│   │   ├── amenity.py            <- Amenity model
+│   │   └── review.py             <- Review model
 │   ├── persistence/
-│       ├── __init__.py
-│       ├── repository.py
-├── run.py
-├── config.py
-├── requirements.txt
-├── README.md
+│   │   ├── repository.py         <- Repository base classes
+│   │   ├── user_repository.py    <- User repository
+│   │   ├── place_repository.py   <- Place repository
+│   │   ├── amenity_repository.py <- Amenity repository
+│   │   └── review_repository.py  <- Review repository
+│   └── services/
+│       ├── __init__.py           <- Facade instance
+│       └── facade.py             <- HBnBFacade (business logic)
+├── sql/
+│   ├── schema.sql                <- Table creation scripts
+│   ├── seed.sql                  <- Initial data (admin + amenities)
+│   └── test_crud.sql             <- Raw SQL CRUD tests
+├── instance/
+│   └── development.db            <- SQLite database (auto-generated)
+├── config.py                     <- App configuration
+├── run.py                        <- Application entry point
+├── run_tests.py                  <- Python CRUD test script
+├── requirements.txt              <- Python dependencies
+├── TEST_CRUD.md                  <- CRUD test documentation
+└── SWAGGER_TESTS.md              <- Swagger test documentation
 ```
 
 ---
 
-## Architecture Explanation
+## Architecture
 
-### Presentation Layer (`app/api/`)
-
-Handles API endpoints using **Flask-RESTX**.  
-Routes are organized by version (`v1/`).
-
-The `v1/` directory contains:
-
-- `users.py` – User-related endpoints
-- `places.py` – Place-related endpoints
-- `reviews.py` – Review-related endpoints
-- `amenities.py` – Amenity-related endpoints
-
-This layer communicates only with the **Facade**, not directly with models or repositories.
-
----
-
-### Business Logic Layer (`app/models/`)
-Contains the core domain models:
-
-- `User`
-- `Place`
-- `Review`
-- `Amenity`
-
-This layer manages business rules and application logic.
-
----
-
-### Persistence Layer (`app/persistence/`)
-Implements the **Repository pattern**.
-
-- `Repository` (abstract base class)
-- `InMemoryRepository` (temporary storage using a dictionary)
-
-This in-memory repository will be replaced by a database-backed implementation in Part 3.
-
----
-
-### Services Layer (`app/services/`)
-Implements the **Facade pattern**.
-
-`HBnBFacade` centralizes communication between:
-
-- API layer
-- Business logic
-- Persistence layer
-
-A singleton instance of the facade is created to ensure a single access point across the application.
-
----
-
-## How to Run the Application
-
-### Clone the repository
+HBnB follows a **3-layer architecture**:
 
 ```
-git clone https://github.com/GwenP88/holbertonschool-hbnb.git
-cd holbertonschool-hbnb/part2/hbnb
+┌─────────────────────────────────┐
+│         API Layer               │
+│  Flask-RESTX Namespaces         │
+│  auth / users / places /        │
+│  amenities / reviews            │
+└────────────────┬────────────────┘
+                 │
+┌────────────────▼────────────────┐
+│       Service Layer             │
+│       HBnBFacade                │
+│  Business logic & validation    │
+└────────────────┬────────────────┘
+                 │
+┌────────────────▼────────────────┐
+│     Persistence Layer           │
+│  SQLAlchemy Repositories        │
+│  UserRepository / PlaceRepo     │
+│  ReviewRepo / AmenityRepo       │
+└────────────────┬────────────────┘
+                 │
+┌────────────────▼────────────────┐
+│          Database               │
+│       SQLite (dev)              │
+└─────────────────────────────────┘
 ```
+
+**Key design pattern — Facade:** all business logic is centralized in `HBnBFacade`. The API layer never accesses the database directly.
 
 ---
 
-### Install dependencies
+## Getting Started
 
+### Prerequisites
+
+- Python 3.8 or higher
+- pip
+
+### Installation
+
+**1. Clone the repository:**
+```bash
+git clone https://github.com/<your-username>/holbertonschool-hbnb.git
+cd holbertonschool-hbnb/part3/hbnb
 ```
+
+**2. Create and activate a virtual environment:**
+```bash
+python3 -m venv Python_env
+source Python_env/bin/activate
+```
+
+**3. Install dependencies:**
+```bash
 pip install -r requirements.txt
 ```
 
----
-
-### Run the server
-
-```
-python run.py
+**4. Set environment variables:**
+```bash
+export SECRET_KEY="your_secret_key_here"
 ```
 
-You should see:
+### Running the Application
 
+```bash
+python3 run.py
 ```
-* Running on http://127.0.0.1:5000
+
+The application will start at:
+```
+http://127.0.0.1:5000
 ```
 
-The application will start successfully, even though no endpoints are fully implemented yet.
-
----
-
-## ⚙️ Configuration
-
-The `config.py` file defines environment-specific settings such as:
-
-- `SECRET_KEY`
-- `DEBUG` mode
-
-This configuration system will be extended in later parts of the project to support additional environments and database integration.
+The Swagger UI is available at:
+```
+http://127.0.0.1:5000/api/v1/
+```
 
 ---
 
-## 🎯 Expected Outcome
+## Database
 
-By the end of this setup:
+### Schema
 
-- The project structure is modular and scalable.
-- The application runs successfully with Flask.
-- The Repository and Facade patterns are implemented.
-- The system is ready for API endpoint implementation.
-- The persistence layer is designed to be easily replaced by a database-backed solution.
+The database contains 5 tables:
+
+| Table | Description |
+|-------|-------------|
+| `users` | Registered users with hashed passwords and admin flag |
+| `places` | Places listed by users |
+| `amenities` | Available amenities (WiFi, pool, etc.) |
+| `place_amenity` | Many-to-many join table between places and amenities |
+| `reviews` | User reviews for places (one review per user per place) |
+
+To create the schema manually:
+```bash
+sqlite3 instance/development.db < sql/schema.sql
+```
+
+### Initial Data
+
+The database is pre-populated with:
+
+- 1 administrator account
+- 3 default amenities (WiFi, Swimming Pool, Air Conditioning)
+
+To insert initial data manually:
+```bash
+sqlite3 instance/development.db < sql/seed.sql
+```
+
+**Default admin credentials:**
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@hbnb.io` |
+| Password | `admin1234` |
+| is_admin | `True` |
 
 ---
 
-**Author:** **Gwenaelle PICHOT** - Student at Holberton School  
-**Repository:** holbertonschool-hbnb  
-**Directory:** part2/hbnb
+## API Documentation
+
+The full interactive documentation is available via Swagger UI at `http://127.0.0.1:5000/api/v1/`.
+
+### Authentication
+
+All protected endpoints require a Bearer JWT token in the `Authorization` header.
+
+To obtain a token:
+
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@hbnb.io",
+  "password": "admin1234"
+}
+```
+
+Response:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+Use the token in subsequent requests:
+```
+Authorization: Bearer <access_token>
+```
+
+---
+
+### Users
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/v1/users/` | No | Create a new user |
+| GET | `/api/v1/users/` | No | List all users |
+| GET | `/api/v1/users/<id>` | No | Get user by ID |
+| PUT | `/api/v1/users/<id>` | Yes (owner/admin) | Update first/last name |
+| PUT | `/api/v1/users/<id>/email` | Yes (owner/admin) | Update email |
+| PUT | `/api/v1/users/<id>/password` | Yes (owner/admin) | Update password |
+
+**Create user example:**
+```json
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+**Validation rules:**
+- `first_name` and `last_name`: required, max 50 characters
+- `email`: must be unique and valid format
+- `password`: min 8 characters, at least 1 letter and 1 digit
+
+---
+
+### Amenities
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/v1/amenities/` | Yes (admin only) | Create a new amenity |
+| GET | `/api/v1/amenities/` | No | List all amenities |
+| GET | `/api/v1/amenities/<id>` | No | Get amenity by ID |
+| PUT | `/api/v1/amenities/<id>` | Yes (admin only) | Update amenity |
+
+**Create amenity example:**
+```json
+{
+  "name": "Parking",
+  "description": "Free private parking"
+}
+```
+
+---
+
+### Places
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/v1/places/` | Yes | Create a new place |
+| GET | `/api/v1/places/` | No | List all places |
+| GET | `/api/v1/places/<id>` | No | Get place by ID (with owner, amenities, reviews) |
+| PUT | `/api/v1/places/<id>` | Yes (owner/admin) | Update place |
+| POST | `/api/v1/places/<id>/amenities/<amenity_id>` | Yes (owner/admin) | Add amenity to place |
+| DELETE | `/api/v1/places/<id>/amenities/<amenity_id>` | Yes (owner/admin) | Remove amenity from place |
+| GET | `/api/v1/places/<id>/reviews` | No | Get all reviews for a place |
+
+**Create place example:**
+```json
+{
+  "title": "Cozy apartment in Paris",
+  "description": "Beautiful apartment near the Eiffel Tower",
+  "price": 120.00,
+  "latitude": 48.8566,
+  "longitude": 2.3522,
+  "amenities": ["c7a66c94-5a7e-4746-8c30-308f7695a36c"]
+}
+```
+
+**Validation rules:**
+- `price`: must be greater than 0
+- `latitude`: must be between -90 and 90
+- `longitude`: must be between -180 and 180
+
+---
+
+### Reviews
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/v1/reviews/` | Yes | Create a new review |
+| GET | `/api/v1/reviews/` | No | List all reviews |
+| GET | `/api/v1/reviews/<id>` | No | Get review by ID |
+| PUT | `/api/v1/reviews/<id>` | Yes (author/admin) | Update review |
+| DELETE | `/api/v1/reviews/<id>` | Yes (author/admin) | Delete review |
+
+**Create review example:**
+```json
+{
+  "comment": "Amazing place, highly recommended!",
+  "rating": 5,
+  "place_id": "22222222-2222-2222-2222-222222222222"
+}
+```
+
+**Business rules:**
+- A user cannot review their own place
+- A user can only leave one review per place
+- `rating`: must be between 1 and 5
+
+---
+
+## Testing
+
+### CRUD Tests
+
+A Python script runs 31 automated tests directly against the SQLite database, covering insertions, constraints, reads, updates, and deletions.
+
+```bash
+python run_tests.py
+```
+
+Expected output:
+```
+============================================================
+   CRUD TEST RESULTS -- HBnB
+============================================================
+  ...
+============================================================
+  RESULTS: 31/31 tests passed -- ALL TESTS PASSED!
+============================================================
+```
+
+See [TEST_CRUD.md](TEST_CRUD.md) for full documentation.
+
+---
+
+### Swagger Tests
+
+54 manual tests are documented for the Swagger UI, covering all endpoints and edge cases (invalid data, unauthorized actions, duplicate entries, etc.).
+
+See [SWAGGER_TESTS.md](SWAGGER_TESTS.md) for the full test list.
+
+---
+
+## Author
+
+**Gwenaelle PICHOT**  
+Student at Holberton School  
+Track: Project HBnB
