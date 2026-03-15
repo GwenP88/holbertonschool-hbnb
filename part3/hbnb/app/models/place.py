@@ -117,6 +117,24 @@ class Place(BaseModel):
     # ------- Serialization ---
     def get_details(self):
         """Return a serializable dictionary of place fields."""
+
+        amenities_list = []
+        for a in self.amenities:
+            amenities_list.append({
+                "id": a.id,
+                "name": a.name,
+                "description": a.description
+            })
+        
+        reviews_list = []
+        for r in self.reviews:
+            reviews_list.append({
+                "id": r.id,
+                "comment": r.comment,
+                "rating": r.rating,
+                "author_id": r.author_id
+            })
+        
         return {
             "id": self.id,
             "title": self.title,
@@ -124,7 +142,14 @@ class Place(BaseModel):
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,
-            "owner_id": self.owner_id,
+            "owner": {
+                "id": self.owner.id,
+                "first_name": self.owner.first_name,
+                "last_name": self.owner.last_name,
+                "email": self.owner.email
+            },
+            "amenities": amenities_list,
+            "reviews": reviews_list,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

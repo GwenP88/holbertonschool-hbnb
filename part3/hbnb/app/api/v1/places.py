@@ -83,8 +83,7 @@ class PlaceList(Resource):
             place_details = facade.get_place(new_place.id)
         except ValueError as e:
             return {'error': str(e)}, 400
-
-        return place_details, 201
+        return place_details.get_details(), 201
 
     @api.marshal_list_with(place_model_summary)
     @api.response(200, 'List of places retrieved successfully')
@@ -129,7 +128,7 @@ class PlaceResource(Resource):
         except ValueError as e:
             return {'error': str(e)}, 400
         place_details = facade.get_place(place_id)
-        return place_details, 200
+        return place_details.get_details(), 200
 
 
 @api.route('/<place_id>/amenities/<amenity_id>')
