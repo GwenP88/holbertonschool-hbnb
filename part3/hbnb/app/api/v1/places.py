@@ -103,7 +103,7 @@ class PlaceResource(Resource):
         """Get place details by ID"""
         place = facade.get_place(place_id)
         if not place:
-            return {'error': 'Place not found'}, 404
+            api.abort(404, "Place not found")
         return place, 200
 
     @api.expect(place_model_update, validate=True)
@@ -135,6 +135,7 @@ class PlaceResource(Resource):
 @api.doc(security='Bearer')
 class PlaceAmenityResource(Resource):
 
+    @api.marshal_with(place_model_details)
     @api.response(200, 'Amenity added successfully')
     @api.response(404, 'Place or Amenity not found')
     @api.response(400, 'Invalid operation')
@@ -147,18 +148,19 @@ class PlaceAmenityResource(Resource):
         claims = get_jwt()
         place = facade.place_repo.get(place_id)
         if not place:
-            return {'error': 'Place not found.'}, 404
+            api.abort(404, "Place not found")
         if place.owner_id != current_user and not claims.get("is_admin"):
-            return {'error': 'Unauthorized action'}, 403
+            api.abort(403, "Unauthorized action")
         try:
             facade.add_amenity_to_place(place_id, amenity_id)
         except ValueError as e:
             if str(e) == "Amenity not found." or str(e) == "Place not found.":
-                return {'error': str(e)}, 404
-            return {'error': str(e)}, 400
+                api.abort(404, str(e))
+            api.abort(400, str(e))
         place_details = facade.get_place(place_id)
         return place_details, 200
 
+    @api.marshal_with(place_model_details)
     @api.response(200, 'Amenity removed successfully')
     @api.response(404, 'Place or Amenity not found')
     @api.response(400, 'Invalid operation')
@@ -171,25 +173,26 @@ class PlaceAmenityResource(Resource):
         claims = get_jwt()
         place = facade.place_repo.get(place_id)
         if not place:
-            return {'error': 'Place not found'}, 404
+            api.abort(404, "Place not found")
         if place.owner_id != current_user and not claims.get("is_admin"):
-            return {'error': 'Unauthorized action'}, 403
+             api.abort(403, "Unauthorized action")
         try:
             facade.remove_amenity_from_place(place_id, amenity_id)
         except ValueError as e:
             if str(e) == "Amenity not found." or str(e) == "Place not found.":
-                return {'error': str(e)}, 404
-            return {'error': str(e)}, 400
+                api.abort(404, str(e))
+            api.abort(400, str(e))
         place_details = facade.get_place(place_id)
         return place_details, 200
 
 
 @api.route('/<place_id>/reviews')
 class PlaceReviewList(Resource):
+    @api.marshal_with(review_model)
     @api.response(200, 'List of reviews for the place retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
         reviews = facade.get_reviews_by_place(place_id)
         if reviews is None:
-            return {'error': 'Place not found'}, 404
+            api.abort(404, "Place not found")
         return reviews, 200

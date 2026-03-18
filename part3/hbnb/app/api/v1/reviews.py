@@ -78,7 +78,7 @@ class ReviewResource(Resource):
         except ValueError as e:
             return {'error': str(e)}, 400
         review_details = facade.get_review(review_id)
-        return review_details, 200
+        return review_details.get_details(), 200
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')

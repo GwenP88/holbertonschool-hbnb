@@ -104,7 +104,7 @@ Requiert un token
 **Endpoint :** `GET /api/v1/auth/protected`
 (sans token dans Authorize)
 
-**Resultat attendu :** `401 Missing or invalid JWT token`
+**Resultat attendu :** `401 Missing Authorization Header`
 
 ---
 
@@ -162,7 +162,7 @@ Requiert un token
 
 ---
 
-### TEST 2.4 — Creer un utilisateur avec email invalide
+### TEST 2.4 — Creer un utilisateur avec email invalide sans @
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -174,11 +174,39 @@ Requiert un token
   "password": "password123"
 }
 ```
-**Resultat attendu :** `400 Invalid input data`
+**Resultat attendu :** `400 Email must contain exactly one '@'.`
+
+### TEST 2.5 — Creer un utilisateur avec email invalide avec un espace
+**Endpoint :** `POST /api/v1/users/`
+
+**Body :**
+```json
+{
+  "first_name": "Bad",
+  "last_name": "Space",
+  "email": "john doe@test.com",
+  "password": "password123"
+}
+```
+**Resultat attendu :** `400 Email must not contain spaces.`
+
+### TEST 2.6 — Creer un utilisateur avec email invalide avec absence de domaine
+**Endpoint :** `POST /api/v1/users/`
+
+**Body :**
+```json
+{
+  "first_name": "Bad",
+  "last_name": "Domain",
+  "email": "john@test",
+  "password": "password123"
+}
+```
+**Resultat attendu :** `400 Email must have a valid domain with a '.'`
 
 ---
 
-### TEST 2.5 — Creer un utilisateur avec mot de passe trop court
+### TEST 2.7 — Creer un utilisateur avec mot de passe trop court
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -194,14 +222,14 @@ Requiert un token
 
 ---
 
-### TEST 2.6 — Lister tous les utilisateurs
+### TEST 2.8 — Lister tous les utilisateurs
 **Endpoint :** `GET /api/v1/users/`
 
 **Resultat attendu :** `200` avec la liste de tous les utilisateurs (admin + John + Jane)
 
 ---
 
-### TEST 2.7 — Recuperer un utilisateur par ID
+### TEST 2.9 — Recuperer un utilisateur par ID
 **Endpoint :** `GET /api/v1/users/<user_id>`
 
 Utiliser l'id de John cree au TEST 2.1.
@@ -210,14 +238,14 @@ Utiliser l'id de John cree au TEST 2.1.
 
 ---
 
-### TEST 2.8 — Recuperer un utilisateur inexistant
+### TEST 2.10 — Recuperer un utilisateur inexistant
 **Endpoint :** `GET /api/v1/users/00000000-0000-0000-0000-000000000000`
 
 **Resultat attendu :** `404 User not found`
 
 ---
 
-### TEST 2.9 — Modifier son propre profil (valide)
+### TEST 2.11 — Modifier son propre profil (valide)
 Requiert le token de John (faire POST /auth/login avec john@test.com / password123)
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>`
@@ -233,7 +261,7 @@ Requiert le token de John (faire POST /auth/login avec john@test.com / password1
 
 ---
 
-### TEST 2.10 — Modifier le profil d'un autre utilisateur sans etre admin
+### TEST 2.12 — Modifier le profil d'un autre utilisateur sans etre admin
 Requiert le token de John
 
 **Endpoint :** `PUT /api/v1/users/<user_id_jane>`
@@ -248,7 +276,7 @@ Requiert le token de John
 
 ---
 
-### TEST 2.11 — Essayer de modifier l'email via PUT /users
+### TEST 2.13 — Essayer de modifier l'email via PUT /users
 Requiert le token de John
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>`
@@ -263,7 +291,7 @@ Requiert le token de John
 
 ---
 
-### TEST 2.12 — Modifier l'email via l'endpoint dedie
+### TEST 2.14 — Modifier l'email via l'endpoint dedie
 Requiert le token de John
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>/email`
@@ -278,7 +306,7 @@ Requiert le token de John
 
 ---
 
-### TEST 2.13 — Modifier le mot de passe
+### TEST 2.15 — Modifier le mot de passe
 Requiert le token de John
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>/password`
@@ -642,7 +670,7 @@ Requiert le token de Jane
 ---
 
 ### TEST 5.4 — Creer une review avec rating invalide
-Requiert le token de Jane
+Requiert le token de Admin
 
 **Endpoint :** `POST /api/v1/reviews/`
 
@@ -760,6 +788,291 @@ Requiert le token admin
 **Endpoint :** `DELETE /api/v1/reviews/00000000-0000-0000-0000-000000000000`
 
 **Resultat attendu :** `404 Review not found`
+
+---
+
+## SECTION 6 — Admin
+### TEST 6.0 — Login admin
+
+**Endpoint :** `POST /api/v1/auth/login`
+
+**Body :**
+```json
+{
+  "email": "admin@hbnb.io",
+  "password": "admin1234"
+}
+```
+
+**Résultat attendu :** `200 OK` avec un `access_token`
+
+Sauvegarder le token admin et l'utiliser dans Authorize.
+
+---
+
+## A — Tests admin avec les endpoints déjà existants
+
+### Users
+
+---
+
+### TEST 6.1 — Admin modifie le profil d'un autre utilisateur
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/users/<user_id_jane>`
+
+**Body :**
+```json
+{
+  "first_name": "Janette",
+  "last_name": "Smith"
+}
+```
+
+**Résultat attendu :** `200` avec les données mises à jour
+
+---
+
+### TEST 6.2 — Admin modifie un utilisateur inexistant
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/users/00000000-0000-0000-0000-000000000000`
+
+**Body :**
+```json
+{
+  "first_name": "Ghost"
+}
+```
+
+**Résultat attendu :** `404 User not found`
+
+---
+
+### TEST 6.3 — Admin tente de modifier email/password via PUT /users
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/users/<user_id_john>`
+
+**Body :**
+```json
+{
+  "email": "adminchange@test.com"
+}
+```
+
+**Résultat attendu :** `400 You cannot modify email or password`
+
+> Ce test vérifie que la règle métier reste vraie même pour admin, sauf si tu as choisi l'inverse.
+
+---
+
+### TEST 6.4 — Admin modifie l'email d'un autre utilisateur via endpoint dédié
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/users/<user_id_john>/email`
+
+**Body :**
+```json
+{
+  "email": "john_admin_update@test.com"
+}
+```
+
+**Résultat attendu :**
+- `200 Email updated successfully` si admin a ce droit
+- `403 Unauthorized action` si seul le propriétaire peut le faire
+
+> Ce test sert aussi à clarifier ta règle métier.
+
+---
+
+### TEST 6.5 — Admin modifie le mot de passe d'un autre utilisateur via endpoint dédié
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/users/<user_id_john>/password`
+
+**Body :**
+```json
+{
+  "password": "adminreset123"
+}
+```
+
+**Résultat attendu :**
+- `200 Password updated successfully`
+- `403 Unauthorized action`
+
+---
+
+### Amenities
+
+---
+
+### TEST 6.6 — Admin crée une amenity
+
+Requiert le token admin
+
+**Endpoint :** `POST /api/v1/amenities/`
+
+**Body :**
+```json
+{
+  "name": "Sauna",
+  "description": "Private sauna available"
+}
+```
+
+**Résultat attendu :** `201` avec l'id de la nouvelle amenity
+
+---
+
+### TEST 6.7 — Admin modifie une amenity existante
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/amenities/<amenity_id>`
+
+**Body :**
+```json
+{
+  "name": "Sauna VIP",
+  "description": "Luxury private sauna"
+}
+```
+
+**Résultat attendu :** `200` avec les données mises à jour
+
+---
+
+### TEST 6.8 — Admin modifie une amenity inexistante
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/amenities/00000000-0000-0000-0000-000000000000`
+
+**Body :**
+```json
+{
+  "name": "Ghost amenity"
+}
+```
+
+**Résultat attendu :** `404 Amenity not found`
+
+---
+
+### Places
+
+---
+
+### TEST 6.9 — Admin modifie le lieu d'un autre utilisateur
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/places/<place_id_john>`
+
+**Body :**
+```json
+{
+  "title": "Place modified by admin",
+  "price": 180.00
+}
+```
+
+**Résultat attendu :**
+- `200` si admin a le droit de modifier tous les places
+- `403 Unauthorized action` si seul le owner peut modifier
+
+---
+
+### TEST 6.10 — Admin ajoute une amenity à un lieu qui ne lui appartient pas
+
+Requiert le token admin
+
+**Endpoint :** `POST /api/v1/places/<place_id_john>/amenities/<amenity_id_wifi>`
+
+**Résultat attendu :**
+- `200` si admin a le droit
+- `403 Unauthorized action`
+
+---
+
+### TEST 6.11 — Admin retire une amenity d'un lieu qui ne lui appartient pas
+
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/places/<place_id_john>/amenities/<amenity_id_wifi>`
+
+**Résultat attendu :**
+- `200` si admin a le droit
+- `403 Unauthorized action`
+
+---
+
+### Reviews
+
+---
+
+### TEST 6.12 — Admin crée une review sur le lieu d'un autre utilisateur
+
+Requiert le token admin
+
+**Endpoint :** `POST /api/v1/reviews/`
+
+**Body :**
+```json
+{
+  "comment": "Admin review test",
+  "rating": 4,
+  "place_id": "<place_id_john>"
+}
+```
+
+**Résultat attendu :** `201` avec les détails de la review
+
+---
+
+### TEST 6.13 — Admin modifie la review d'un autre utilisateur
+
+Requiert le token admin
+
+**Endpoint :** `PUT /api/v1/reviews/<review_id_jane>`
+
+**Body :**
+```json
+{
+  "comment": "Review updated by admin",
+  "rating": 4
+}
+```
+
+**Résultat attendu :** `200` avec les données mises à jour
+
+---
+
+### TEST 6.14 — Admin supprime la review d'un autre utilisateur
+
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/reviews/<review_id_jane>`
+
+**Résultat attendu :** `200 Review deleted successfully`
+
+---
+
+### TEST 6.15 — Admin supprime une review inexistante
+
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/reviews/00000000-0000-0000-0000-000000000000`
+
+**Résultat attendu :** `404 Review not found`
 
 ---
 
