@@ -51,455 +51,59 @@ Certains endpoints nécessitent un token JWT. Voici comment l'utiliser :
 | Donnée | ID |
 |--------|----|
 | Admin | `36c9050e-ddd3-4c3b-9731-9f487208bbc1` |
-| Amenity WiFi | `c7a66c94-5a7e-4746-8c30-308f7695a36c` |
+| User John Doe | `7b5a1b64-4bb6-4581-8cd3-019863c6e3d9` |
+| User Jane Doe | `76efe665-2825-4883-a382-8d76bb8ea472` |
+| Amenity WiFi | `93282ff9-7af0-4b0d-beb1-407b6998b01f` |
 | Amenity Swimming Pool | `984fc2e7-bb3b-49ff-9c93-6fe57119ba53` |
 | Amenity Air Conditioning | `68615b51-bb01-4d8f-8222-a445efdf23b6` |
+| Amenity Rooftop Terrace | `c5fcec1a-08f8-40ba-beae-fc5717d8f60e` |
+| Amenity Private Parking | `62b29136-184b-48fd-88d5-650e8e94a3ab` |
+| Place John — Sunny Loft | `ef448d99-36e6-4aa6-880a-59bab9bbe439` |
+| Place Jane — Cozy Cottage | `9bc8b8f5-ac16-4ce3-b3b1-91b1b30d934d` |
+| Review 1 — Jane → Sunny Loft | `27d20295-4bfe-4058-9232-d299cfcffefb` |
+| Review 2 — John → Cozy Cottage | `12e8bfd8-968f-45b2-a450-8d0b6b7449de` |
 
 ---
 
-## Données de test crées
+## Données de test disponibles à créer (dans l'ordre)
+
 ### Users à créer (via `POST /api/v1/users/`)
 
-| # | Prénom | Nom | Email | Password | ID (à compléter) |
-|---|--------|-----|-------|----------|------------------|
-| 1 | John | Doe | `johndoe@email.com` | `string123` | `<user_id_john>` |
-| 2 | Jane | Doe | `janedoe@email.com` | `string123` | `<user_id_jane>` |
-| 3 | Gwen | Aelle | `gwenaelle@email.com` | `string123` | `<user_id_gwen>` |
-| 4 | Clem | Ent | `clement@email.com` | `string123` | `<user_id_clem>` |
-| 5 | Jen | Peplu | `jenpeplu@email.com` | `string123` | `<user_id_jen>` |
+| # | Prénom | Nom | Email | Password |
+|---|--------|-----|-------|----------|
+| 3 | Gwen | Aelle | `gwenaelle@email.com` | `string123` |
+| 4 | Clem | Ent | `clement@email.com` | `string123` |
+| 5 | Jen | Peplu | `jenpeplu@email.com` | `string123` |
 
 ### Amenities à créer (via `POST /api/v1/amenities/` — token admin requis)
 
-| # | Nom | Description | ID (à compléter) |
-|---|-----|-------------|------------------|
-| 1 | Rooftop Terrace | A spacious rooftop terrace with panoramic city views, outdoor seating and a barbecue area. | `<amenity_id_rooftop>` |
-| 2 | Private Parking | Secure underground parking space included, available 24/7 for guests. | `<amenity_id_parking>` |
-| 3 | Fireplace | A cozy wood-burning fireplace perfect for cold evenings. | `<amenity_id_fireplace>` |
-| 4 | Hot Tub | *(sans description)* | `<amenity_id_hottub>` |
-| 5 | Gym Room | *(sans description)* | `<amenity_id_gym>` |
-| 6 | Sauna | *(sans description)* | `<amenity_id_sauna>` |
-
-### Places à créer (1 par user — token du propriétaire requis)
-
-| # | Titre | Owner | Prix | Description | Latitude | Longitude | ID (à compléter) |
-|---|-------|-------|------|-------------|----------|-----------|------------------|
-| 1 | Sunny Loft in the City Center | John Doe | 95 | A bright and modern loft located in the heart of the city, perfect for couples or solo travelers. | 48.8566 | 2.3522 | `<place_id_john>` |
-| 2 | Cozy Countryside Cottage | Jane Doe | 75 | A charming stone cottage surrounded by nature, ideal for a peaceful getaway. | 45.7640 | 4.8357 | `<place_id_jane>` |
-| 3 | Stylish Studio near the Beach | Gwen Aelle | 110 | A sleek and stylish studio just a 5-minute walk from the beach. Great ocean vibes. | 43.2965 | 5.3698 | `<place_id_gwen>` |
-| 4 | Mountain Chalet with Fireplace | Clem Ent | 130 | A warm and rustic chalet nestled in the mountains, perfect for winter escapes. | 45.9237 | 6.8694 | `<place_id_clem>` |
-| 5 | Zen Garden Apartment | Jen Peplu | 85 | A tranquil apartment with a private zen garden, ideal for relaxation and meditation. | 43.6047 | 1.4442 | `<place_id_jen>` |
-
-### Reviews à créer (2 par place — token d'un autre user requis)
-
-| # | Place | Reviewer | Note | ID (à compléter) |
-|---|-------|----------|------|------------------|
-| 1 | place_id_john | Jane Doe | 5 | `<review_id_1>` |
-| 2 | place_id_john | Gwen Aelle | 4 | `<review_id_2>` |
-| 3 | place_id_jane | Clem Ent | 5 | `<review_id_3>` |
-| 4 | place_id_jane | Jen Peplu | 4 | `<review_id_4>` |
-| 5 | place_id_gwen | John Doe | 5 | `<review_id_5>` |
-| 6 | place_id_gwen | Jane Doe | 4 | `<review_id_6>` |
-| 7 | place_id_clem | Jen Peplu | 5 | `<review_id_7>` |
-| 8 | place_id_clem | John Doe | 5 | `<review_id_8>` |
-| 9 | place_id_jen | Gwen Aelle | 5 | `<review_id_9>` |
-| 10 | place_id_jen | Clem Ent | 4 | `<review_id_10>` |
-
----
-
-## SECTION 0 — Initialisation des données de test
-
-> Effectuer ces étapes **une seule fois**, avant tous les autres tests.
-
----
-
-### INIT-U1 — Créer John Doe
-**Endpoint :** `POST /api/v1/users/`
-```json
-{
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "johndoe@email.com",
-  "password": "string123"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<user_id_john>`
-
----
-
-### INIT-U2 — Créer Jane Doe
-**Endpoint :** `POST /api/v1/users/`
-```json
-{
-  "first_name": "Jane",
-  "last_name": "Doe",
-  "email": "janedoe@email.com",
-  "password": "string123"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<user_id_jane>`
-
----
-
-### INIT-U3 — Créer Gwen Aelle
-**Endpoint :** `POST /api/v1/users/`
-```json
-{
-  "first_name": "Gwen",
-  "last_name": "Aelle",
-  "email": "gwenaelle@email.com",
-  "password": "string123"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<user_id_gwen>`
-
----
-
-### INIT-U4 — Créer Clem Ent
-**Endpoint :** `POST /api/v1/users/`
-```json
-{
-  "first_name": "Clem",
-  "last_name": "Ent",
-  "email": "clement@email.com",
-  "password": "string123"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<user_id_clem>`
-
----
-
-### INIT-U5 — Créer Jen Peplu
-**Endpoint :** `POST /api/v1/users/`
-```json
-{
-  "first_name": "Jen",
-  "last_name": "Peplu",
-  "email": "jenpeplu@email.com",
-  "password": "string123"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<user_id_jen>`
-
----
-
-### INIT-A1 — Créer Rooftop Terrace
-Requiert le token admin
-
-**Endpoint :** `POST /api/v1/amenities/`
-```json
-{
-  "name": "Rooftop Terrace",
-  "description": "A spacious rooftop terrace with panoramic city views, outdoor seating and a barbecue area."
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<amenity_id_rooftop>`
-
----
-
-### INIT-A2 — Créer Private Parking
-Requiert le token admin
-
-**Endpoint :** `POST /api/v1/amenities/`
-```json
-{
-  "name": "Private Parking",
-  "description": "Secure underground parking space included, available 24/7 for guests."
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<amenity_id_parking>`
-
----
-
-### INIT-A3 — Créer Fireplace
-Requiert le token admin
-
-**Endpoint :** `POST /api/v1/amenities/`
-```json
-{
-  "name": "Fireplace",
-  "description": "A cozy wood-burning fireplace perfect for cold evenings."
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<amenity_id_fireplace>`
-
----
-
-### INIT-A4 — Créer Hot Tub (sans description)
-Requiert le token admin
-
-**Endpoint :** `POST /api/v1/amenities/`
-```json
-{
-  "name": "Hot Tub"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<amenity_id_hottub>`
-
----
-
-### INIT-A5 — Créer Gym Room (sans description)
-Requiert le token admin
-
-**Endpoint :** `POST /api/v1/amenities/`
-```json
-{
-  "name": "Gym Room"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<amenity_id_gym>`
-
----
-
-### INIT-A6 — Créer Sauna (sans description)
-Requiert le token admin
-
-**Endpoint :** `POST /api/v1/amenities/`
-```json
-{
-  "name": "Sauna"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<amenity_id_sauna>`
-
----
-
-### INIT-P1 — Créer la place de John Doe
-Requiert le token de John (`johndoe@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/places/`
-```json
-{
-  "title": "Sunny Loft in the City Center",
-  "description": "A bright and modern loft located in the heart of the city, perfect for couples or solo travelers.",
-  "price": 95,
-  "latitude": 48.8566,
-  "longitude": 2.3522,
-  "amenities": ["<amenity_id_rooftop>", "<amenity_id_hottub>", "<amenity_id_gym>"]
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<place_id_john>`
-
----
-
-### INIT-P2 — Créer la place de Jane Doe
-Requiert le token de Jane (`janedoe@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/places/`
-```json
-{
-  "title": "Cozy Countryside Cottage",
-  "description": "A charming stone cottage surrounded by nature, ideal for a peaceful getaway.",
-  "price": 75,
-  "latitude": 45.7640,
-  "longitude": 4.8357,
-  "amenities": ["<amenity_id_fireplace>", "<amenity_id_sauna>", "<amenity_id_parking>"]
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<place_id_jane>`
-
----
-
-### INIT-P3 — Créer la place de Gwen Aelle
-Requiert le token de Gwen (`gwenaelle@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/places/`
-```json
-{
-  "title": "Stylish Studio near the Beach",
-  "description": "A sleek and stylish studio just a 5-minute walk from the beach. Great ocean vibes.",
-  "price": 110,
-  "latitude": 43.2965,
-  "longitude": 5.3698,
-  "amenities": ["<amenity_id_hottub>", "<amenity_id_rooftop>", "<amenity_id_sauna>"]
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<place_id_gwen>`
-
----
-
-### INIT-P4 — Créer la place de Clem Ent
-Requiert le token de Clem (`clement@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/places/`
-```json
-{
-  "title": "Mountain Chalet with Fireplace",
-  "description": "A warm and rustic chalet nestled in the mountains, perfect for winter escapes.",
-  "price": 130,
-  "latitude": 45.9237,
-  "longitude": 6.8694,
-  "amenities": ["<amenity_id_fireplace>", "<amenity_id_parking>", "<amenity_id_gym>"]
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<place_id_clem>`
-
----
-
-### INIT-P5 — Créer la place de Jen Peplu
-Requiert le token de Jen (`jenpeplu@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/places/`
-```json
-{
-  "title": "Zen Garden Apartment",
-  "description": "A tranquil apartment with a private zen garden, ideal for relaxation and meditation.",
-  "price": 85,
-  "latitude": 43.6047,
-  "longitude": 1.4442,
-  "amenities": ["<amenity_id_sauna>", "<amenity_id_hottub>", "<amenity_id_rooftop>"]
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<place_id_jen>`
-
----
-
-### INIT-R1 — Review de Jane sur la place de John
-Requiert le token de Jane (`janedoe@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "Absolutely loved the loft! The location was unbeatable and the place was spotless. Would definitely come back.",
-  "rating": 5,
-  "place_id": "<place_id_john>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_1>`
-
----
-
-### INIT-R2 — Review de Gwen sur la place de John
-Requiert le token de Gwen (`gwenaelle@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "Very nice place, modern and well-equipped. A bit noisy at night due to the city center location, but overall great!",
-  "rating": 4,
-  "place_id": "<place_id_john>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_2>`
-
----
-
-### INIT-R3 — Review de Clem sur la place de Jane
-Requiert le token de Clem (`clement@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "The cottage was an amazing retreat. The fireplace made everything so cozy. Highly recommended for a quiet weekend.",
-  "rating": 5,
-  "place_id": "<place_id_jane>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_3>`
-
----
-
-### INIT-R4 — Review de Jen sur la place de Jane
-Requiert le token de Jen (`jenpeplu@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "Charming and peaceful. The surroundings are beautiful. The parking was very convenient too.",
-  "rating": 4,
-  "place_id": "<place_id_jane>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_4>`
-
----
-
-### INIT-R5 — Review de John sur la place de Gwen
-Requiert le token de John (`johndoe@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "Super studio, very clean and stylish. The beach is literally around the corner. Perfect summer spot!",
-  "rating": 5,
-  "place_id": "<place_id_gwen>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_5>`
-
----
-
-### INIT-R6 — Review de Jane sur la place de Gwen
-Requiert le token de Jane (`janedoe@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "Good value for money. A bit small but perfectly designed. The hot tub was a bonus!",
-  "rating": 4,
-  "place_id": "<place_id_gwen>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_6>`
-
----
-
-### INIT-R7 — Review de Jen sur la place de Clem
-Requiert le token de Jen (`jenpeplu@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "The chalet exceeded all expectations. Warm, rustic, and the views were absolutely stunning. A must-do!",
-  "rating": 5,
-  "place_id": "<place_id_clem>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_7>`
-
----
-
-### INIT-R8 — Review de John sur la place de Clem
-Requiert le token de John (`johndoe@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "Great chalet for a ski trip. The fireplace was a dream after a long day on the slopes. Parking was easy too.",
-  "rating": 5,
-  "place_id": "<place_id_clem>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_8>`
-
----
-
-### INIT-R9 — Review de Gwen sur la place de Jen
-Requiert le token de Gwen (`gwenaelle@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "So peaceful and unique. The zen garden is a real gem. I felt completely recharged after my stay.",
-  "rating": 5,
-  "place_id": "<place_id_jen>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_9>`
-
----
-
-### INIT-R10 — Review de Clem sur la place de Jen
-Requiert le token de Clem (`clement@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/reviews/`
-```json
-{
-  "comment": "Lovely apartment with a very original concept. The sauna and hot tub were a great touch. Would recommend.",
-  "rating": 4,
-  "place_id": "<place_id_jen>"
-}
-```
-**Résultat attendu :** `201` → noter l'id dans `<review_id_10>`
+| # | Nom | Description |
+|---|-----|-------------|
+| 3 | Fireplace | A cozy wood-burning fireplace perfect for cold evenings. |
+| 4 | Hot Tub | *(sans description)* |
+| 5 | Gym Room | *(sans description)* |
+| 6 | Sauna | *(sans description)* |
+
+### Places à créer
+
+| # | Titre | Owner | Prix | Description | Latitude | Longitude |
+|---|-------|-------|------|-------------|----------|-----------|
+| 3 | Stylish Studio near the Beach | Gwen Aelle | 110 | A sleek and stylish studio just a 5-minute walk from the beach. Great ocean vibes. | 43.2965 | 5.3698 |
+| 4 | Mountain Chalet with Fireplace | Clem Ent | 130 | A warm and rustic chalet nestled in the mountains, perfect for winter escapes. | 45.9237 | 6.8694 |
+| 5 | Zen Garden Apartment | Jen Peplu | 85 | A tranquil apartment with a private zen garden, ideal for relaxation and meditation. | 43.6047 | 1.4442 |
+
+### Reviews à créer
+
+| # | Place | Reviewer | Note | Commentaire |
+|---|-------|----------|------|-------------|
+| 3 | Cozy Cottage (Jane) | Clem Ent | 5 | The cottage was an amazing retreat. The fireplace made everything so cozy. Highly recommended for a quiet weekend. |
+| 4 | Stylish Studio (Gwen) | Jen Peplu | 4 | Charming and peaceful. The surroundings are beautiful. The parking was very convenient too. |
+| 5 | Stylish Studio (Gwen) | John Doe | 5 | Super studio, very clean and stylish. The beach is literally around the corner. Perfect summer spot! |
+| 6 | Mountain Chalet (Clem) | Jane Doe | 4 | Good value for money. A bit remote but perfectly designed. The fireplace was a bonus! |
+| 7 | Mountain Chalet (Clem) | Jen Peplu | 5 | The chalet exceeded all expectations. Warm, rustic, and the views were absolutely stunning. A must-do! |
+| 8 | Zen Garden (Jen) | John Doe | 5 | Such a peaceful stay. The zen garden is truly one of a kind. Perfect to recharge after a long week. |
+| 9 | Zen Garden (Jen) | Gwen Aelle | 5 | So peaceful and unique. The zen garden is a real gem. I felt completely recharged after my stay. |
+| 10 | Sunny Loft (John) | Clem Ent | 4 | Lovely loft with a very original concept. The rooftop terrace and hot tub were a great touch. Would recommend. |
 
 ---
 
@@ -571,9 +175,9 @@ Requiert un token
 **Body :**
 ```json
 {
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "johndoe@email.com",
+  "first_name": "Gwen",
+  "last_name": "Aelle",
+  "email": "gwenaelle@email.com",
   "password": "string123"
 }
 ```
@@ -587,9 +191,9 @@ Requiert un token
 **Body :**
 ```json
 {
-  "first_name": "Jane",
-  "last_name": "Doe",
-  "email": "janedoe@email.com",
+  "first_name": "Clem",
+  "last_name": "Ent",
+  "email": "clement@email.com",
   "password": "string123"
 }
 ```
@@ -680,14 +284,14 @@ Requiert un token
 ### TEST 2.8 — Lister tous les utilisateurs
 **Endpoint :** `GET /api/v1/users/`
 
-**Résultat attendu :** `200` avec la liste de tous les utilisateurs (admin + John + Jane + Gwen + Clem + Jen)
+**Résultat attendu :** `200` avec la liste de tous les utilisateurs
 
 ---
 
 ### TEST 2.9 — Récupérer un utilisateur par ID
-**Endpoint :** `GET /api/v1/users/<user_id_john>`
+**Endpoint :** `GET /api/v1/users/7b5a1b64-4bb6-4581-8cd3-019863c6e3d9`
 
-Utiliser l'id de John noté lors de INIT-U1.
+Utiliser l'id de John du seed.
 
 **Résultat attendu :** `200` avec les détails de John
 
@@ -703,7 +307,7 @@ Utiliser l'id de John noté lors de INIT-U1.
 ### TEST 2.11 — Modifier son propre profil (valide)
 Requiert le token de John (`johndoe@email.com` / `string123`)
 
-**Endpoint :** `PUT /api/v1/users/<user_id_john>`
+**Endpoint :** `PUT /api/v1/users/7b5a1b64-4bb6-4581-8cd3-019863c6e3d9`
 
 **Body :**
 ```json
@@ -719,7 +323,7 @@ Requiert le token de John (`johndoe@email.com` / `string123`)
 ### TEST 2.12 — Modifier le profil d'un autre utilisateur sans être admin
 Requiert le token de John
 
-**Endpoint :** `PUT /api/v1/users/<user_id_jane>`
+**Endpoint :** `PUT /api/v1/users/76efe665-2825-4883-a382-8d76bb8ea472`
 
 **Body :**
 ```json
@@ -734,7 +338,7 @@ Requiert le token de John
 ### TEST 2.13 — Essayer de modifier l'email via PUT /users
 Requiert le token de John
 
-**Endpoint :** `PUT /api/v1/users/<user_id_john>`
+**Endpoint :** `PUT /api/v1/users/7b5a1b64-4bb6-4581-8cd3-019863c6e3d9`
 
 **Body :**
 ```json
@@ -749,7 +353,7 @@ Requiert le token de John
 ### TEST 2.14 — Modifier l'email via l'endpoint dédié
 Requiert le token de John
 
-**Endpoint :** `PUT /api/v1/users/<user_id_john>/email`
+**Endpoint :** `PUT /api/v1/users/7b5a1b64-4bb6-4581-8cd3-019863c6e3d9/email`
 
 **Body :**
 ```json
@@ -764,7 +368,7 @@ Requiert le token de John
 ### TEST 2.15 — Modifier le mot de passe
 Requiert le token de John
 
-**Endpoint :** `PUT /api/v1/users/<user_id_john>/password`
+**Endpoint :** `PUT /api/v1/users/7b5a1b64-4bb6-4581-8cd3-019863c6e3d9/password`
 
 **Body :**
 ```json
@@ -786,8 +390,8 @@ Requiert le token admin
 **Body :**
 ```json
 {
-  "name": "Rooftop Terrace",
-  "description": "A spacious rooftop terrace with panoramic city views, outdoor seating and a barbecue area."
+  "name": "Fireplace",
+  "description": "A cozy wood-burning fireplace perfect for cold evenings."
 }
 ```
 **Résultat attendu :** `201` avec l'id de la nouvelle amenity
@@ -829,14 +433,14 @@ Requiert le token admin
 ### TEST 3.4 — Lister toutes les amenities
 **Endpoint :** `GET /api/v1/amenities/`
 
-**Résultat attendu :** `200` avec la liste (wifi, swimming pool, air conditioning + rooftop terrace, private parking, fireplace, hot tub, gym room, sauna)
+**Résultat attendu :** `200` avec la liste
 
 ---
 
 ### TEST 3.5 — Récupérer une amenity par ID
-**Endpoint :** `GET /api/v1/amenities/<amenity_id_rooftop>`
+**Endpoint :** `GET /api/v1/amenities/c5fcec1a-08f8-40ba-beae-fc5717d8f60e`
 
-Utiliser l'id noté lors de INIT-A1.
+Utiliser l'id de Rooftop Terrace du seed.
 
 **Résultat attendu :** `200` avec les détails de Rooftop Terrace
 
@@ -852,9 +456,9 @@ Utiliser l'id noté lors de INIT-A1.
 ### TEST 3.7 — Modifier une amenity (en tant qu'admin)
 Requiert le token admin
 
-**Endpoint :** `PUT /api/v1/amenities/<amenity_id_parking>`
+**Endpoint :** `PUT /api/v1/amenities/62b29136-184b-48fd-88d5-650e8e94a3ab`
 
-Utiliser l'id noté lors de INIT-A2.
+Utiliser l'id de Private Parking du seed.
 
 **Body :**
 ```json
@@ -870,7 +474,7 @@ Utiliser l'id noté lors de INIT-A2.
 ### TEST 3.8 — Modifier une amenity sans être admin
 Requiert le token de John
 
-**Endpoint :** `PUT /api/v1/amenities/<amenity_id_parking>`
+**Endpoint :** `PUT /api/v1/amenities/62b29136-184b-48fd-88d5-650e8e94a3ab`
 
 **Body :**
 ```json
@@ -885,26 +489,6 @@ Requiert le token de John
 ## SECTION 4 — Places
 
 ### TEST 4.1 — Créer un lieu (valide)
-Requiert le token de John (`johndoe@email.com` / `string123`)
-
-**Endpoint :** `POST /api/v1/places/`
-
-**Body :**
-```json
-{
-  "title": "Sunny Loft in the City Center",
-  "description": "A bright and modern loft located in the heart of the city, perfect for couples or solo travelers.",
-  "price": 95.00,
-  "latitude": 48.8566,
-  "longitude": 2.3522,
-  "amenities": []
-}
-```
-**Résultat attendu :** `201` avec les détails du lieu
-
----
-
-### TEST 4.2 — Créer un lieu avec amenities
 Requiert le token de Gwen (`gwenaelle@email.com` / `string123`)
 
 **Endpoint :** `POST /api/v1/places/`
@@ -917,7 +501,27 @@ Requiert le token de Gwen (`gwenaelle@email.com` / `string123`)
   "price": 110.00,
   "latitude": 43.2965,
   "longitude": 5.3698,
-  "amenities": ["<amenity_id_hottub>", "<amenity_id_rooftop>", "<amenity_id_sauna>"]
+  "amenities": []
+}
+```
+**Résultat attendu :** `201` avec les détails du lieu
+
+---
+
+### TEST 4.2 — Créer un lieu avec amenities
+Requiert le token de Clem (`clement@email.com` / `string123`)
+
+**Endpoint :** `POST /api/v1/places/`
+
+**Body :**
+```json
+{
+  "title": "Mountain Chalet with Fireplace",
+  "description": "A warm and rustic chalet nestled in the mountains, perfect for winter escapes.",
+  "price": 130.00,
+  "latitude": 45.9237,
+  "longitude": 6.8694,
+  "amenities": ["<amenity_id_fireplace>", "62b29136-184b-48fd-88d5-650e8e94a3ab"]
 }
 ```
 **Résultat attendu :** `201` avec les amenities incluses dans la réponse
@@ -965,16 +569,16 @@ Requiert le token de John
 ### TEST 4.5 — Lister tous les lieux
 **Endpoint :** `GET /api/v1/places/`
 
-**Résultat attendu :** `200` avec la liste des 5 lieux créés en INIT
+**Résultat attendu :** `200` avec la liste des places
 
 ---
 
 ### TEST 4.6 — Récupérer un lieu par ID
-**Endpoint :** `GET /api/v1/places/<place_id_john>`
+**Endpoint :** `GET /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439`
 
-Utiliser l'id noté lors de INIT-P1.
+Utiliser l'id du Sunny Loft de John (seed).
 
-**Résultat attendu :** `200` avec owner, amenities et reviews imbriqués
+**Résultat attendu :** `200` avec détails de la place
 
 ---
 
@@ -988,7 +592,7 @@ Utiliser l'id noté lors de INIT-P1.
 ### TEST 4.8 — Modifier son propre lieu
 Requiert le token de John
 
-**Endpoint :** `PUT /api/v1/places/<place_id_john>`
+**Endpoint :** `PUT /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439`
 
 **Body :**
 ```json
@@ -1004,7 +608,7 @@ Requiert le token de John
 ### TEST 4.9 — Modifier le lieu d'un autre utilisateur
 Requiert le token de Jane (`janedoe@email.com` / `string123`)
 
-**Endpoint :** `PUT /api/v1/places/<place_id_john>`
+**Endpoint :** `PUT /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439`
 
 **Body :**
 ```json
@@ -1019,9 +623,9 @@ Requiert le token de Jane (`janedoe@email.com` / `string123`)
 ### TEST 4.10 — Ajouter une amenity à un lieu en tant que propriétaire
 Requiert le token de John
 
-**Endpoint :** `POST /api/v1/places/<place_id_john>/amenities/c7a66c94-5a7e-4746-8c30-308f7695a36c`
+**Endpoint :** `POST /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/amenities/93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
-Utiliser l'id WiFi du seed : `c7a66c94-5a7e-4746-8c30-308f7695a36c`
+Utiliser l'id WiFi du seed : `93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
 **Résultat attendu :** `200` avec l'amenity ajoutée dans la liste
 
@@ -1030,7 +634,7 @@ Utiliser l'id WiFi du seed : `c7a66c94-5a7e-4746-8c30-308f7695a36c`
 ### TEST 4.11 — Ajouter une amenity à un lieu sans être propriétaire
 Requiert le token de Jane
 
-**Endpoint :** `POST /api/v1/places/<place_id_john>/amenities/c7a66c94-5a7e-4746-8c30-308f7695a36c`
+**Endpoint :** `POST /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/amenities/93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
 **Résultat attendu :** `403 Unauthorized action`
 
@@ -1039,7 +643,7 @@ Requiert le token de Jane
 ### TEST 4.12 — Ajouter une amenity déjà liée
 Requiert le token de John
 
-**Endpoint :** `POST /api/v1/places/<place_id_john>/amenities/c7a66c94-5a7e-4746-8c30-308f7695a36c`
+**Endpoint :** `POST /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/amenities/93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
 (même amenity WiFi que le TEST 4.10)
 
@@ -1050,7 +654,7 @@ Requiert le token de John
 ### TEST 4.13 — Ajouter une amenity inexistante
 Requiert le token de John
 
-**Endpoint :** `POST /api/v1/places/<place_id_john>/amenities/00000000-0000-0000-0000-000000000000`
+**Endpoint :** `POST /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/amenities/00000000-0000-0000-0000-000000000000`
 
 **Résultat attendu :** `404 Amenity not found`
 
@@ -1059,7 +663,7 @@ Requiert le token de John
 ### TEST 4.14 — Retirer une amenity d'un lieu en tant que propriétaire
 Requiert le token de John
 
-**Endpoint :** `DELETE /api/v1/places/<place_id_john>/amenities/c7a66c94-5a7e-4746-8c30-308f7695a36c`
+**Endpoint :** `DELETE /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/amenities/93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
 **Résultat attendu :** `200` avec l'amenity retirée de la liste
 
@@ -1068,7 +672,7 @@ Requiert le token de John
 ### TEST 4.15 — Retirer une amenity non liée
 Requiert le token de John
 
-**Endpoint :** `DELETE /api/v1/places/<place_id_john>/amenities/c7a66c94-5a7e-4746-8c30-308f7695a36c`
+**Endpoint :** `DELETE /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/amenities/93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
 (même amenity WiFi, déjà retirée au TEST 4.14)
 
@@ -1078,17 +682,17 @@ Requiert le token de John
 
 ## SECTION 5 — Reviews
 
-### TEST 5.1 — Créer une review (valide, par Jane sur la place de John)
-Requiert le token de Jane (`janedoe@email.com` / `string123`)
+### TEST 5.1 — Créer une review (valide, par Gwen sur la place de John)
+Requiert le token de Gwen (`gwenaelle@email.com` / `string123`)
 
 **Endpoint :** `POST /api/v1/reviews/`
 
 **Body :**
 ```json
 {
-  "comment": "Absolutely loved the loft! The location was unbeatable and the place was spotless.",
+  "comment": "Fantastic loft, very well located. Modern and clean, I loved every minute of my stay!",
   "rating": 5,
-  "place_id": "<place_id_john>"
+  "place_id": "ef448d99-36e6-4aa6-880a-59bab9bbe439"
 }
 ```
 **Résultat attendu :** `201` avec les détails de la review
@@ -1105,7 +709,7 @@ Requiert le token de John (`johndoe@email.com` / `string123`)
 {
   "comment": "Mon propre loft est super",
   "rating": 5,
-  "place_id": "<place_id_john>"
+  "place_id": "ef448d99-36e6-4aa6-880a-59bab9bbe439"
 }
 ```
 **Résultat attendu :** `400 You cannot review your own place`
@@ -1113,7 +717,9 @@ Requiert le token de John (`johndoe@email.com` / `string123`)
 ---
 
 ### TEST 5.3 — Créer une deuxième review sur le même lieu (doublon)
-Requiert le token de Jane
+Requiert le token de Jane (`janedoe@email.com` / `string123`)
+
+> Jane a déjà une review sur le Sunny Loft (seed : `27d20295-4bfe-4058-9232-d299cfcffefb`)
 
 **Endpoint :** `POST /api/v1/reviews/`
 
@@ -1122,7 +728,7 @@ Requiert le token de Jane
 {
   "comment": "Deuxième review",
   "rating": 3,
-  "place_id": "<place_id_john>"
+  "place_id": "ef448d99-36e6-4aa6-880a-59bab9bbe439"
 }
 ```
 **Résultat attendu :** `400 Review already exists for this user and place`
@@ -1139,7 +745,7 @@ Requiert le token admin
 {
   "comment": "Note invalide",
   "rating": 10,
-  "place_id": "<place_id_john>"
+  "place_id": "ef448d99-36e6-4aa6-880a-59bab9bbe439"
 }
 ```
 **Résultat attendu :** `400 Rating must be between 1 and 5`
@@ -1147,7 +753,7 @@ Requiert le token admin
 ---
 
 ### TEST 5.5 — Créer une review sur un lieu inexistant
-Requiert le token de Jane
+Requiert le token de Gwen
 
 **Endpoint :** `POST /api/v1/reviews/`
 
@@ -1166,23 +772,23 @@ Requiert le token de Jane
 ### TEST 5.6 — Lister toutes les reviews
 **Endpoint :** `GET /api/v1/reviews/`
 
-**Résultat attendu :** `200` avec la liste des 10 reviews créées en INIT
+**Résultat attendu :** `200` avec la liste des reviews
 
 ---
 
 ### TEST 5.7 — Récupérer une review par ID
-**Endpoint :** `GET /api/v1/reviews/<review_id_1>`
+**Endpoint :** `GET /api/v1/reviews/27d20295-4bfe-4058-9232-d299cfcffefb`
 
-Utiliser l'id noté lors de INIT-R1.
+Utiliser l'id de la review 1 du seed (Jane → Sunny Loft).
 
 **Résultat attendu :** `200` avec les détails de la review
 
 ---
 
 ### TEST 5.8 — Récupérer les reviews d'un lieu
-**Endpoint :** `GET /api/v1/places/<place_id_john>/reviews`
+**Endpoint :** `GET /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/reviews`
 
-**Résultat attendu :** `200` avec les 2 reviews de la place de John (INIT-R1 et INIT-R2)
+**Résultat attendu :** `200` avec les reviews du Sunny Loft
 
 ---
 
@@ -1196,9 +802,9 @@ Utiliser l'id noté lors de INIT-R1.
 ### TEST 5.10 — Modifier sa propre review
 Requiert le token de Jane
 
-**Endpoint :** `PUT /api/v1/reviews/<review_id_1>`
+**Endpoint :** `PUT /api/v1/reviews/27d20295-4bfe-4058-9232-d299cfcffefb`
 
-Utiliser l'id de INIT-R1.
+Utiliser l'id de la review 1 du seed (review de Jane).
 
 **Body :**
 ```json
@@ -1214,9 +820,9 @@ Utiliser l'id de INIT-R1.
 ### TEST 5.11 — Modifier la review d'un autre utilisateur
 Requiert le token de John
 
-**Endpoint :** `PUT /api/v1/reviews/<review_id_1>`
+**Endpoint :** `PUT /api/v1/reviews/27d20295-4bfe-4058-9232-d299cfcffefb`
 
-Utiliser l'id de INIT-R1 (review de Jane).
+Utiliser l'id de la review 1 du seed (review de Jane).
 
 **Body :**
 ```json
@@ -1247,7 +853,7 @@ Utiliser l'id de INIT-R1 (review de Jane).
 ### TEST 6.1 — Admin modifie le profil d'un autre utilisateur
 Requiert le token admin
 
-**Endpoint :** `PUT /api/v1/users/<user_id_jane>`
+**Endpoint :** `PUT /api/v1/users/76efe665-2825-4883-a382-8d76bb8ea472`
 
 **Body :**
 ```json
@@ -1278,7 +884,7 @@ Requiert le token admin
 ### TEST 6.3 — Admin tente de modifier email/password via PUT /users
 Requiert le token admin
 
-**Endpoint :** `PUT /api/v1/users/<user_id_john>`
+**Endpoint :** `PUT /api/v1/users/7b5a1b64-4bb6-4581-8cd3-019863c6e3d9`
 
 **Body :**
 ```json
@@ -1293,7 +899,7 @@ Requiert le token admin
 ### TEST 6.4 — Admin modifie l'email d'un autre utilisateur via endpoint dédié
 Requiert le token admin
 
-**Endpoint :** `PUT /api/v1/users/<user_id_john>/email`
+**Endpoint :** `PUT /api/v1/users/7b5a1b64-4bb6-4581-8cd3-019863c6e3d9/email`
 
 **Body :**
 ```json
@@ -1308,7 +914,7 @@ Requiert le token admin
 ### TEST 6.5 — Admin modifie le mot de passe d'un autre utilisateur via endpoint dédié
 Requiert le token admin
 
-**Endpoint :** `PUT /api/v1/users/<user_id_john>/password`
+**Endpoint :** `PUT /api/v1/users/7b5a1b64-4bb6-4581-8cd3-019863c6e3d9/password`
 
 **Body :**
 ```json
@@ -1372,7 +978,7 @@ Requiert le token admin
 ### TEST 6.9 — Admin modifie le lieu d'un autre utilisateur
 Requiert le token admin
 
-**Endpoint :** `PUT /api/v1/places/<place_id_john>`
+**Endpoint :** `PUT /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439`
 
 **Body :**
 ```json
@@ -1388,9 +994,9 @@ Requiert le token admin
 ### TEST 6.10 — Admin ajoute une amenity à un lieu qui ne lui appartient pas
 Requiert le token admin
 
-**Endpoint :** `POST /api/v1/places/<place_id_john>/amenities/c7a66c94-5a7e-4746-8c30-308f7695a36c`
+**Endpoint :** `POST /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/amenities/93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
-Utiliser l'id WiFi du seed : `c7a66c94-5a7e-4746-8c30-308f7695a36c`
+Utiliser l'id WiFi du seed : `93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
 **Résultat attendu :** `200` avec les données mises à jour
 
@@ -1399,7 +1005,7 @@ Utiliser l'id WiFi du seed : `c7a66c94-5a7e-4746-8c30-308f7695a36c`
 ### TEST 6.11 — Admin retire une amenity d'un lieu qui ne lui appartient pas
 Requiert le token admin
 
-**Endpoint :** `DELETE /api/v1/places/<place_id_john>/amenities/c7a66c94-5a7e-4746-8c30-308f7695a36c`
+**Endpoint :** `DELETE /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439/amenities/93282ff9-7af0-4b0d-beb1-407b6998b01f`
 
 **Résultat attendu :** `200` avec les données mises à jour
 
@@ -1415,7 +1021,7 @@ Requiert le token admin
 {
   "comment": "Admin review test on John's loft",
   "rating": 4,
-  "place_id": "<place_id_john>"
+  "place_id": "ef448d99-36e6-4aa6-880a-59bab9bbe439"
 }
 ```
 **Résultat attendu :** `201` avec les détails de la review
@@ -1425,9 +1031,9 @@ Requiert le token admin
 ### TEST 6.13 — Admin modifie la review d'un autre utilisateur
 Requiert le token admin
 
-**Endpoint :** `PUT /api/v1/reviews/<review_id_1>`
+**Endpoint :** `PUT /api/v1/reviews/27d20295-4bfe-4058-9232-d299cfcffefb`
 
-Utiliser l'id de INIT-R1 (review de Jane).
+Utiliser l'id de la review 1 du seed (review de Jane).
 
 **Body :**
 ```json
@@ -1458,9 +1064,9 @@ Utiliser l'id de INIT-R1 (review de Jane).
 #### TEST DEL-R1 — Supprimer sa propre review
 Requiert le token de Jane
 
-**Endpoint :** `DELETE /api/v1/reviews/<review_id_1>`
+**Endpoint :** `DELETE /api/v1/reviews/27d20295-4bfe-4058-9232-d299cfcffefb`
 
-Utiliser l'id de INIT-R1 (review de Jane sur la place de John).
+Utiliser l'id de la review 1 du seed (review de Jane sur le Sunny Loft).
 
 **Résultat attendu :** `200 Review deleted successfully`
 
@@ -1469,9 +1075,9 @@ Utiliser l'id de INIT-R1 (review de Jane sur la place de John).
 #### TEST DEL-R2 — Supprimer la review d'un autre utilisateur (non admin)
 Requiert le token de John
 
-**Endpoint :** `DELETE /api/v1/reviews/<review_id_2>`
+**Endpoint :** `DELETE /api/v1/reviews/<review_id_3>`
 
-Utiliser l'id de INIT-R2 (review de Gwen sur la place de John).
+Utiliser l'id de INIT-R3 (review de Clem sur le Cozy Cottage).
 
 **Résultat attendu :** `403 Unauthorized action`
 
@@ -1489,9 +1095,9 @@ Requiert le token admin
 #### TEST DEL-R4 — Admin supprime la review d'un autre utilisateur
 Requiert le token admin
 
-**Endpoint :** `DELETE /api/v1/reviews/<review_id_2>`
+**Endpoint :** `DELETE /api/v1/reviews/<review_id_3>`
 
-Utiliser l'id de INIT-R2 (review de Gwen sur la place de John).
+Utiliser l'id de INIT-R3 (review de Clem sur le Cozy Cottage).
 
 **Résultat attendu :** `200 Review deleted successfully`
 
@@ -1522,7 +1128,7 @@ Utiliser l'id noté lors de INIT-P4.
 #### TEST DEL-P2 — Supprimer le lieu d'un autre utilisateur sans être admin
 Requiert le token de Jane
 
-**Endpoint :** `DELETE /api/v1/places/<place_id_john>`
+**Endpoint :** `DELETE /api/v1/places/ef448d99-36e6-4aa6-880a-59bab9bbe439`
 
 **Résultat attendu :** `403 Unauthorized action`
 
@@ -1622,7 +1228,7 @@ Utiliser l'id noté lors de INIT-U3.
 #### TEST DEL-U2 — Supprimer le compte d'un autre utilisateur sans être admin
 Requiert le token de John
 
-**Endpoint :** `DELETE /api/v1/users/<user_id_jane>`
+**Endpoint :** `DELETE /api/v1/users/76efe665-2825-4883-a382-8d76bb8ea472`
 
 **Résultat attendu :** `403 Unauthorized action`
 
@@ -1654,7 +1260,7 @@ Utiliser l'id noté lors de INIT-U5.
 
 | Section | Nombre de tests | Valides | Invalides (doivent échouer) |
 |---------|-----------------|---------|------------------------------|
-| Init | 21 | 21 | 0 |
+| Init | 13 | 13 | 0 |
 | Auth | 5 | 2 | 3 |
 | Users | 15 | 7 | 8 |
 | Amenities | 8 | 3 | 5 |
@@ -1662,4 +1268,4 @@ Utiliser l'id noté lors de INIT-U5.
 | Reviews | 11 | 4 | 7 |
 | Admin | 14 | 9 | 5 |
 | Delete | 18 | 9 | 9 |
-| **Total** | **107** | **60** | **47** |
+| **Total** | **99** | **52** | **47** |
