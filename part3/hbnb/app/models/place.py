@@ -162,6 +162,7 @@ class Place(BaseModel):
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,
+            "owner": self.owner_id,
         }
     
     # -------- Update ---------

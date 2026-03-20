@@ -63,6 +63,7 @@ place_model_summary = api.model('PlaceSummary', {
     'price': fields.Float(description='Price per night'),
     'latitude': fields.Float(description='Latitude of the place'),
     'longitude': fields.Float(description='Longitude of the place'),
+    'owner': fields.String(description='Place ID')
 })
 
 
@@ -129,7 +130,22 @@ class PlaceResource(Resource):
             return {'error': str(e)}, 400
         place_details = facade.get_place(place_id)
         return place_details.get_details(), 200
-
+    
+    @api.response(200, 'Place deleted successfully')
+    @api.response(404, 'Place not found')
+    @api.response(403, 'Unauthorized action')
+    @api.doc(security='Bearer')
+    @jwt_required()
+    def delete(self, place_id):
+        current_user = get_jwt_identity()
+        claims = get_jwt()
+        place = facade.place_repo.get(place_id)
+        if not place:
+            return {'error': 'Place not found'}, 404
+        if place.owner_id != current_user and not claims.get("is_admin"):
+            return {'error': 'Unauthorized action'}, 403
+        facade.delete_place(place_id)
+        return {'message': 'Place deleted successfully.'}, 200
 
 @api.route('/<place_id>/amenities/<amenity_id>')
 @api.doc(security='Bearer')

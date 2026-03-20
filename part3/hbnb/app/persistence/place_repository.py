@@ -8,3 +8,6 @@ class PlaceRepository(SQLAlchemyRepository):
         """Initialize the repository with the Place model."""
         super().__init__(Place)
 
+    def get_places_by_owner(self, owner_id):
+            """Return all places for a given owner_id."""
+            return self.model.query.filter_by(owner_id=owner_id).all()

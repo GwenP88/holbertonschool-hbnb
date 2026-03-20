@@ -81,6 +81,22 @@ class UserResource(Resource):
         if not user:
             return {'error': 'User not found'}, 404
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name}, 200
+    
+    @api.response(200, 'User deleted successfully')
+    @api.response(404, 'User not found')
+    @api.response(403, 'Unauthorized action')
+    @api.doc(security='Bearer')
+    @jwt_required()
+    def delete(self, user_id):
+        current_user = get_jwt_identity()
+        claims = get_jwt()
+        user = facade.user_repo.get(user_id)
+        if not user:
+            return {'error': 'User not found'}, 404
+        if user_id != current_user and not claims.get("is_admin"):
+            return {'error': 'Unauthorized action'}, 403
+        facade.delete_user(user_id)
+        return {'message': 'User deleted successfully.'}, 200
 
 @api.route('/<user_id>/email')
 class UserEmailResource(Resource):

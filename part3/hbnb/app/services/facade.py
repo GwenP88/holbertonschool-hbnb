@@ -26,16 +26,16 @@ class HBnBFacade:
     def create_user(self, user_data):
         """Create and store a new user with unique email validation."""
         if not user_data or not isinstance(user_data, dict):
-            raise ValueError("User data must be a non-empty dictionary.")
+            raise ValueError("User data must be a non-empty dictionary")
         if "is_admin" in user_data:
-            raise ValueError("Only an administrator can set is_admin.")
+            raise ValueError("Only an administrator can set is_admin")
         email = user_data.get("email")
         if not email:
-            raise ValueError("Email is required.")
+            raise ValueError("Email is required")
         email = email.strip().lower()
         existing_user = self.user_repo.get_user_by_email(email)
         if existing_user:
-            raise ValueError("Email already exists.")
+            raise ValueError("Email already exists")
         user = User.create_user(user_data)
         self.user_repo.add(user)
         return user
@@ -53,7 +53,7 @@ class HBnBFacade:
     def get_user_by_email(self, email):
         """Return a user by normalized email."""
         if not email:
-            raise ValueError("Email is required.")
+            raise ValueError("Email is required")
         email = email.strip().lower()
         user_by_email = self.user_repo.get_user_by_email(email)
         return user_by_email
@@ -61,14 +61,14 @@ class HBnBFacade:
     def update_user(self, user_id, user_data):
         """Update a user profile (first_name and last_name only)"""
         if not user_data or not isinstance(user_data, dict):
-            raise ValueError("Update data must be a non-empty dictionary.")
+            raise ValueError("Update data must be a non-empty dictionary")
         user = self.user_repo.get(user_id)
         if not user:
             return None
         if "is_admin" in user_data:
-            raise ValueError("Only an administrator can modify is_admin.")
+            raise ValueError("Only an administrator can modify is_admin")
         if "email" in user_data or "password" in user_data:
-            raise ValueError("You cannot modify email or password.")
+            raise ValueError("You cannot modify email or password")
         if user_data:
             self.user_repo.update(user_id, user_data)
         return user
@@ -76,16 +76,16 @@ class HBnBFacade:
     def update_user_email(self, user_id, user_data):
         """Update a user's email with validation and uniqueness check."""
         if not user_data or not isinstance(user_data, dict):
-            raise ValueError("Update data must be a non-empty dictionary.")
+            raise ValueError("Update data must be a non-empty dictionary")
         user = self.user_repo.get(user_id)
         if not user:
             return None
         if "email" not in user_data:
-            raise ValueError("Email is required.")
+            raise ValueError("Email is required")
         new_email = user_data["email"].strip().lower()
         existing_user = self.user_repo.get_user_by_email(new_email)
         if existing_user and existing_user.id != user.id:
-            raise ValueError("Email already exists.")
+            raise ValueError("Email already exists")
         user.update_email(new_email)
         self.user_repo.save(user)  
         return user
@@ -93,16 +93,30 @@ class HBnBFacade:
     def update_user_password(self, user_id, user_data):
         """Update a user's password with validation."""
         if not user_data or not isinstance(user_data, dict):
-            raise ValueError("Update data must be a non-empty dictionary.")
+            raise ValueError("Update data must be a non-empty dictionary")
         user = self.user_repo.get(user_id)
         if not user:
             return None
         if "password" not in user_data:
-            raise ValueError("Password is required.")
+            raise ValueError("Password is required")
         new_password = user_data["password"]
         user.update_password(new_password)
         self.user_repo.save(user)
         return user
+    
+    def delete_user(self, user_id):
+        user = self.user_repo.get(user_id)
+        if user is None:
+            return None
+        reviews_by_author = self.review_repo.get_reviews_by_author(user_id)
+        for review in reviews_by_author:
+            self.delete_review(review.id)
+        places_by_owner = self.place_repo.get_places_by_owner(user_id)
+        for place in places_by_owner:
+            self.delete_place(place.id)
+        self.user_repo.delete(user_id)
+        return True
+        
 
     # =============================
     # ------ AMENITY METHODS ------
@@ -111,15 +125,15 @@ class HBnBFacade:
     def create_amenity(self, amenity_data):
         """Create and store a new amenity with unique name validation."""
         if not amenity_data or not isinstance(amenity_data, dict):
-            raise ValueError("Amenity data must be a non-empty dictionary.")
+            raise ValueError("Amenity data must be a non-empty dictionary")
         name = amenity_data.get("name")
         if not name:
-            raise ValueError("Name is required.")
+            raise ValueError("Name is required")
         name = name.strip().lower()
         amenity_data["name"] = name
         existing_amenity = self.amenity_repo.get_by_attribute("name", name)
         if existing_amenity:
-            raise ValueError("Amenity already exists.")
+            raise ValueError("Amenity already exists")
         amenity = Amenity.create_amenity(amenity_data)
         self.amenity_repo.add(amenity)
         return amenity
@@ -137,7 +151,7 @@ class HBnBFacade:
     def update_amenity(self, amenity_id, amenity_data):
         """Update an amenity with validation and name uniqueness checks."""
         if not amenity_data or not isinstance(amenity_data, dict):
-            raise ValueError("Amenity data must be a non-empty dictionary.")
+            raise ValueError("Amenity data must be a non-empty dictionary")
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             return None
@@ -145,9 +159,19 @@ class HBnBFacade:
             new_name = amenity_data["name"].strip().lower()
             existing_amenity = self.amenity_repo.get_by_attribute("name", new_name)
             if existing_amenity and existing_amenity.id != amenity.id:
-                raise ValueError("Name already exists.")
+                raise ValueError("Name already exists")
         self.amenity_repo.update(amenity_id, amenity_data)
         return amenity
+    
+    def delete_amenity(self, amenity_id):
+        amenity = self.amenity_repo.get(amenity_id)
+        if amenity is None:
+            return None
+        places = list(amenity.places)
+        for place in places:
+            self.remove_amenity_from_place(place.id, amenity_id)
+        self.amenity_repo.delete(amenity_id)
+        return True
 
     # =============================
     # ------ PLACES METHODS ------
@@ -156,23 +180,23 @@ class HBnBFacade:
     def create_place(self, place_data):
         """Create and store a place after validating owner and amenity ids."""
         if not place_data or not isinstance(place_data, dict):
-            raise ValueError("Place data must be a non-empty dictionary.")
+            raise ValueError("Place data must be a non-empty dictionary")
         owner_id = place_data.get("owner_id")
         if not owner_id:
-            raise ValueError("Owner is required.")
+            raise ValueError("Owner is required")
         existing_owner = self.user_repo.get(owner_id)
         if not existing_owner:
-            raise ValueError("Owner not found.")
+            raise ValueError("Owner not found")
         amenities_ids = place_data.get("amenities")
         if amenities_ids is None:
             amenities_ids = []
         if not isinstance(amenities_ids, list):
-            raise ValueError("Amenities must be a list.")
+            raise ValueError("Amenities must be a list")
         amenities = []
         for amenity_id in amenities_ids:
             amenity = self.amenity_repo.get(amenity_id) 
             if not amenity:
-                raise ValueError("Invalid amenity ID.")
+                raise ValueError("Invalid amenity ID")
             amenities.append(amenity)
         place = Place.create_place(place_data, owner_id)
         for amenity in amenities:
@@ -195,14 +219,14 @@ class HBnBFacade:
     def update_place(self, place_id, place_data):
         """Update a place while protecting owner and amenities modifications."""
         if not place_data or not isinstance(place_data, dict):
-            raise ValueError("Place data must be a non-empty dictionary.")
+            raise ValueError("Place data must be a non-empty dictionary")
         place = self.place_repo.get(place_id)
         if place is None:
             return None
         if "owner_id" in place_data:
-            raise ValueError("Only an administrator can modify the owner.")
+            raise ValueError("Only an administrator can modify the owner")
         if "amenities" in place_data:
-            raise ValueError("Amenities must be modified using add_amenity or remove_amenity.")
+            raise ValueError("Amenities must be modified using add_amenity or remove_amenity")
         self.place_repo.update(place_id, place_data)
         return place
 
@@ -210,10 +234,10 @@ class HBnBFacade:
         """Link an amenity to a place after validating both ids."""
         place = self.place_repo.get(place_id)
         if place is None:
-            raise ValueError("Place not found.")
+            raise ValueError("Place not found")
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
-            raise ValueError("Amenity not found.")
+            raise ValueError("Amenity not found")
         place.add_amenity(amenity)
         self.place_repo.save(place)
         return place
@@ -222,13 +246,26 @@ class HBnBFacade:
         """Unlink an amenity from a place after validating both ids."""
         place = self.place_repo.get(place_id)
         if place is None:
-            raise ValueError("Place not found.")
+            raise ValueError("Place not found")
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
-            raise ValueError("Amenity not found.")
+            raise ValueError("Amenity not found")
         place.remove_amenity(amenity)
         self.place_repo.save(place)
         return place
+    
+    def delete_place(self, place_id):
+        place = self.place_repo.get(place_id)
+        if place is None:
+            return None
+        reviews = self.review_repo.get_reviews_by_place(place_id)
+        for review in reviews:
+            self.delete_review(review.id)
+        amenities = list(place.amenities)
+        for amenity in amenities:
+            self.remove_amenity_from_place(place_id, amenity.id)
+        self.place_repo.delete(place_id)
+        return True
 
     # =============================
     # ------ REVIEWS METHODS ------
@@ -237,24 +274,24 @@ class HBnBFacade:
     def create_review(self, review_data):
         """Create and store a review while enforcing place/user existence and uniqueness."""
         if not review_data or not isinstance(review_data, dict):
-            raise ValueError("Review data must be a non-empty dictionary.")
+            raise ValueError("Review data must be a non-empty dictionary")
         place_id = review_data.get("place_id")
         author_id = review_data.get("author_id")
         if place_id is None or author_id is None:
-            raise ValueError("author_id and place_id are required.")
+            raise ValueError("author_id and place_id are required")
         place = self.place_repo.get(place_id)
         if place is None:
-            raise ValueError("Place not found.")
+            raise ValueError("Place not found")
         if self.user_repo.get(author_id) is None:
-            raise ValueError("User not found.")
+            raise ValueError("User not found")
         if place.owner_id == author_id:
-            raise ValueError("You cannot review your own place.")
+            raise ValueError("You cannot review your own place")
         if self.review_repo.get_review_by_place_and_author(place_id, author_id):
-                raise ValueError("Review already exists for this user and place.")
+                raise ValueError("Review already exists for this user and place")
         comment = review_data.get("comment")
         rating = review_data.get("rating")
         if comment is None or rating is None:
-            raise ValueError("comment and rating are required.")
+            raise ValueError("comment and rating are required")
         review = Review.create_review(review_data, author_id, place_id)
         self.review_repo.add(review)
         return review
@@ -281,12 +318,12 @@ class HBnBFacade:
     def update_review(self, review_id, review_data):
         """Update a review while preventing author_id and place_id changes."""
         if not review_data or not isinstance(review_data, dict):
-            raise ValueError("Review data must be a non-empty dictionary.")
+            raise ValueError("Review data must be a non-empty dictionary")
         review = self.review_repo.get(review_id)
         if review is None:
             return None
         if "author_id" in review_data or "place_id" in review_data:
-            raise ValueError("author_id and place_id cannot be modified.")
+            raise ValueError("author_id and place_id cannot be modified")
         self.review_repo.update(review_id, review_data)
         return review
 

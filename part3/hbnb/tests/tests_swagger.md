@@ -20,14 +20,14 @@ http://127.0.0.1:5000/api/v1/
 
 ## Ordre recommandé des tests
 
-Les tests sont à effectuer dans cet ordre car certains dépendent des résultats précédents (token JWT, IDs créés).
-
 ```
 1. Auth       → obtenir un token JWT
 2. Users      → créer et gérer des utilisateurs
 3. Amenities  → créer et gérer des amenities
 4. Places     → créer et gérer des lieux
 5. Reviews    → créer et gérer des reviews
+6. Admin      → tester les privilèges admin
+7. DELETE     → tous les tests de suppression (à faire en dernier)
 ```
 
 ---
@@ -42,7 +42,18 @@ Certains endpoints nécessitent un token JWT. Voici comment l'utiliser :
 4. Saisir : `Bearer <ton_token>` (exemple : `Bearer eyJhbGci...`)
 5. Cliquer sur **Authorize** puis **Close**
 
-> Les endpoints avec un cadenas necessitent cette etape.
+> Les endpoints avec un cadenas nécessitent cette étape.
+
+---
+
+## IDs utiles (données initiales)
+
+| Donnée | ID |
+|--------|----|
+| Admin | `36c9050e-ddd3-4c3b-9731-9f487208bbc1` |
+| Amenity WiFi | `c7a66c94-5a7e-4746-8c30-308f7695a36c` |
+| Amenity Swimming Pool | `984fc2e7-bb3b-49ff-9c93-6fe57119ba53` |
+| Amenity Air Conditioning | `68615b51-bb01-4d8f-8222-a445efdf23b6` |
 
 ---
 
@@ -58,9 +69,7 @@ Certains endpoints nécessitent un token JWT. Voici comment l'utiliser :
   "password": "admin1234"
 }
 ```
-**Resultat attendu :** `200 OK` avec un `access_token`
-
-> Sauvegarder le token — il sera utilise pour tous les tests suivants.
+**Résultat attendu :** `200 OK` avec un `access_token`
 
 ---
 
@@ -74,7 +83,7 @@ Certains endpoints nécessitent un token JWT. Voici comment l'utiliser :
   "password": "mauvais_mot_de_passe"
 }
 ```
-**Resultat attendu :** `401 Invalid credentials`
+**Résultat attendu :** `401 Invalid credentials`
 
 ---
 
@@ -88,29 +97,29 @@ Certains endpoints nécessitent un token JWT. Voici comment l'utiliser :
   "password": "admin1234"
 }
 ```
-**Resultat attendu :** `401 Invalid credentials`
+**Résultat attendu :** `401 Invalid credentials`
 
 ---
 
-### TEST 1.4 — Acces a l'endpoint protege avec token valide
+### TEST 1.4 — Accès à l'endpoint protégé avec token valide
 **Endpoint :** `GET /api/v1/auth/protected`
 Requiert un token
 
-**Resultat attendu :** `200 OK` avec `Hello, user <id>`
+**Résultat attendu :** `200 OK` avec `Hello, user <id>`
 
 ---
 
-### TEST 1.5 — Acces a l'endpoint protege sans token
+### TEST 1.5 — Accès à l'endpoint protégé sans token
 **Endpoint :** `GET /api/v1/auth/protected`
 (sans token dans Authorize)
 
-**Resultat attendu :** `401 Missing Authorization Header`
+**Résultat attendu :** `401 Missing Authorization Header`
 
 ---
 
 ## SECTION 2 — Users
 
-### TEST 2.1 — Creer un utilisateur valide
+### TEST 2.1 — Créer un utilisateur valide
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -122,13 +131,11 @@ Requiert un token
   "password": "password123"
 }
 ```
-**Resultat attendu :** `201` avec l'id du nouvel utilisateur
-
-> Sauvegarder l'id de l'utilisateur cree.
+**Résultat attendu :** `201` avec l'id du nouvel utilisateur
 
 ---
 
-### TEST 2.2 — Creer un deuxieme utilisateur
+### TEST 2.2 — Créer un deuxième utilisateur
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -140,13 +147,11 @@ Requiert un token
   "password": "password123"
 }
 ```
-**Resultat attendu :** `201` avec l'id du nouvel utilisateur
-
-> Sauvegarder l'id de cet utilisateur.
+**Résultat attendu :** `201` avec l'id du nouvel utilisateur
 
 ---
 
-### TEST 2.3 — Creer un utilisateur avec email deja existant
+### TEST 2.3 — Créer un utilisateur avec email déjà existant
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -158,11 +163,11 @@ Requiert un token
   "password": "password123"
 }
 ```
-**Resultat attendu :** `400 Email already exists`
+**Résultat attendu :** `400 Email already exists`
 
 ---
 
-### TEST 2.4 — Creer un utilisateur avec email invalide sans @
+### TEST 2.4 — Créer un utilisateur avec email invalide sans @
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -174,9 +179,11 @@ Requiert un token
   "password": "password123"
 }
 ```
-**Resultat attendu :** `400 Email must contain exactly one '@'.`
+**Résultat attendu :** `400 Email must contain exactly one '@'.`
 
-### TEST 2.5 — Creer un utilisateur avec email invalide avec un espace
+---
+
+### TEST 2.5 — Créer un utilisateur avec email invalide avec un espace
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -188,9 +195,11 @@ Requiert un token
   "password": "password123"
 }
 ```
-**Resultat attendu :** `400 Email must not contain spaces.`
+**Résultat attendu :** `400 Email must not contain spaces.`
 
-### TEST 2.6 — Creer un utilisateur avec email invalide avec absence de domaine
+---
+
+### TEST 2.6 — Créer un utilisateur avec email invalide sans domaine
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -202,11 +211,11 @@ Requiert un token
   "password": "password123"
 }
 ```
-**Resultat attendu :** `400 Email must have a valid domain with a '.'`
+**Résultat attendu :** `400 Email must have a valid domain with a '.'`
 
 ---
 
-### TEST 2.7 — Creer un utilisateur avec mot de passe trop court
+### TEST 2.7 — Créer un utilisateur avec mot de passe trop court
 **Endpoint :** `POST /api/v1/users/`
 
 **Body :**
@@ -218,35 +227,35 @@ Requiert un token
   "password": "abc"
 }
 ```
-**Resultat attendu :** `400 password must have at least 8 characters`
+**Résultat attendu :** `400 password must have at least 8 characters`
 
 ---
 
 ### TEST 2.8 — Lister tous les utilisateurs
 **Endpoint :** `GET /api/v1/users/`
 
-**Resultat attendu :** `200` avec la liste de tous les utilisateurs (admin + John + Jane)
+**Résultat attendu :** `200` avec la liste de tous les utilisateurs (admin + John + Jane)
 
 ---
 
-### TEST 2.9 — Recuperer un utilisateur par ID
+### TEST 2.9 — Récupérer un utilisateur par ID
 **Endpoint :** `GET /api/v1/users/<user_id>`
 
-Utiliser l'id de John cree au TEST 2.1.
+Utiliser l'id de John créé au TEST 2.1.
 
-**Resultat attendu :** `200` avec les details de John
+**Résultat attendu :** `200` avec les détails de John
 
 ---
 
-### TEST 2.10 — Recuperer un utilisateur inexistant
+### TEST 2.10 — Récupérer un utilisateur inexistant
 **Endpoint :** `GET /api/v1/users/00000000-0000-0000-0000-000000000000`
 
-**Resultat attendu :** `404 User not found`
+**Résultat attendu :** `404 User not found`
 
 ---
 
 ### TEST 2.11 — Modifier son propre profil (valide)
-Requiert le token de John (faire POST /auth/login avec john@test.com / password123)
+Requiert le token de John (faire `POST /auth/login` avec `john@test.com` / `password123`)
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>`
 
@@ -257,11 +266,11 @@ Requiert le token de John (faire POST /auth/login avec john@test.com / password1
   "last_name": "Doe"
 }
 ```
-**Resultat attendu :** `200` avec le prenom mis a jour
+**Résultat attendu :** `200` avec le prénom mis à jour
 
 ---
 
-### TEST 2.12 — Modifier le profil d'un autre utilisateur sans etre admin
+### TEST 2.12 — Modifier le profil d'un autre utilisateur sans être admin
 Requiert le token de John
 
 **Endpoint :** `PUT /api/v1/users/<user_id_jane>`
@@ -272,7 +281,7 @@ Requiert le token de John
   "first_name": "Hacked"
 }
 ```
-**Resultat attendu :** `403 Unauthorized action`
+**Résultat attendu :** `403 Unauthorized action`
 
 ---
 
@@ -287,11 +296,11 @@ Requiert le token de John
   "email": "newemail@test.com"
 }
 ```
-**Resultat attendu :** `400 You cannot modify email or password`
+**Résultat attendu :** `400 You cannot modify email or password`
 
 ---
 
-### TEST 2.14 — Modifier l'email via l'endpoint dedie
+### TEST 2.14 — Modifier l'email via l'endpoint dédié
 Requiert le token de John
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>/email`
@@ -302,7 +311,7 @@ Requiert le token de John
   "email": "john_new@test.com"
 }
 ```
-**Resultat attendu :** `200 Email updated successfully`
+**Résultat attendu :** `200 Email updated successfully`
 
 ---
 
@@ -317,13 +326,13 @@ Requiert le token de John
   "password": "newpassword123"
 }
 ```
-**Resultat attendu :** `200 Password updated successfully`
+**Résultat attendu :** `200 Password updated successfully`
 
 ---
 
 ## SECTION 3 — Amenities
 
-### TEST 3.1 — Creer une amenity (valide, en tant qu'admin)
+### TEST 3.1 — Créer une amenity (valide, en tant qu'admin)
 Requiert le token admin
 
 **Endpoint :** `POST /api/v1/amenities/`
@@ -335,13 +344,11 @@ Requiert le token admin
   "description": "Private parking space available"
 }
 ```
-**Resultat attendu :** `201` avec l'id de la nouvelle amenity
-
-> Sauvegarder l'id de l'amenity creee.
+**Résultat attendu :** `201` avec l'id de la nouvelle amenity
 
 ---
 
-### TEST 3.2 — Creer une amenity sans etre admin
+### TEST 3.2 — Créer une amenity sans être admin
 Requiert le token de John (non admin)
 
 **Endpoint :** `POST /api/v1/amenities/`
@@ -353,11 +360,11 @@ Requiert le token de John (non admin)
   "description": "Luxury jacuzzi"
 }
 ```
-**Resultat attendu :** `403 Admin privileges required`
+**Résultat attendu :** `403 Admin privileges required`
 
 ---
 
-### TEST 3.3 — Creer une amenity avec nom deja existant
+### TEST 3.3 — Créer une amenity avec nom déjà existant
 Requiert le token admin
 
 **Endpoint :** `POST /api/v1/amenities/`
@@ -369,30 +376,30 @@ Requiert le token admin
   "description": "Another wifi"
 }
 ```
-**Resultat attendu :** `400 Amenity already exists`
+**Résultat attendu :** `400 Amenity already exists`
 
 ---
 
 ### TEST 3.4 — Lister toutes les amenities
 **Endpoint :** `GET /api/v1/amenities/`
 
-**Resultat attendu :** `200` avec la liste (wifi, swimming pool, air conditioning + parking)
+**Résultat attendu :** `200` avec la liste (wifi, swimming pool, air conditioning + parking)
 
 ---
 
-### TEST 3.5 — Recuperer une amenity par ID
+### TEST 3.5 — Récupérer une amenity par ID
 **Endpoint :** `GET /api/v1/amenities/<amenity_id>`
 
-Utiliser l'id de Parking cree au TEST 3.1.
+Utiliser l'id de Parking créé au TEST 3.1.
 
-**Resultat attendu :** `200` avec les details de Parking
+**Résultat attendu :** `200` avec les détails de Parking
 
 ---
 
-### TEST 3.6 — Recuperer une amenity inexistante
+### TEST 3.6 — Récupérer une amenity inexistante
 **Endpoint :** `GET /api/v1/amenities/00000000-0000-0000-0000-000000000000`
 
-**Resultat attendu :** `404 Amenity not found`
+**Résultat attendu :** `404 Amenity not found`
 
 ---
 
@@ -408,11 +415,11 @@ Requiert le token admin
   "description": "Free private parking"
 }
 ```
-**Resultat attendu :** `200` avec les details mis a jour
+**Résultat attendu :** `200` avec les détails mis à jour
 
 ---
 
-### TEST 3.8 — Modifier une amenity sans etre admin
+### TEST 3.8 — Modifier une amenity sans être admin
 Requiert le token de John
 
 **Endpoint :** `PUT /api/v1/amenities/<amenity_id_parking>`
@@ -423,13 +430,13 @@ Requiert le token de John
   "name": "Hacked amenity"
 }
 ```
-**Resultat attendu :** `403 Admin privileges required`
+**Résultat attendu :** `403 Admin privileges required`
 
 ---
 
 ## SECTION 4 — Places
 
-### TEST 4.1 — Creer un lieu (valide)
+### TEST 4.1 — Créer un lieu (valide)
 Requiert le token de John
 
 **Endpoint :** `POST /api/v1/places/`
@@ -445,13 +452,11 @@ Requiert le token de John
   "amenities": []
 }
 ```
-**Resultat attendu :** `201` avec les details du lieu
-
-> Sauvegarder l'id du lieu cree.
+**Résultat attendu :** `201` avec les détails du lieu
 
 ---
 
-### TEST 4.2 — Creer un lieu avec amenities
+### TEST 4.2 — Créer un lieu avec amenities
 Requiert le token de John
 
 **Endpoint :** `POST /api/v1/places/`
@@ -467,11 +472,11 @@ Requiert le token de John
   "amenities": ["984fc2e7-bb3b-49ff-9c93-6fe57119ba53"]
 }
 ```
-**Resultat attendu :** `201` avec les amenities incluses dans la reponse
+**Résultat attendu :** `201` avec les amenities incluses dans la réponse
 
 ---
 
-### TEST 4.3 — Creer un lieu avec prix negatif
+### TEST 4.3 — Créer un lieu avec prix négatif
 Requiert le token de John
 
 **Endpoint :** `POST /api/v1/places/`
@@ -486,11 +491,11 @@ Requiert le token de John
   "longitude": 2.3522
 }
 ```
-**Resultat attendu :** `400 Price must be a positive number`
+**Résultat attendu :** `400 Price must be a positive number`
 
 ---
 
-### TEST 4.4 — Creer un lieu avec latitude invalide
+### TEST 4.4 — Créer un lieu avec latitude invalide
 Requiert le token de John
 
 **Endpoint :** `POST /api/v1/places/`
@@ -505,30 +510,30 @@ Requiert le token de John
   "longitude": 2.3522
 }
 ```
-**Resultat attendu :** `400 Latitude must be between -90 and 90`
+**Résultat attendu :** `400 Latitude must be between -90 and 90`
 
 ---
 
 ### TEST 4.5 — Lister tous les lieux
 **Endpoint :** `GET /api/v1/places/`
 
-**Resultat attendu :** `200` avec la liste des lieux crees
+**Résultat attendu :** `200` avec la liste des lieux créés
 
 ---
 
-### TEST 4.6 — Recuperer un lieu par ID
+### TEST 4.6 — Récupérer un lieu par ID
 **Endpoint :** `GET /api/v1/places/<place_id>`
 
-Utiliser l'id du lieu cree au TEST 4.1.
+Utiliser l'id du lieu créé au TEST 4.1.
 
-**Resultat attendu :** `200` avec owner, amenities et reviews imbriques
+**Résultat attendu :** `200` avec owner, amenities et reviews imbriqués
 
 ---
 
-### TEST 4.7 — Recuperer un lieu inexistant
+### TEST 4.7 — Récupérer un lieu inexistant
 **Endpoint :** `GET /api/v1/places/00000000-0000-0000-0000-000000000000`
 
-**Resultat attendu :** `404 Place not found`
+**Résultat attendu :** `404 Place not found`
 
 ---
 
@@ -540,11 +545,11 @@ Requiert le token de John
 **Body :**
 ```json
 {
-  "title": "Bel appartement Paris - Renove",
+  "title": "Bel appartement Paris - Renové",
   "price": 150.00
 }
 ```
-**Resultat attendu :** `200` avec les donnees mises a jour
+**Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
@@ -559,29 +564,40 @@ Requiert le token de Jane
   "title": "Hacked place"
 }
 ```
-**Resultat attendu :** `403 Unauthorized action`
+**Résultat attendu :** `403 Unauthorized action`
 
 ---
 
-### TEST 4.10 — Ajouter une amenity a un lieu
+### TEST 4.10 — Ajouter une amenity à un lieu en tant que propriétaire
 Requiert le token de John
 
 **Endpoint :** `POST /api/v1/places/<place_id>/amenities/<amenity_id_wifi>`
 
 Utiliser l'id du lieu de John et l'id de wifi : `c7a66c94-5a7e-4746-8c30-308f7695a36c`
 
-**Resultat attendu :** `200` avec l'amenity ajoutee dans la liste
+**Résultat attendu :** `200` avec l'amenity ajoutée dans la liste
 
 ---
 
-### TEST 4.11 — Ajouter une amenity deja liee
+### TEST 4.11 — Ajouter une amenity à un lieu sans etre propriétaire
+Requiert le token de Jane
+
+**Endpoint :** `POST /api/v1/places/<place_id>/amenities/<amenity_id_wifi>`
+
+Utiliser l'id du lieu de John et l'id de wifi : `c7a66c94-5a7e-4746-8c30-308f7695a36c`
+
+**Résultat attendu :** `403 Unauthorized action`
+
+---
+
+### TEST 4.11 — Ajouter une amenity déjà liée
 Requiert le token de John
 
 **Endpoint :** `POST /api/v1/places/<place_id>/amenities/<amenity_id_wifi>`
 
-(meme amenity que le test precedent)
+(même amenity que le test précédent)
 
-**Resultat attendu :** `400 Amenity already added`
+**Résultat attendu :** `400 Amenity already added`
 
 ---
 
@@ -590,33 +606,44 @@ Requiert le token de John
 
 **Endpoint :** `POST /api/v1/places/<place_id>/amenities/00000000-0000-0000-0000-000000000000`
 
-**Resultat attendu :** `404 Amenity not found`
+**Résultat attendu :** `404 Amenity not found`
 
 ---
 
-### TEST 4.13 — Retirer une amenity d'un lieu
+### TEST 4.13 — Retirer une amenity d'un lieu en tant que propriétaire
 Requiert le token de John
 
 **Endpoint :** `DELETE /api/v1/places/<place_id>/amenities/<amenity_id_wifi>`
 
-**Resultat attendu :** `200` avec l'amenity retiree de la liste
+**Résultat attendu :** `200` avec l'amenity retirée de la liste
 
 ---
 
-### TEST 4.14 — Retirer une amenity non liee
+### TEST 4.11 — Ajouter une amenity à un lieu sans etre propriétaire
+Requiert le token de Jane
+
+**Endpoint :** `POST /api/v1/places/<place_id>/amenities/<amenity_id_wifi>`
+
+Utiliser l'id du lieu de John et l'id de wifi : `c7a66c94-5a7e-4746-8c30-308f7695a36c`
+
+**Résultat attendu :** `403 Unauthorized action`
+
+---
+
+### TEST 4.14 — Retirer une amenity non liée
 Requiert le token de John
 
 **Endpoint :** `DELETE /api/v1/places/<place_id>/amenities/<amenity_id_wifi>`
 
-(meme amenity que le test precedent, deja retiree)
+(même amenity que le test précédent, déjà retirée)
 
-**Resultat attendu :** `400 Amenity not linked`
+**Résultat attendu :** `400 Amenity not linked`
 
 ---
 
 ## SECTION 5 — Reviews
 
-### TEST 5.1 — Creer une review (valide, par Jane sur le lieu de John)
+### TEST 5.1 — Créer une review (valide, par Jane sur le lieu de John)
 Requiert le token de Jane
 
 **Endpoint :** `POST /api/v1/reviews/`
@@ -629,13 +656,11 @@ Requiert le token de Jane
   "place_id": "<place_id_john>"
 }
 ```
-**Resultat attendu :** `201` avec les details de la review
-
-> Sauvegarder l'id de la review creee.
+**Résultat attendu :** `201` avec les détails de la review
 
 ---
 
-### TEST 5.2 — Creer une review sur son propre lieu
+### TEST 5.2 — Créer une review sur son propre lieu
 Requiert le token de John
 
 **Endpoint :** `POST /api/v1/reviews/`
@@ -648,11 +673,11 @@ Requiert le token de John
   "place_id": "<place_id_john>"
 }
 ```
-**Resultat attendu :** `400 You cannot review your own place`
+**Résultat attendu :** `400 You cannot review your own place`
 
 ---
 
-### TEST 5.3 — Creer une deuxieme review sur le meme lieu (doublon)
+### TEST 5.3 — Créer une deuxième review sur le même lieu (doublon)
 Requiert le token de Jane
 
 **Endpoint :** `POST /api/v1/reviews/`
@@ -665,12 +690,12 @@ Requiert le token de Jane
   "place_id": "<place_id_john>"
 }
 ```
-**Resultat attendu :** `400 Review already exists for this user and place`
+**Résultat attendu :** `400 Review already exists for this user and place`
 
 ---
 
-### TEST 5.4 — Creer une review avec rating invalide
-Requiert le token de Admin
+### TEST 5.4 — Créer une review avec rating invalide
+Requiert le token admin
 
 **Endpoint :** `POST /api/v1/reviews/`
 
@@ -682,11 +707,11 @@ Requiert le token de Admin
   "place_id": "<place_id_john>"
 }
 ```
-**Resultat attendu :** `400 Rating must be between 1 and 5`
+**Résultat attendu :** `400 Rating must be between 1 and 5`
 
 ---
 
-### TEST 5.5 — Creer une review sur un lieu inexistant
+### TEST 5.5 — Créer une review sur un lieu inexistant
 Requiert le token de Jane
 
 **Endpoint :** `POST /api/v1/reviews/`
@@ -699,37 +724,37 @@ Requiert le token de Jane
   "place_id": "00000000-0000-0000-0000-000000000000"
 }
 ```
-**Resultat attendu :** `404 Place not found`
+**Résultat attendu :** `404 Place not found`
 
 ---
 
 ### TEST 5.6 — Lister toutes les reviews
 **Endpoint :** `GET /api/v1/reviews/`
 
-**Resultat attendu :** `200` avec la liste des reviews
+**Résultat attendu :** `200` avec la liste des reviews
 
 ---
 
-### TEST 5.7 — Recuperer une review par ID
+### TEST 5.7 — Récupérer une review par ID
 **Endpoint :** `GET /api/v1/reviews/<review_id>`
 
-Utiliser l'id de la review creee au TEST 5.1.
+Utiliser l'id de la review créée au TEST 5.1.
 
-**Resultat attendu :** `200` avec les details de la review
+**Résultat attendu :** `200` avec les détails de la review
 
 ---
 
-### TEST 5.8 — Recuperer les reviews d'un lieu
+### TEST 5.8 — Récupérer les reviews d'un lieu
 **Endpoint :** `GET /api/v1/places/<place_id>/reviews`
 
-**Resultat attendu :** `200` avec la liste des reviews du lieu
+**Résultat attendu :** `200` avec la liste des reviews du lieu
 
 ---
 
-### TEST 5.9 — Recuperer les reviews d'un lieu inexistant
+### TEST 5.9 — Récupérer les reviews d'un lieu inexistant
 **Endpoint :** `GET /api/v1/places/00000000-0000-0000-0000-000000000000/reviews`
 
-**Resultat attendu :** `404 Place not found`
+**Résultat attendu :** `404 Place not found`
 
 ---
 
@@ -745,7 +770,7 @@ Requiert le token de Jane
   "rating": 5
 }
 ```
-**Resultat attendu :** `200` avec les donnees mises a jour
+**Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
@@ -760,40 +785,13 @@ Requiert le token de John
   "comment": "Review hackee"
 }
 ```
-**Resultat attendu :** `403 Unauthorized action`
-
----
-
-### TEST 5.12 — Supprimer sa propre review
-Requiert le token de Jane
-
-**Endpoint :** `DELETE /api/v1/reviews/<review_id>`
-
-**Resultat attendu :** `200 Review deleted successfully`
-
----
-
-### TEST 5.13 — Supprimer la review d'un autre utilisateur
-Requiert le token de John
-
-**Endpoint :** `DELETE /api/v1/reviews/<review_id_autre>`
-
-**Resultat attendu :** `403 Unauthorized action`
-
----
-
-### TEST 5.14 — Supprimer une review inexistante
-Requiert le token admin
-
-**Endpoint :** `DELETE /api/v1/reviews/00000000-0000-0000-0000-000000000000`
-
-**Resultat attendu :** `404 Review not found`
+**Résultat attendu :** `403 Unauthorized action`
 
 ---
 
 ## SECTION 6 — Admin
-### TEST 6.0 — Login admin
 
+### TEST 6.0 — Login admin
 **Endpoint :** `POST /api/v1/auth/login`
 
 **Body :**
@@ -803,15 +801,11 @@ Requiert le token admin
   "password": "admin1234"
 }
 ```
-
 **Résultat attendu :** `200 OK` avec un `access_token`
-
-Sauvegarder le token admin et l'utiliser dans Authorize.
 
 ---
 
 ### TEST 6.1 — Admin modifie le profil d'un autre utilisateur
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/users/<user_id_jane>`
@@ -823,13 +817,11 @@ Requiert le token admin
   "last_name": "Smith"
 }
 ```
-
 **Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
 ### TEST 6.2 — Admin modifie un utilisateur inexistant
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/users/00000000-0000-0000-0000-000000000000`
@@ -840,13 +832,11 @@ Requiert le token admin
   "first_name": "Ghost"
 }
 ```
-
 **Résultat attendu :** `404 User not found`
 
 ---
 
 ### TEST 6.3 — Admin tente de modifier email/password via PUT /users
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>`
@@ -857,15 +847,11 @@ Requiert le token admin
   "email": "adminchange@test.com"
 }
 ```
-
 **Résultat attendu :** `400 You cannot modify email or password`
-
-> Ce test vérifie que la règle métier reste vraie même pour admin, sauf si tu as choisi l'inverse.
 
 ---
 
 ### TEST 6.4 — Admin modifie l'email d'un autre utilisateur via endpoint dédié
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>/email`
@@ -876,14 +862,11 @@ Requiert le token admin
   "email": "jane_admin_update@test.com"
 }
 ```
-
-**Résultat attendu :**
-- `200 Email updated successfully`
+**Résultat attendu :** `200 Email updated successfully`
 
 ---
 
 ### TEST 6.5 — Admin modifie le mot de passe d'un autre utilisateur via endpoint dédié
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/users/<user_id_john>/password`
@@ -894,18 +877,11 @@ Requiert le token admin
   "password": "adminreset123"
 }
 ```
-
-**Résultat attendu :**
-- `200 Password updated successfully`
-
----
-
-### Amenities
+**Résultat attendu :** `200 Password updated successfully`
 
 ---
 
 ### TEST 6.6 — Admin crée une amenity
-
 Requiert le token admin
 
 **Endpoint :** `POST /api/v1/amenities/`
@@ -917,13 +893,11 @@ Requiert le token admin
   "description": "Private sauna available"
 }
 ```
-
-**Résultat attendu :** `201` avec le d"tail de la nouvelle aménity
+**Résultat attendu :** `201` avec le détail de la nouvelle amenity
 
 ---
 
 ### TEST 6.7 — Admin modifie une amenity existante
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/amenities/<amenity_id>`
@@ -935,13 +909,11 @@ Requiert le token admin
   "description": "Luxury private sauna"
 }
 ```
-
 **Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
 ### TEST 6.8 — Admin modifie une amenity inexistante
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/amenities/00000000-0000-0000-0000-000000000000`
@@ -952,17 +924,11 @@ Requiert le token admin
   "name": "Ghost amenity"
 }
 ```
-
 **Résultat attendu :** `404 Amenity not found`
 
 ---
 
-### Places
-
----
-
 ### TEST 6.9 — Admin modifie le lieu d'un autre utilisateur
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/places/<place_id_john>`
@@ -974,13 +940,11 @@ Requiert le token admin
   "price": 180.00
 }
 ```
-
 **Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
 ### TEST 6.10 — Admin ajoute une amenity à un lieu qui ne lui appartient pas
-
 Requiert le token admin
 
 **Endpoint :** `POST /api/v1/places/<place_id_john>/amenities/<amenity_id_wifi>`
@@ -990,7 +954,6 @@ Requiert le token admin
 ---
 
 ### TEST 6.11 — Admin retire une amenity d'un lieu qui ne lui appartient pas
-
 Requiert le token admin
 
 **Endpoint :** `DELETE /api/v1/places/<place_id_john>/amenities/<amenity_id_wifi>`
@@ -999,12 +962,7 @@ Requiert le token admin
 
 ---
 
-### Reviews
-
----
-
 ### TEST 6.12 — Admin crée une review sur le lieu d'un autre utilisateur
-
 Requiert le token admin
 
 **Endpoint :** `POST /api/v1/reviews/`
@@ -1017,13 +975,11 @@ Requiert le token admin
   "place_id": "<place_id_john>"
 }
 ```
-
 **Résultat attendu :** `201` avec les détails de la review
 
 ---
 
 ### TEST 6.13 — Admin modifie la review d'un autre utilisateur
-
 Requiert le token admin
 
 **Endpoint :** `PUT /api/v1/reviews/<review_id_jane>`
@@ -1035,23 +991,44 @@ Requiert le token admin
   "rating": 4
 }
 ```
-
 **Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
-### TEST 6.14 — Admin supprime la review d'un autre utilisateur
+## SECTION 7 — DELETE
 
-Requiert le token admin
+### Ordre recommandé des suppressions
 
-**Endpoint :** `DELETE /api/v1/reviews/<review_id_jane>`
+```
+1. Reviews      → supprimer les reviews avant les places/utilisateurs
+2. Places       → supprimer les places avant les utilisateurs
+3. Amenities    → supprimer les amenities créées en test
+4. Users        → supprimer les comptes utilisateurs en dernier
+```
+
+---
+
+### Reviews
+
+#### TEST DEL-R1 — Supprimer sa propre review
+Requiert le token de Jane
+
+**Endpoint :** `DELETE /api/v1/reviews/<review_id>`
 
 **Résultat attendu :** `200 Review deleted successfully`
 
 ---
 
-### TEST 6.15 — Admin supprime une review inexistante
+#### TEST DEL-R2 — Supprimer la review d'un autre utilisateur (non admin)
+Requiert le token de John
 
+**Endpoint :** `DELETE /api/v1/reviews/<review_id_autre>`
+
+**Résultat attendu :** `403 Unauthorized action`
+
+---
+
+#### TEST DEL-R3 — Supprimer une review inexistante
 Requiert le token admin
 
 **Endpoint :** `DELETE /api/v1/reviews/00000000-0000-0000-0000-000000000000`
@@ -1060,24 +1037,175 @@ Requiert le token admin
 
 ---
 
-## Recapitulatif des tests
+#### TEST DEL-R4 — Admin supprime la review d'un autre utilisateur
+Requiert le token admin
 
-| Section | Nombre de tests | Valides | Invalides (doivent echouer) |
-|---------|-----------------|---------|------------------------------|
-| Auth | 5 | 2 | 3 |
-| Users | 13 | 6 | 7 |
-| Amenities | 8 | 4 | 4 |
-| Places | 14 | 6 | 8 |
-| Reviews | 14 | 5 | 9 |
-| **Total** | **54** | **23** | **31** |
+**Endpoint :** `DELETE /api/v1/reviews/<review_id_jane>`
+
+**Résultat attendu :** `200 Review deleted successfully`
 
 ---
 
-## IDs utiles (donnees initiales)
+#### TEST DEL-R5 — Admin supprime une review inexistante
+Requiert le token admin
 
-| Donnee | ID |
-|--------|----|
-| Admin | `36c9050e-ddd3-4c3b-9731-9f487208bbc1` |
-| Amenity WiFi | `c7a66c94-5a7e-4746-8c30-308f7695a36c` |
-| Amenity Swimming Pool | `984fc2e7-bb3b-49ff-9c93-6fe57119ba53` |
-| Amenity Air Conditioning | `68615b51-bb01-4d8f-8222-a445efdf23b6` |
+**Endpoint :** `DELETE /api/v1/reviews/00000000-0000-0000-0000-000000000000`
+
+**Résultat attendu :** `404 Review not found`
+
+---
+
+### Places
+
+#### TEST DEL-P1 — Supprimer son propre lieu
+Requiert le token de John
+
+**Endpoint :** `DELETE /api/v1/places/<place_id_john>`
+
+**Résultat attendu :** `200 Place deleted successfully`
+
+---
+
+#### TEST DEL-P2 — Supprimer le lieu d'un autre utilisateur sans être admin
+Requiert le token de Jane
+
+**Endpoint :** `DELETE /api/v1/places/<place_id_john>`
+
+**Résultat attendu :** `403 Unauthorized action`
+
+---
+
+#### TEST DEL-P3 — Supprimer un lieu inexistant
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/places/00000000-0000-0000-0000-000000000000`
+
+**Résultat attendu :** `404 Place not found`
+
+---
+
+#### TEST DEL-P4 — Vérifier qu'un lieu supprimé n'est plus récupérable
+**Endpoint :** `GET /api/v1/places/<place_id_supprime>`
+
+**Résultat attendu :** `404 Place not found`
+
+---
+
+#### TEST DEL-P5 — Vérifier que les reviews du lieu supprimé ont aussi disparu
+**Endpoint :** `GET /api/v1/places/<place_id_supprime>/reviews`
+
+**Résultat attendu :** `404 Place not found`
+
+---
+
+#### TEST DEL-P6 — Admin supprime le lieu d'un autre utilisateur
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/places/<place_id_john>`
+
+**Résultat attendu :** `200 Place deleted successfully`
+
+---
+
+### Amenities
+
+#### TEST DEL-A1 — Supprimer une amenity d'une place sans être admin
+Requiert le token de John
+
+**Endpoint :** `DELETE /api/v1/amenities/<amenity_id_parking>`
+
+**Résultat attendu :** `403 Unauthorized action`
+
+#### TEST DEL-A1 — Supprimer une amenity sans être admin
+Requiert le token de John
+
+**Endpoint :** `DELETE /api/v1/amenities/<amenity_id_parking>`
+
+**Résultat attendu :** `403 Unauthorized action`
+
+#### TEST DEL-A1 — Supprimer une amenity sans être admin
+Requiert le token de John
+
+**Endpoint :** `DELETE /api/v1/amenities/<amenity_id_parking>`
+
+**Résultat attendu :** `403 Unauthorized action`
+
+---
+
+#### TEST DEL-A2 — Supprimer une amenity existante en tant qu'admin
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/amenities/<amenity_id_parking>`
+
+**Résultat attendu :** `200 Amenity deleted successfully`
+
+---
+
+#### TEST DEL-A3 — Supprimer une amenity inexistante
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/amenities/00000000-0000-0000-0000-000000000000`
+
+**Résultat attendu :** `404 Amenity not found`
+
+---
+
+#### TEST DEL-A4 — Vérifier qu'une amenity supprimée n'est plus récupérable
+**Endpoint :** `GET /api/v1/amenities/<amenity_id_supprimee>`
+
+**Résultat attendu :** `404 Amenity not found`
+
+### Users
+
+#### TEST DEL-U1 — Supprimer son propre compte
+Requiert le token de John
+
+**Endpoint :** `DELETE /api/v1/users/<user_id_john>`
+
+**Résultat attendu :** `200 User deleted successfully`
+
+> Ce test supprime aussi les reviews écrites par John, ses places, les reviews sur ses places, ainsi que les liens entre ses places et leurs amenities.
+
+---
+
+#### TEST DEL-U2 — Supprimer le compte d'un autre utilisateur sans être admin
+Requiert le token de John
+
+**Endpoint :** `DELETE /api/v1/users/<user_id_jane>`
+
+**Résultat attendu :** `403 Unauthorized action`
+
+---
+
+#### TEST DEL-U3 — Supprimer un utilisateur inexistant
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/users/00000000-0000-0000-0000-000000000000`
+
+**Résultat attendu :** `404 User not found`
+
+---
+
+#### TEST DEL-U4 — Admin supprime le compte d'un autre utilisateur
+Requiert le token admin
+
+**Endpoint :** `DELETE /api/v1/users/<user_id_jane>`
+
+**Résultat attendu :** `200 User deleted successfully`
+
+> Ce test supprime aussi les reviews écrites par Jane, ses places éventuelles, les reviews de ses places, ainsi que les liens place/amenity associés.
+
+---
+
+## Récapitulatif des tests
+
+| Section | Nombre de tests | Valides | Invalides (doivent échouer) |
+|---------|-----------------|---------|------------------------------|
+| Auth | 5 | 2 | 3 |
+| Users | 15 | 7 | 8 |
+| Amenities | 8 | 3 | 5 |
+| Places | 14 | 5 | 9 |
+| Reviews | 11 | 4 | 7 |
+| Admin | 14 | 9 | 5 |
+| Delete | 20 | 10 | 10 |
+| **Total** | **87** | **40** | **47** |
