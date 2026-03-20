@@ -148,9 +148,3 @@ class User(BaseModel):
         if not password:
             raise ValueError("No password to update.")
         self.set_password(password)
-
-    # ----- delete profile -----
-
-    def delete(self):
-        """Delete the user."""
-        pass  # handled by repository

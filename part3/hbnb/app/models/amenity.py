@@ -73,8 +73,3 @@ class Amenity(BaseModel):
         if "description" in data:
             self._validate_desc(data["description"])
         super().update(data)
-
-    # ----- delete amenity -----
-    def delete(self):
-        """Delete the amenity."""
-        pass  # handled by repository

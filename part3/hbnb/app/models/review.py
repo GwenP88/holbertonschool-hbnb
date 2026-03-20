@@ -98,8 +98,3 @@ class Review(BaseModel):
             self._validate_rating(rating)
             data["rating"] = rating
         super().update(data)
-
-    # -------- Delete ---------
-    def delete(self):
-        """Delete the review."""
-        pass  # handled by repository

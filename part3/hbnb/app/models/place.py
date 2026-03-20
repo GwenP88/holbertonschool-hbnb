@@ -202,8 +202,3 @@ class Place(BaseModel):
             raise ValueError("Amenity not linked.")
         self.amenities.remove(amenity)
 
-    # -------- Delete ---------
-
-    def delete(self):
-        """Delete the place."""
-        pass  # handled by repository
