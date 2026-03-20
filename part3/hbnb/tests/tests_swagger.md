@@ -810,12 +810,6 @@ Sauvegarder le token admin et l'utiliser dans Authorize.
 
 ---
 
-## A — Tests admin avec les endpoints déjà existants
-
-### Users
-
----
-
 ### TEST 6.1 — Admin modifie le profil d'un autre utilisateur
 
 Requiert le token admin
@@ -879,15 +873,12 @@ Requiert le token admin
 **Body :**
 ```json
 {
-  "email": "john_admin_update@test.com"
+  "email": "jane_admin_update@test.com"
 }
 ```
 
 **Résultat attendu :**
-- `200 Email updated successfully` si admin a ce droit
-- `403 Unauthorized action` si seul le propriétaire peut le faire
-
-> Ce test sert aussi à clarifier ta règle métier.
+- `200 Email updated successfully`
 
 ---
 
@@ -906,7 +897,6 @@ Requiert le token admin
 
 **Résultat attendu :**
 - `200 Password updated successfully`
-- `403 Unauthorized action`
 
 ---
 
@@ -928,7 +918,7 @@ Requiert le token admin
 }
 ```
 
-**Résultat attendu :** `201` avec l'id de la nouvelle amenity
+**Résultat attendu :** `201` avec le d"tail de la nouvelle aménity
 
 ---
 
@@ -985,9 +975,7 @@ Requiert le token admin
 }
 ```
 
-**Résultat attendu :**
-- `200` si admin a le droit de modifier tous les places
-- `403 Unauthorized action` si seul le owner peut modifier
+**Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
@@ -997,9 +985,7 @@ Requiert le token admin
 
 **Endpoint :** `POST /api/v1/places/<place_id_john>/amenities/<amenity_id_wifi>`
 
-**Résultat attendu :**
-- `200` si admin a le droit
-- `403 Unauthorized action`
+**Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
@@ -1009,9 +995,7 @@ Requiert le token admin
 
 **Endpoint :** `DELETE /api/v1/places/<place_id_john>/amenities/<amenity_id_wifi>`
 
-**Résultat attendu :**
-- `200` si admin a le droit
-- `403 Unauthorized action`
+**Résultat attendu :** `200` avec les données mises à jour
 
 ---
 
