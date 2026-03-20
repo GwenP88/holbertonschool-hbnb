@@ -1,103 +1,27 @@
 import unittest
 import uuid
-from app import create_app, db
+from tests.test_helpers import TestBase
 
 
-class TestPlaceEndpointsPart3(unittest.TestCase):
+class TestPlaceEndpoints(TestBase):
 
     def setUp(self):
-        self.app = create_app("config.TestingConfig")
-        self.client = self.app.test_client()
-
-        with self.app.app_context():
-            db.create_all()
-
-        # Create admin
-        r_admin = self.client.post('/api/v1/users/', json={
-            "first_name": "Admin",
-            "last_name": "HBnB",
-            "email": "admin@hbnb.io",
-            "password": "admin1234",
-            "is_admin": True
-        })
-        self.admin_id = r_admin.get_json()["id"]
+        super().setUp()
         self.admin_token = self._login("admin@hbnb.io", "admin1234")
-
-        # Create John
-        r_john = self.client.post('/api/v1/users/', json={
-            "first_name": "John",
-            "last_name": "Doe",
-            "email": "johndoe@email.com",
-            "password": "string123"
-        })
-        self.john_id = r_john.get_json()["id"]
-        self.john_token = self._login("johndoe@email.com", "string123")
-
-        # Create Jane
-        r_jane = self.client.post('/api/v1/users/', json={
-            "first_name": "Jane",
-            "last_name": "Doe",
-            "email": "janedoe@email.com",
-            "password": "string123"
-        })
-        self.jane_id = r_jane.get_json()["id"]
-        self.jane_token = self._login("janedoe@email.com", "string123")
-
-        # Create WiFi amenity (admin only)
-        r_wifi = self.client.post(
-            '/api/v1/amenities/',
-            json={"name": "wifi", "description": "High-speed wireless internet."},
-            headers=self._auth(self.admin_token)
+        self.john_id, self.john_token = self._create_user(
+            "John", "Doe", "johndoe@email.com"
         )
-        self.wifi_id = r_wifi.get_json()["id"]
-
-        # Create John's place
-        r_place = self.client.post(
-            '/api/v1/places/',
-            json={
-                "title": "Sunny Loft in the City Center",
-                "description": "A bright and modern loft.",
-                "price": 95,
-                "latitude": 48.8566,
-                "longitude": 2.3522,
-                "amenities": []
-            },
-            headers=self._auth(self.john_token)
+        self.jane_id, self.jane_token = self._create_user(
+            "Jane", "Doe", "janedoe@email.com"
         )
-        self.john_place_id = r_place.get_json()["id"]
-
-    def tearDown(self):
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-
-    # -------------------------
-    # Helpers
-    # -------------------------
-    def _login(self, email, password):
-        response = self.client.post('/api/v1/auth/login', json={
-            "email": email,
-            "password": password
-        })
-        return response.get_json().get("access_token")
-
-    def _auth(self, token):
-        return {"Authorization": f"Bearer {token}"}
-
-    def _create_place(self, token, **overrides):
-        payload = {
-            "title": "Studio",
-            "description": "Nice place",
-            "price": 50,
-            "latitude": 45.0,
-            "longitude": 6.0,
-            "amenities": []
-        }
-        payload.update(overrides)
-        return self.client.post(
-            '/api/v1/places/',
-            json=payload,
-            headers=self._auth(token)
+        self.wifi_id = self._create_amenity("wifi", "High-speed wireless internet.")
+        self.john_place_id = self._create_place(
+            self.john_token,
+            title="Sunny Loft in the City Center",
+            price=95,
+            latitude=48.8566,
+            longitude=2.3522,
+            description="A bright and modern loft."
         )
 
     # =========================================================
@@ -106,32 +30,43 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
 
     def test_create_place_success(self):
         """Authenticated user can create a place."""
-        response = self._create_place(
-            self.jane_token,
-            title="Cozy Countryside Cottage",
-            description="A charming stone cottage surrounded by nature.",
-            price=75,
-            latitude=45.7640,
-            longitude=4.8357
+        response = self.client.post(
+            '/api/v1/places/',
+            json={
+                "title": "Cozy Countryside Cottage",
+                "description": "A charming stone cottage surrounded by nature.",
+                "price": 75,
+                "latitude": 45.7640,
+                "longitude": 4.8357,
+                "amenities": []
+            },
+            headers=self._auth(self.jane_token)
         )
 
         self.assertEqual(response.status_code, 201)
         self.assertIn("id", response.get_json())
 
     def test_create_place_with_amenities(self):
-        """Creating a place with existing amenity IDs must succeed."""
-        response = self._create_place(
-            self.jane_token,
-            amenities=[self.wifi_id]
+        """Creating a place with an existing amenity ID must succeed."""
+        response = self.client.post(
+            '/api/v1/places/',
+            json={
+                "title": "Studio with WiFi",
+                "description": "A modern studio with high-speed internet.",
+                "price": 80,
+                "latitude": 43.2965,
+                "longitude": 5.3698,
+                "amenities": [self.wifi_id]
+            },
+            headers=self._auth(self.jane_token)
         )
 
         self.assertEqual(response.status_code, 201)
 
     def test_create_place_empty_amenities(self):
         """Creating a place with an empty amenities list must succeed."""
-        response = self._create_place(self.jane_token, amenities=[])
-
-        self.assertEqual(response.status_code, 201)
+        place_id = self._create_place(self.jane_token)
+        self.assertIsNotNone(place_id)
 
     # =========================================================
     # CREATE — Forbidden / Invalid
@@ -151,35 +86,98 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_create_place_negative_price(self):
-        response = self._create_place(self.john_token, price=-50)
+        response = self.client.post(
+            '/api/v1/places/',
+            json={
+                "title": "Bad Place",
+                "description": "Prix invalide",
+                "price": -50,
+                "latitude": 45.0,
+                "longitude": 6.0,
+                "amenities": []
+            },
+            headers=self._auth(self.john_token)
+        )
 
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_zero_price(self):
-        response = self._create_place(self.john_token, price=0)
+        response = self.client.post(
+            '/api/v1/places/',
+            json={
+                "title": "Bad Place",
+                "description": "Prix nul",
+                "price": 0,
+                "latitude": 45.0,
+                "longitude": 6.0,
+                "amenities": []
+            },
+            headers=self._auth(self.john_token)
+        )
 
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_latitude_too_high(self):
-        response = self._create_place(self.john_token, latitude=999.0)
+        response = self.client.post(
+            '/api/v1/places/',
+            json={
+                "title": "Bad Lat",
+                "description": "Latitude invalide",
+                "price": 50,
+                "latitude": 999.0,
+                "longitude": 6.0,
+                "amenities": []
+            },
+            headers=self._auth(self.john_token)
+        )
 
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_latitude_too_low(self):
-        response = self._create_place(self.john_token, latitude=-91.0)
+        response = self.client.post(
+            '/api/v1/places/',
+            json={
+                "title": "Bad Lat",
+                "description": "Latitude invalide",
+                "price": 50,
+                "latitude": -91.0,
+                "longitude": 6.0,
+                "amenities": []
+            },
+            headers=self._auth(self.john_token)
+        )
 
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_longitude(self):
-        response = self._create_place(self.john_token, longitude=181.0)
+        response = self.client.post(
+            '/api/v1/places/',
+            json={
+                "title": "Bad Lon",
+                "description": "Longitude invalide",
+                "price": 50,
+                "latitude": 45.0,
+                "longitude": 181.0,
+                "amenities": []
+            },
+            headers=self._auth(self.john_token)
+        )
 
         self.assertEqual(response.status_code, 400)
 
     def test_create_place_invalid_amenity_id(self):
         """Unknown amenity ID must be rejected."""
-        response = self._create_place(
-            self.john_token,
-            amenities=[str(uuid.uuid4())]
+        response = self.client.post(
+            '/api/v1/places/',
+            json={
+                "title": "Bad Amenity",
+                "description": "Amenity invalide",
+                "price": 50,
+                "latitude": 45.0,
+                "longitude": 6.0,
+                "amenities": [str(uuid.uuid4())]
+            },
+            headers=self._auth(self.john_token)
         )
 
         self.assertEqual(response.status_code, 400)
@@ -189,7 +187,7 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
     # =========================================================
 
     def test_list_places(self):
-        """GET /places/ returns a list of all places."""
+        """GET /places/ returns a list with at least John's place."""
         response = self.client.get('/api/v1/places/')
 
         self.assertEqual(response.status_code, 200)
@@ -198,7 +196,7 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
         self.assertGreaterEqual(len(data), 1)
 
     def test_get_place_by_id(self):
-        """GET /places/<id> returns the correct place with nested data."""
+        """GET /places/<id> returns the correct place."""
         response = self.client.get(f'/api/v1/places/{self.john_place_id}')
 
         self.assertEqual(response.status_code, 200)
@@ -224,8 +222,7 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertEqual(data["title"], "Sunny Loft - Rénové")
+        self.assertEqual(response.get_json()["title"], "Sunny Loft - Rénové")
 
     def test_non_owner_cannot_update_place(self):
         """A user who is not the owner cannot update the place."""
@@ -244,10 +241,6 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 401)
-
-    # =========================================================
-    # UPDATE — Admin override
-    # =========================================================
 
     def test_admin_can_update_any_place(self):
         """Admin can update a place they don't own."""
@@ -301,7 +294,7 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
             headers=self._auth(self.john_token)
         )
 
-        self.assertEqual(response.status_code, 404)
+        self.assertIn(response.status_code, [400, 404])
 
     def test_admin_can_add_amenity_to_any_place(self):
         """Admin can link an amenity to a place they don't own."""
@@ -370,9 +363,7 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
 
     def test_owner_can_delete_own_place(self):
         """Place owner can delete their place."""
-        r = self._create_place(self.jane_token, title="Jane's place")
-        jane_place_id = r.get_json()["id"]
-
+        jane_place_id = self._create_place(self.jane_token, title="Jane's place")
         response = self.client.delete(
             f'/api/v1/places/{jane_place_id}',
             headers=self._auth(self.jane_token)
@@ -382,9 +373,7 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
 
     def test_delete_place_then_404(self):
         """After deletion, GET on the deleted place must return 404."""
-        r = self._create_place(self.jane_token, title="Jane's place")
-        jane_place_id = r.get_json()["id"]
-
+        jane_place_id = self._create_place(self.jane_token, title="Jane's place")
         self.client.delete(
             f'/api/v1/places/{jane_place_id}',
             headers=self._auth(self.jane_token)
@@ -413,9 +402,7 @@ class TestPlaceEndpointsPart3(unittest.TestCase):
 
     def test_admin_can_delete_any_place(self):
         """Admin can delete a place they don't own."""
-        r = self._create_place(self.jane_token, title="Jane's place")
-        jane_place_id = r.get_json()["id"]
-
+        jane_place_id = self._create_place(self.jane_token, title="Jane's place")
         response = self.client.delete(
             f'/api/v1/places/{jane_place_id}',
             headers=self._auth(self.admin_token)

@@ -1,64 +1,18 @@
 import unittest
-from app import create_app, db
+from tests.test_helpers import TestBase
 
 
-class TestUserEndpointsPart3(unittest.TestCase):
+class TestUserEndpoints(TestBase):
 
     def setUp(self):
-        self.app = create_app("config.TestingConfig")
-        self.client = self.app.test_client()
-
-        with self.app.app_context():
-            db.create_all()
-
-        # Create John
-        r_john = self.client.post('/api/v1/users/', json={
-            "first_name": "John",
-            "last_name": "Doe",
-            "email": "johndoe@email.com",
-            "password": "string123"
-        })
-        self.john_id = r_john.get_json()["id"]
-        self.john_token = self._login("johndoe@email.com", "string123")
-
-        # Create Jane
-        r_jane = self.client.post('/api/v1/users/', json={
-            "first_name": "Jane",
-            "last_name": "Doe",
-            "email": "janedoe@email.com",
-            "password": "string123"
-        })
-        self.jane_id = r_jane.get_json()["id"]
-        self.jane_token = self._login("janedoe@email.com", "string123")
-
-        # Create Admin
-        r_admin = self.client.post('/api/v1/users/', json={
-            "first_name": "Admin",
-            "last_name": "HBnB",
-            "email": "admin@hbnb.io",
-            "password": "admin1234",
-            "is_admin": True
-        })
-        self.admin_id = r_admin.get_json()["id"]
+        super().setUp()
         self.admin_token = self._login("admin@hbnb.io", "admin1234")
-
-    def tearDown(self):
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-
-    # -------------------------
-    # Helpers
-    # -------------------------
-    def _login(self, email, password):
-        response = self.client.post('/api/v1/auth/login', json={
-            "email": email,
-            "password": password
-        })
-        return response.get_json().get("access_token")
-
-    def _auth(self, token):
-        return {"Authorization": f"Bearer {token}"}
+        self.john_id, self.john_token = self._create_user(
+            "John", "Doe", "johndoe@email.com"
+        )
+        self.jane_id, self.jane_token = self._create_user(
+            "Jane", "Doe", "janedoe@email.com"
+        )
 
     # =========================================================
     # CREATE — Success
@@ -150,7 +104,7 @@ class TestUserEndpointsPart3(unittest.TestCase):
     # =========================================================
 
     def test_list_users(self):
-        """GET /users/ returns the list of all users."""
+        """GET /users/ returns a list with at least admin + john + jane."""
         response = self.client.get('/api/v1/users/')
 
         self.assertEqual(response.status_code, 200)
@@ -159,7 +113,7 @@ class TestUserEndpointsPart3(unittest.TestCase):
         self.assertGreaterEqual(len(data), 3)
 
     def test_get_user_by_id(self):
-        """GET /users/<id> returns the correct user."""
+        """GET /users/<id> returns the correct user without password."""
         response = self.client.get(f'/api/v1/users/{self.john_id}')
 
         self.assertEqual(response.status_code, 200)
@@ -175,11 +129,11 @@ class TestUserEndpointsPart3(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
 
     # =========================================================
-    # UPDATE — Own profile (valid)
+    # UPDATE — Own profile
     # =========================================================
 
     def test_update_own_profile(self):
-        """A user can update their own first_name and last_name."""
+        """A user can update their own first_name/last_name."""
         response = self.client.put(
             f'/api/v1/users/{self.john_id}',
             json={"first_name": "Johnny", "last_name": "Doe"},
@@ -188,10 +142,6 @@ class TestUserEndpointsPart3(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()["first_name"], "Johnny")
-
-    # =========================================================
-    # UPDATE — Forbidden actions
-    # =========================================================
 
     def test_update_other_user_profile_forbidden(self):
         """A user cannot modify another user's profile."""
@@ -203,7 +153,7 @@ class TestUserEndpointsPart3(unittest.TestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    def test_update_email_via_put_users_forbidden(self):
+    def test_update_email_via_put_forbidden(self):
         """Email must not be modifiable via PUT /users/<id>."""
         response = self.client.put(
             f'/api/v1/users/{self.john_id}',
@@ -213,7 +163,7 @@ class TestUserEndpointsPart3(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-    def test_update_password_via_put_users_forbidden(self):
+    def test_update_password_via_put_forbidden(self):
         """Password must not be modifiable via PUT /users/<id>."""
         response = self.client.put(
             f'/api/v1/users/{self.john_id}',
@@ -237,7 +187,7 @@ class TestUserEndpointsPart3(unittest.TestCase):
     # =========================================================
 
     def test_update_own_email(self):
-        """A user can update their own email via the dedicated endpoint."""
+        """A user can update their own email."""
         response = self.client.put(
             f'/api/v1/users/{self.john_id}/email',
             json={"email": "john_new@test.com"},
@@ -271,7 +221,7 @@ class TestUserEndpointsPart3(unittest.TestCase):
     # =========================================================
 
     def test_update_own_password(self):
-        """A user can update their own password via the dedicated endpoint."""
+        """A user can update their own password."""
         response = self.client.put(
             f'/api/v1/users/{self.john_id}/password',
             json={"password": "newpassword123"},
@@ -295,7 +245,7 @@ class TestUserEndpointsPart3(unittest.TestCase):
     # =========================================================
 
     def test_admin_can_update_other_user(self):
-        """Admin can update another user's first_name and last_name."""
+        """Admin can update another user's first_name/last_name."""
         response = self.client.put(
             f'/api/v1/users/{self.jane_id}',
             json={"first_name": "Janette", "last_name": "Doe"},
@@ -305,8 +255,8 @@ class TestUserEndpointsPart3(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()["first_name"], "Janette")
 
-    def test_admin_cannot_update_email_via_put_users(self):
-        """Even admin cannot bypass the email-change restriction on PUT /users."""
+    def test_admin_cannot_update_email_via_put(self):
+        """Even admin cannot bypass the email restriction on PUT /users."""
         response = self.client.put(
             f'/api/v1/users/{self.john_id}',
             json={"email": "adminchange@test.com"},
@@ -351,15 +301,9 @@ class TestUserEndpointsPart3(unittest.TestCase):
 
     def test_delete_own_account(self):
         """A user can delete their own account."""
-        r = self.client.post('/api/v1/users/', json={
-            "first_name": "Gwen",
-            "last_name": "Aelle",
-            "email": "gwenaelle@email.com",
-            "password": "string123"
-        })
-        gwen_id = r.get_json()["id"]
-        gwen_token = self._login("gwenaelle@email.com", "string123")
-
+        gwen_id, gwen_token = self._create_user(
+            "Gwen", "Aelle", "gwenaelle@email.com"
+        )
         response = self.client.delete(
             f'/api/v1/users/{gwen_id}',
             headers=self._auth(gwen_token)
@@ -369,15 +313,9 @@ class TestUserEndpointsPart3(unittest.TestCase):
 
     def test_delete_own_account_then_404(self):
         """After deletion, GET on the deleted user must return 404."""
-        r = self.client.post('/api/v1/users/', json={
-            "first_name": "Gwen",
-            "last_name": "Aelle",
-            "email": "gwenaelle@email.com",
-            "password": "string123"
-        })
-        gwen_id = r.get_json()["id"]
-        gwen_token = self._login("gwenaelle@email.com", "string123")
-
+        gwen_id, gwen_token = self._create_user(
+            "Gwen", "Aelle", "gwenaelle@email.com"
+        )
         self.client.delete(
             f'/api/v1/users/{gwen_id}',
             headers=self._auth(gwen_token)
@@ -406,14 +344,7 @@ class TestUserEndpointsPart3(unittest.TestCase):
 
     def test_admin_can_delete_other_user(self):
         """Admin can delete another user's account."""
-        r = self.client.post('/api/v1/users/', json={
-            "first_name": "Jen",
-            "last_name": "Peplu",
-            "email": "jenpeplu@email.com",
-            "password": "string123"
-        })
-        jen_id = r.get_json()["id"]
-
+        jen_id, _ = self._create_user("Jen", "Peplu", "jenpeplu@email.com")
         response = self.client.delete(
             f'/api/v1/users/{jen_id}',
             headers=self._auth(self.admin_token)

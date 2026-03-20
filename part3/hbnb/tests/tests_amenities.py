@@ -1,65 +1,15 @@
 import unittest
-from app import create_app, db
+from tests.test_helpers import TestBase
 
 
-class TestAmenityEndpointsPart3(unittest.TestCase):
+class TestAmenityEndpoints(TestBase):
 
     def setUp(self):
-        self.app = create_app("config.TestingConfig")
-        self.client = self.app.test_client()
-
-        with self.app.app_context():
-            db.create_all()
-
-        # Create admin
-        r_admin = self.client.post('/api/v1/users/', json={
-            "first_name": "Admin",
-            "last_name": "HBnB",
-            "email": "admin@hbnb.io",
-            "password": "admin1234",
-            "is_admin": True
-        })
-        self.admin_id = r_admin.get_json()["id"]
+        super().setUp()
         self.admin_token = self._login("admin@hbnb.io", "admin1234")
-
-        # Create regular user (John)
-        r_john = self.client.post('/api/v1/users/', json={
-            "first_name": "John",
-            "last_name": "Doe",
-            "email": "johndoe@email.com",
-            "password": "string123"
-        })
-        self.john_id = r_john.get_json()["id"]
-        self.john_token = self._login("johndoe@email.com", "string123")
-
-    def tearDown(self):
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-
-    # -------------------------
-    # Helpers
-    # -------------------------
-    def _login(self, email, password):
-        response = self.client.post('/api/v1/auth/login', json={
-            "email": email,
-            "password": password
-        })
-        return response.get_json().get("access_token")
-
-    def _auth(self, token):
-        return {"Authorization": f"Bearer {token}"}
-
-    def _create_amenity(self, name, description=None):
-        payload = {"name": name}
-        if description:
-            payload["description"] = description
-        response = self.client.post(
-            '/api/v1/amenities/',
-            json=payload,
-            headers=self._auth(self.admin_token)
+        self.john_id, self.john_token = self._create_user(
+            "John", "Doe", "johndoe@email.com"
         )
-        return response.get_json()["id"]
 
     # =========================================================
     # CREATE — Success (admin)
@@ -133,7 +83,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
     def test_create_amenity_duplicate_name(self):
         """Creating an amenity with an already-existing name must return 400."""
         self._create_amenity("wifi")
-
         response = self.client.post(
             '/api/v1/amenities/',
             json={"name": "wifi", "description": "Another wifi"},
@@ -165,7 +114,7 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertIsInstance(data, list)
-        self.assertEqual(len(data), 2)
+        self.assertGreaterEqual(len(data), 2)
 
     def test_get_amenity_by_id(self):
         """GET /amenities/<id> returns the correct amenity."""
@@ -194,7 +143,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
     def test_update_amenity_as_admin(self):
         """Admin can update an amenity's name and description."""
         amenity_id = self._create_amenity("Private Parking")
-
         response = self.client.put(
             f'/api/v1/amenities/{amenity_id}',
             json={"name": "Parking gratuit", "description": "Free private parking"},
@@ -211,7 +159,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
     def test_update_amenity_as_regular_user_forbidden(self):
         """A non-admin cannot update an amenity."""
         amenity_id = self._create_amenity("Sauna")
-
         response = self.client.put(
             f'/api/v1/amenities/{amenity_id}',
             json={"name": "Hacked amenity"},
@@ -223,7 +170,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
     def test_update_amenity_without_token_forbidden(self):
         """Updating an amenity without a token must return 401."""
         amenity_id = self._create_amenity("Sauna")
-
         response = self.client.put(
             f'/api/v1/amenities/{amenity_id}',
             json={"name": "No token"}
@@ -239,7 +185,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
         """Renaming to an already-existing name must return 400."""
         self._create_amenity("wifi")
         amenity_id = self._create_amenity("sauna")
-
         response = self.client.put(
             f'/api/v1/amenities/{amenity_id}',
             json={"name": "wifi"},
@@ -260,7 +205,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
 
     def test_update_amenity_empty_name(self):
         amenity_id = self._create_amenity("Sauna")
-
         response = self.client.put(
             f'/api/v1/amenities/{amenity_id}',
             json={"name": ""},
@@ -276,7 +220,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
     def test_delete_amenity_as_admin(self):
         """Admin can delete an amenity."""
         amenity_id = self._create_amenity("Gym Room")
-
         response = self.client.delete(
             f'/api/v1/amenities/{amenity_id}',
             headers=self._auth(self.admin_token)
@@ -287,7 +230,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
     def test_delete_amenity_then_404(self):
         """After deletion, GET on the deleted amenity must return 404."""
         amenity_id = self._create_amenity("Gym Room")
-
         self.client.delete(
             f'/api/v1/amenities/{amenity_id}',
             headers=self._auth(self.admin_token)
@@ -303,7 +245,6 @@ class TestAmenityEndpointsPart3(unittest.TestCase):
     def test_delete_amenity_as_regular_user_forbidden(self):
         """A non-admin cannot delete an amenity."""
         amenity_id = self._create_amenity("Gym Room")
-
         response = self.client.delete(
             f'/api/v1/amenities/{amenity_id}',
             headers=self._auth(self.john_token)

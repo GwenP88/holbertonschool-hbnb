@@ -1,99 +1,29 @@
 import unittest
-from app import create_app, db
+from tests.test_helpers import TestBase
 
 
-class TestReviewEndpointsPart3(unittest.TestCase):
+class TestReviewEndpoints(TestBase):
 
     def setUp(self):
-        self.app = create_app("config.TestingConfig")
-        self.client = self.app.test_client()
-
-        with self.app.app_context():
-            db.create_all()
-
-        # Create admin
-        r_admin = self.client.post('/api/v1/users/', json={
-            "first_name": "Admin",
-            "last_name": "HBnB",
-            "email": "admin@hbnb.io",
-            "password": "admin1234",
-            "is_admin": True
-        })
-        self.admin_id = r_admin.get_json()["id"]
+        super().setUp()
         self.admin_token = self._login("admin@hbnb.io", "admin1234")
-
-        # Create John (place owner)
-        r_john = self.client.post('/api/v1/users/', json={
-            "first_name": "John",
-            "last_name": "Doe",
-            "email": "johndoe@email.com",
-            "password": "string123"
-        })
-        self.john_id = r_john.get_json()["id"]
-        self.john_token = self._login("johndoe@email.com", "string123")
-
-        # Create Jane (reviewer)
-        r_jane = self.client.post('/api/v1/users/', json={
-            "first_name": "Jane",
-            "last_name": "Doe",
-            "email": "janedoe@email.com",
-            "password": "string123"
-        })
-        self.jane_id = r_jane.get_json()["id"]
-        self.jane_token = self._login("janedoe@email.com", "string123")
-
-        # Create Gwen (third reviewer)
-        r_gwen = self.client.post('/api/v1/users/', json={
-            "first_name": "Gwen",
-            "last_name": "Aelle",
-            "email": "gwenaelle@email.com",
-            "password": "string123"
-        })
-        self.gwen_id = r_gwen.get_json()["id"]
-        self.gwen_token = self._login("gwenaelle@email.com", "string123")
-
-        # Create John's place
-        r_place = self.client.post(
-            '/api/v1/places/',
-            json={
-                "title": "Sunny Loft in the City Center",
-                "description": "A bright and modern loft.",
-                "price": 95,
-                "latitude": 48.8566,
-                "longitude": 2.3522,
-                "amenities": []
-            },
-            headers=self._auth(self.john_token)
+        self.john_id, self.john_token = self._create_user(
+            "John", "Doe", "johndoe@email.com"
         )
-        self.john_place_id = r_place.get_json()["id"]
-
-    def tearDown(self):
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-
-    # -------------------------
-    # Helpers
-    # -------------------------
-    def _login(self, email, password):
-        response = self.client.post('/api/v1/auth/login', json={
-            "email": email,
-            "password": password
-        })
-        return response.get_json().get("access_token")
-
-    def _auth(self, token):
-        return {"Authorization": f"Bearer {token}"}
-
-    def _create_review(self, token, place_id=None, comment="Very nice", rating=5):
-        return self.client.post(
-            '/api/v1/reviews/',
-            json={
-                "comment": comment,
-                "rating": rating,
-                "place_id": place_id or self.john_place_id
-            },
-            headers=self._auth(token)
+        self.jane_id, self.jane_token = self._create_user(
+            "Jane", "Doe", "janedoe@email.com"
+        )
+        self.gwen_id, self.gwen_token = self._create_user(
+            "Gwen", "Aelle", "gwenaelle@email.com"
+        )
+        # John's place — Jane and Gwen will review it
+        self.john_place_id = self._create_place(
+            self.john_token,
+            title="Sunny Loft in the City Center",
+            price=95,
+            latitude=48.8566,
+            longitude=2.3522,
+            description="A bright and modern loft."
         )
 
     # =========================================================
@@ -104,6 +34,7 @@ class TestReviewEndpointsPart3(unittest.TestCase):
         """Authenticated user can leave a review on someone else's place."""
         response = self._create_review(
             self.jane_token,
+            self.john_place_id,
             comment="Absolutely loved the loft! The location was unbeatable.",
             rating=5
         )
@@ -115,13 +46,13 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_create_review_rating_min(self):
         """Rating of 1 must be accepted."""
-        response = self._create_review(self.jane_token, rating=1)
+        response = self._create_review(self.jane_token, self.john_place_id, rating=1)
 
         self.assertEqual(response.status_code, 201)
 
     def test_create_review_rating_max(self):
         """Rating of 5 must be accepted."""
-        response = self._create_review(self.jane_token, rating=5)
+        response = self._create_review(self.jane_token, self.john_place_id, rating=5)
 
         self.assertEqual(response.status_code, 201)
 
@@ -143,6 +74,7 @@ class TestReviewEndpointsPart3(unittest.TestCase):
         """Owner cannot review their own place."""
         response = self._create_review(
             self.john_token,
+            self.john_place_id,
             comment="Mon propre loft est super",
             rating=5
         )
@@ -151,9 +83,10 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_create_review_duplicate_forbidden(self):
         """A user cannot leave a second review on the same place."""
-        self._create_review(self.jane_token)
+        self._create_review(self.jane_token, self.john_place_id)
         response = self._create_review(
             self.jane_token,
+            self.john_place_id,
             comment="Deuxième review",
             rating=3
         )
@@ -162,13 +95,13 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_create_review_invalid_rating_too_high(self):
         """Rating above 5 must be rejected."""
-        response = self._create_review(self.jane_token, rating=10)
+        response = self._create_review(self.jane_token, self.john_place_id, rating=10)
 
         self.assertEqual(response.status_code, 400)
 
     def test_create_review_invalid_rating_too_low(self):
         """Rating of 0 must be rejected."""
-        response = self._create_review(self.jane_token, rating=0)
+        response = self._create_review(self.jane_token, self.john_place_id, rating=0)
 
         self.assertEqual(response.status_code, 400)
 
@@ -176,7 +109,7 @@ class TestReviewEndpointsPart3(unittest.TestCase):
         """Review on a non-existent place must return 404."""
         response = self._create_review(
             self.jane_token,
-            place_id="00000000-0000-0000-0000-000000000000"
+            "00000000-0000-0000-0000-000000000000"
         )
 
         self.assertIn(response.status_code, [400, 404])
@@ -187,17 +120,19 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_list_reviews(self):
         """GET /reviews/ returns a list of all reviews."""
-        self._create_review(self.jane_token)
-
+        self._create_review(self.jane_token, self.john_place_id)
         response = self.client.get('/api/v1/reviews/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.get_json(), list)
-        self.assertGreaterEqual(len(response.get_json()), 1)
+        data = response.get_json()
+        self.assertIsInstance(data, list)
+        self.assertGreaterEqual(len(data), 1)
 
     def test_get_review_by_id(self):
         """GET /reviews/<id> returns the correct review."""
-        review_id = self._create_review(self.jane_token).get_json()["id"]
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.get(f'/api/v1/reviews/{review_id}')
 
         self.assertEqual(response.status_code, 200)
@@ -212,9 +147,8 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_get_reviews_by_place(self):
         """GET /places/<id>/reviews returns all reviews for that place."""
-        self._create_review(self.jane_token)
-        self._create_review(self.gwen_token)
-
+        self._create_review(self.jane_token, self.john_place_id)
+        self._create_review(self.gwen_token, self.john_place_id)
         response = self.client.get(
             f'/api/v1/places/{self.john_place_id}/reviews'
         )
@@ -238,8 +172,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_author_can_update_own_review(self):
         """Review author can update their comment and rating."""
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.put(
             f'/api/v1/reviews/{review_id}',
             json={"comment": "Appartement encore mieux que prévu !", "rating": 5},
@@ -254,8 +189,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_update_review_preserves_rating(self):
         """Updating only the comment must leave the rating intact."""
-        review_id = self._create_review(self.jane_token, rating=4).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id, rating=4
+        ).get_json()["id"]
         response = self.client.put(
             f'/api/v1/reviews/{review_id}',
             json={"comment": "Updated comment only"},
@@ -271,8 +207,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_non_author_cannot_update_review(self):
         """A user who is not the author cannot update the review."""
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.put(
             f'/api/v1/reviews/{review_id}',
             json={"comment": "Review hackée"},
@@ -282,8 +219,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_update_review_without_token_forbidden(self):
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.put(
             f'/api/v1/reviews/{review_id}',
             json={"comment": "No token"}
@@ -297,8 +235,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_admin_can_update_any_review(self):
         """Admin can update a review they did not write."""
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.put(
             f'/api/v1/reviews/{review_id}',
             json={"comment": "Review updated by admin", "rating": 4},
@@ -311,6 +250,7 @@ class TestReviewEndpointsPart3(unittest.TestCase):
         """Admin can leave a review on any place."""
         response = self._create_review(
             self.admin_token,
+            self.john_place_id,
             comment="Admin review test on John's loft",
             rating=4
         )
@@ -323,8 +263,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_author_can_delete_own_review(self):
         """Review author can delete their own review."""
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.delete(
             f'/api/v1/reviews/{review_id}',
             headers=self._auth(self.jane_token)
@@ -334,8 +275,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_delete_review_then_404(self):
         """After deletion, GET on the deleted review must return 404."""
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         self.client.delete(
             f'/api/v1/reviews/{review_id}',
             headers=self._auth(self.jane_token)
@@ -350,8 +292,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_non_author_cannot_delete_review(self):
         """A user who is not the author cannot delete the review."""
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.delete(
             f'/api/v1/reviews/{review_id}',
             headers=self._auth(self.john_token)
@@ -360,8 +303,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_delete_review_without_token_forbidden(self):
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.delete(f'/api/v1/reviews/{review_id}')
 
         self.assertEqual(response.status_code, 401)
@@ -381,8 +325,9 @@ class TestReviewEndpointsPart3(unittest.TestCase):
 
     def test_admin_can_delete_any_review(self):
         """Admin can delete a review they did not write."""
-        review_id = self._create_review(self.jane_token).get_json()["id"]
-
+        review_id = self._create_review(
+            self.jane_token, self.john_place_id
+        ).get_json()["id"]
         response = self.client.delete(
             f'/api/v1/reviews/{review_id}',
             headers=self._auth(self.admin_token)
