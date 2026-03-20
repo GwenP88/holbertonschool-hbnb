@@ -81,13 +81,13 @@ Certains endpoints nécessitent un token JWT. Voici comment l'utiliser :
 
 ### Places à créer (1 par user — token du propriétaire requis)
 
-| # | Titre | Owner | Prix | ID (à compléter) |
-|---|-------|-------|------|------------------|
-| 1 | Sunny Loft in the City Center | John Doe | 95 | `<place_id_john>` |
-| 2 | Cozy Countryside Cottage | Jane Doe | 75 | `<place_id_jane>` |
-| 3 | Stylish Studio near the Beach | Gwen Aelle | 110 | `<place_id_gwen>` |
-| 4 | Mountain Chalet with Fireplace | Clem Ent | 130 | `<place_id_clem>` |
-| 5 | Zen Garden Apartment | Jen Peplu | 85 | `<place_id_jen>` |
+| # | Titre | Owner | Prix | Description | Latitude | Longitude | ID (à compléter) |
+|---|-------|-------|------|-------------|----------|-----------|------------------|
+| 1 | Sunny Loft in the City Center | John Doe | 95 | A bright and modern loft located in the heart of the city, perfect for couples or solo travelers. | 48.8566 | 2.3522 | `<place_id_john>` |
+| 2 | Cozy Countryside Cottage | Jane Doe | 75 | A charming stone cottage surrounded by nature, ideal for a peaceful getaway. | 45.7640 | 4.8357 | `<place_id_jane>` |
+| 3 | Stylish Studio near the Beach | Gwen Aelle | 110 | A sleek and stylish studio just a 5-minute walk from the beach. Great ocean vibes. | 43.2965 | 5.3698 | `<place_id_gwen>` |
+| 4 | Mountain Chalet with Fireplace | Clem Ent | 130 | A warm and rustic chalet nestled in the mountains, perfect for winter escapes. | 45.9237 | 6.8694 | `<place_id_clem>` |
+| 5 | Zen Garden Apartment | Jen Peplu | 85 | A tranquil apartment with a private zen garden, ideal for relaxation and meditation. | 43.6047 | 1.4442 | `<place_id_jen>` |
 
 ### Reviews à créer (2 par place — token d'un autre user requis)
 
