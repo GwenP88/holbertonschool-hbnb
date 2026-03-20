@@ -69,18 +69,21 @@ part3/hbnb/
 │   ├── __init__.py               <- Flask app factory
 │   ├── api/
 │   │   └── v1/
+│   │       ├── __init__.py
 │   │       ├── auth.py           <- Authentication endpoints
 │   │       ├── users.py          <- User endpoints
 │   │       ├── amenities.py      <- Amenity endpoints
 │   │       ├── places.py         <- Place endpoints
 │   │       └── reviews.py        <- Review endpoints
 │   ├── models/
+│   │   ├── __init__.py
 │   │   ├── basemodel.py          <- Base model (id, timestamps)
 │   │   ├── user.py               <- User model
 │   │   ├── place.py              <- Place model
 │   │   ├── amenity.py            <- Amenity model
 │   │   └── review.py             <- Review model
 │   ├── persistence/
+│   │   ├── __init__.py
 │   │   ├── repository.py         <- Repository base classes
 │   │   ├── user_repository.py    <- User repository
 │   │   ├── place_repository.py   <- Place repository
@@ -93,14 +96,19 @@ part3/hbnb/
 │   ├── schema.sql                <- Table creation scripts
 │   ├── seed.sql                  <- Initial data (admin + amenities)
 │   └── test_crud.sql             <- Raw SQL CRUD tests
+├── tests/
+│   ├── assets/
+│   ├── tests_auth.py             <- Unit tests — Auth
+│   ├── tests_users.py            <- Unit tests — Users
+│   ├── tests_amenities.py        <- Unit tests — Amenities
+│   ├── tests_places.py           <- Unit tests — Places
+│   ├── tests_reviews.py          <- Unit tests — Reviews
+│   └── tests_swagger.md          <- Swagger manual test documentation
 ├── instance/
 │   └── development.db            <- SQLite database (auto-generated)
 ├── config.py                     <- App configuration
 ├── run.py                        <- Application entry point
-├── run_tests.py                  <- Python CRUD test script
-├── requirements.txt              <- Python dependencies
-├── TEST_CRUD.md                  <- CRUD test documentation
-└── SWAGGER_TESTS.md              <- Swagger test documentation
+└── requirements.txt              <- Python dependencies
 ```
 
 ---
@@ -213,7 +221,10 @@ sqlite3 instance/development.db < sql/schema.sql
 The database is pre-populated with:
 
 - 1 administrator account
-- 3 default amenities (WiFi, Swimming Pool, Air Conditioning)
+- 2 users
+- 5 default amenities
+- 2 places
+- 2 reviews
 
 To insert initial data manually:
 ```bash
@@ -271,24 +282,27 @@ Authorization: Bearer <access_token>
 | POST | `/api/v1/users/` | No | Create a new user |
 | GET | `/api/v1/users/` | No | List all users |
 | GET | `/api/v1/users/<id>` | No | Get user by ID |
-| PUT | `/api/v1/users/<id>` | Yes (owner/admin) | Update first/last name |
+| PUT | `/api/v1/users/<id>` | Yes (owner/admin) | Update first/last name only |
 | PUT | `/api/v1/users/<id>/email` | Yes (owner/admin) | Update email |
 | PUT | `/api/v1/users/<id>/password` | Yes (owner/admin) | Update password |
+| DELETE | `/api/v1/users/<id>` | Yes (owner/admin) | Delete user account |
 
 **Create user example:**
 ```json
 {
   "first_name": "John",
   "last_name": "Doe",
-  "email": "john@example.com",
-  "password": "password123"
+  "email": "johndoe@email.com",
+  "password": "string123"
 }
 ```
 
 **Validation rules:**
 - `first_name` and `last_name`: required, max 50 characters
-- `email`: must be unique and valid format
-- `password`: min 8 characters, at least 1 letter and 1 digit
+- `email`: must be unique and valid format (with `@` and domain dot)
+- `password`: min 8 characters
+- `email` and `password` cannot be modified via `PUT /users/<id>` — use dedicated endpoints
+- `is_admin` cannot be set or modified via the API
 
 ---
 
@@ -300,14 +314,26 @@ Authorization: Bearer <access_token>
 | GET | `/api/v1/amenities/` | No | List all amenities |
 | GET | `/api/v1/amenities/<id>` | No | Get amenity by ID |
 | PUT | `/api/v1/amenities/<id>` | Yes (admin only) | Update amenity |
+| DELETE | `/api/v1/amenities/<id>` | Yes (admin only) | Delete amenity |
 
-**Create amenity example:**
+**Create amenity example (with description):**
 ```json
 {
-  "name": "Parking",
-  "description": "Free private parking"
+  "name": "Rooftop Terrace",
+  "description": "A spacious rooftop terrace with panoramic city views."
 }
 ```
+
+**Create amenity example (without description):**
+```json
+{
+  "name": "Hot Tub"
+}
+```
+
+**Validation rules:**
+- `name`: required, max 50 characters, stored in lowercase, must be unique
+- `description`: optional, max 255 characters
 
 ---
 
@@ -319,6 +345,7 @@ Authorization: Bearer <access_token>
 | GET | `/api/v1/places/` | No | List all places |
 | GET | `/api/v1/places/<id>` | No | Get place by ID (with owner, amenities, reviews) |
 | PUT | `/api/v1/places/<id>` | Yes (owner/admin) | Update place |
+| DELETE | `/api/v1/places/<id>` | Yes (owner/admin) | Delete place |
 | POST | `/api/v1/places/<id>/amenities/<amenity_id>` | Yes (owner/admin) | Add amenity to place |
 | DELETE | `/api/v1/places/<id>/amenities/<amenity_id>` | Yes (owner/admin) | Remove amenity from place |
 | GET | `/api/v1/places/<id>/reviews` | No | Get all reviews for a place |
@@ -326,19 +353,22 @@ Authorization: Bearer <access_token>
 **Create place example:**
 ```json
 {
-  "title": "Cozy apartment in Paris",
-  "description": "Beautiful apartment near the Eiffel Tower",
-  "price": 120.00,
+  "title": "Sunny Loft in the City Center",
+  "description": "A bright and modern loft in the heart of the city.",
+  "price": 95.00,
   "latitude": 48.8566,
   "longitude": 2.3522,
-  "amenities": ["c7a66c94-5a7e-4746-8c30-308f7695a36c"]
+  "amenities": ["c5fcec1a-08f8-40ba-beae-fc5717d8f60e"]
 }
 ```
 
 **Validation rules:**
+- `title`: required
 - `price`: must be greater than 0
 - `latitude`: must be between -90 and 90
 - `longitude`: must be between -180 and 180
+- `amenities`: list of existing amenity IDs (can be empty)
+- Deleting a place also deletes its reviews and amenity links
 
 ---
 
@@ -355,9 +385,9 @@ Authorization: Bearer <access_token>
 **Create review example:**
 ```json
 {
-  "comment": "Amazing place, highly recommended!",
+  "comment": "Absolutely loved the loft! The location was unbeatable.",
   "rating": 5,
-  "place_id": "22222222-2222-2222-2222-222222222222"
+  "place_id": "ef448d99-36e6-4aa6-880a-59bab9bbe439"
 }
 ```
 
@@ -370,26 +400,7 @@ Authorization: Bearer <access_token>
 
 ## Testing
 
-### CRUD Tests
-
-A Python script runs 31 automated tests directly against the SQLite database, covering insertions, constraints, reads, updates, and deletions.
-
-```bash
-python run_tests.py
-```
-
-Expected output:
-```
-============================================================
-   CRUD TEST RESULTS -- HBnB
-============================================================
-  ...
-============================================================
-  RESULTS: 31/31 tests passed -- ALL TESTS PASSED!
-============================================================
-```
-
-See [TEST_CRUD.md](TEST_CRUD.md) for full documentation.
+### Unittest
 
 ---
 

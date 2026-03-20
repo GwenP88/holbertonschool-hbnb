@@ -17,7 +17,18 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+
+class TestingConfig(Config):
+    """Use an in-memory SQLite database for isolated unit tests."""
+    TESTING = True
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=5)
+
+
 config = {
     'development': DevelopmentConfig,
+    'testing': TestingConfig,
     'default': DevelopmentConfig
 }
