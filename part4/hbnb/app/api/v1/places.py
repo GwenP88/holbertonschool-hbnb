@@ -37,6 +37,7 @@ place_model_create = api.model('PlaceCreate', {
 
 place_model_details = api.model('PlaceDetails', {
     'id': fields.String(description='Place ID'),
+    'image': fields.String(description='Image path for the place'),
     'title': fields.String(description='Title of the place'),
     'description': fields.String(description='Description of the place'),
     'price': fields.Float(description='Price per night'),
@@ -60,6 +61,7 @@ place_model_update = api.model('PlaceUpdate', {
 
 place_model_summary = api.model('PlaceSummary', {
     'id': fields.String(description='Place ID'),
+    'image': fields.String(description='Image path for the place'),
     'title': fields.String(description='Title of the place'),
     'price': fields.Float(description='Price per night'),
     'latitude': fields.Float(description='Latitude of the place'),

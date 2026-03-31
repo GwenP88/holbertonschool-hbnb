@@ -1,7 +1,7 @@
 """Place model with validation, serialization, amenity linking, and update helpers."""
 from app import db
 from app.models.basemodel import BaseModel
-from app.utils.geo import get_city_name
+from app.utils.helpers import get_city_name, get_place_image
 
 # Association table for many-to-many relationship for amenities and places
 place_amenity = db.Table('place_amenity',
@@ -138,6 +138,7 @@ class Place(BaseModel):
         
         return {
             "id": self.id,
+            "image": get_place_image(self.id),
             "title": self.title,
             "description": self.description,
             "price": self.price,
@@ -160,6 +161,7 @@ class Place(BaseModel):
         """Return a lightweight dictionary representation for place listings."""
         return {
             "id": self.id,
+            "image": get_place_image(self.id),
             "title": self.title,
             "price": self.price,
             "latitude": self.latitude,
