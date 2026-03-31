@@ -42,6 +42,7 @@ place_model_details = api.model('PlaceDetails', {
     'price': fields.Float(description='Price per night'),
     'latitude': fields.Float(description='Latitude of the place'),
     'longitude': fields.Float(description='Longitude of the place'),
+    'city': fields.String(description='City name (resolved from coordinates)'), 
     'owner': fields.Nested(user_model, description='Owner of the place'),
     'amenities': fields.List(fields.Nested(amenity_model), description='List of amenities'),
     'reviews': fields.List(fields.Nested(review_model), description='List of reviews'),
@@ -63,6 +64,7 @@ place_model_summary = api.model('PlaceSummary', {
     'price': fields.Float(description='Price per night'),
     'latitude': fields.Float(description='Latitude of the place'),
     'longitude': fields.Float(description='Longitude of the place'),
+    'city': fields.String(description='City name (resolved from coordinates)'), 
     'owner': fields.String(description='Place ID')
 })
 

@@ -1,6 +1,7 @@
 """Place model with validation, serialization, amenity linking, and update helpers."""
 from app import db
 from app.models.basemodel import BaseModel
+from app.utils.geo import get_city_name
 
 # Association table for many-to-many relationship for amenities and places
 place_amenity = db.Table('place_amenity',
@@ -142,6 +143,7 @@ class Place(BaseModel):
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,
+            "city": get_city_name(self.latitude, self.longitude), 
             "owner": {
                 "id": self.owner.id,
                 "first_name": self.owner.first_name,
@@ -162,6 +164,7 @@ class Place(BaseModel):
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,
+            "city": get_city_name(self.latitude, self.longitude),
             "owner": self.owner_id,
         }
     
