@@ -18,7 +18,7 @@ INSERT INTO users (id, created_at, updated_at, first_name, last_name, email, pas
 
 -- Insert an user3 : Jean Peplu.
 -- Stores the fixed account with a hashed password.
-INSERT INTO users (id, created_at, updated_at, first_name, last_name, email, password, is_admin) VALUES ('76d64007-5865-492c-b06f-ac012b825812', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Jean', 'Peplu', 'jeanpeplu@email.com', '$2b$12$VTDd5UUeUDEMSyx7hmhMxO8FORK1VOtmZdrwJq8RA5VRJpeKB.B9u', FALSE);
+INSERT INTO users (id, created_at, updated_at, first_name, last_name, email, password, is_admin) VALUES ('76d64007-5865-492c-b06f-ac012b825812', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Jean', 'Peplu', 'jeanpeplu@email.com', '$2b$12$b2EOCKLS1ecP7PJOH7.iS..xVc5G8f2paM8czzX7uKraMOPePQ7Uy', FALSE);
 
 -- ============================================================
 -- AMENITIES

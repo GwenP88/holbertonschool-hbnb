@@ -1,6 +1,5 @@
 /* 
-  This is a SAMPLE FILE to get you started.
-  Please, follow the project instructions to complete the tasks.
+------ Login / Logout ------
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,6 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const loginLink = document.getElementById('login-link');
+
+    if (loginLink) {
+        if (document.cookie.includes("token=")){
+            loginLink.textContent = 'Logout';
+            loginLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+            window.location.href = '/';
+        }); 
+    }}
 });
 
 async function loginUser(email, password) {
