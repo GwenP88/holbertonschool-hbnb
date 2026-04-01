@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             /* Save the token and redirect to the home page if login succeeds */
             if (token) {
-                document.cookie = `token=${token}; path=/`;
+                document.cookie = `token=${token}; path=/; max-age=7200`;
                 window.location.href = '/';
             } else {
                 /* Display an error message if login fails */
@@ -122,3 +122,5 @@ async function getCurrentUser() {
     /* Return null if the request fails */
     return null;
 }
+
+/* ------ index ------ */
