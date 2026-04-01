@@ -14,10 +14,14 @@ login_model = api.model('Login', {
 class Login(Resource):
     @api.expect(login_model)
     @api.response(200, 'JWT token generated successfully')
+    @api.response(400, 'Email and password are required')
     @api.response(401, 'Invalid credentials')
     def post(self):
         """Authenticate user and return a JWT token"""
         credentials = api.payload  # Get the email and password from the request payload
+
+        if not credentials or not credentials.get('email') or not credentials.get('password'):
+            return {'error': 'Email and password are required'}, 400
         
         # Step 1: Retrieve the user based on the provided email
         user = facade.get_user_by_email(credentials['email'])
@@ -28,8 +32,8 @@ class Login(Resource):
 
         # Step 3: Create a JWT token with the user's id and is_admin flag
         access_token = create_access_token(
-        identity=str(user.id),   # only user ID goes here
-        additional_claims={"is_admin": user.is_admin}  # extra info here
+            identity=str(user.id),   # only user ID goes here
+            additional_claims={"is_admin": user.is_admin}  # extra info here
         )
         
         # Step 4: Return the JWT token to the client
