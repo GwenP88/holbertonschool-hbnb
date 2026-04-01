@@ -7,24 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
+<body style="background-image: url('{{ url_for('static', filename='images/hero/hero_2.webp') }}'); background-repeat: no-repeat; background-position: bottom center; background-size: 100% auto;">
     
-    <header>
-        <nav class="container-nav">
-            <div class="left"></div>
-            <div class="center">
-                <a class="logo" href="index.html" aria-label="Retour à l'accueil">
-                    <img src="../images/logo/logo.webp" alt="Logo du site HBnB">HBnB
-                </a>
-            </div>
-            <div class="right">
-                <!-- login a transformer en logout... -->
-                <a href="login.html" id="login-link" class="login-button">Login</a>
-            </div>
-        </nav>
-    </header>
+    {% include 'header.html' %}
 
     <main>
         <section id="place-details" class="place-details">
@@ -34,7 +21,7 @@
                 <p>place description</p>
                 <div class="place-media">
                     <div class="place-img">
-                        <img src="../images/places/place_default.webp" alt="Place image">
+                        <img src="{{ url_for('static', filename='images/places/place_default.webp') }}" alt="Place image">
                     </div>
                     <div class="place-meta">
                         <p><strong>Owner :</strong> </p>
@@ -103,26 +90,9 @@
         
     </main>
 
-    <footer>
-        <div class="left">
-            <a class="logo" href="index.html" aria-label="Retour à l'accueil">
-                <img src="../images/logo/logo_bis.webp" alt="Logo du site HBnB">
-            </a>
-        </div>
-        <div class="center">
-            <p class="footer-copyright"> © <strong>HBnB 2026 - New Generation</strong> — All rights reserved</p>
-        </div>
-        <div class="right">
-            <a href="https://instagram.com/">
-                <i class="fa-brands fa-instagram"></i>
-            </a>
-            <a href="https://facebook.com/">
-                <i class="fa-brands fa-facebook"></i>
-            </a>
-        </div>
-    </footer>
+    {% include 'footer.html' %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../static/scripts.js"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>

@@ -23,9 +23,12 @@
 }
 
 body {
-    background-color: var(--bg) ;
+    background-color: var(--bg);
     color: var(--text);
     font-family: var(--font-text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 h1, h2, h3 {
@@ -76,8 +79,8 @@ nav a {
 
 .hero {
     position: relative;
+    background: center bottom / cover no-repeat;
     min-height: 50svh;
-    background: url("../images/hero/hero_1.webp") center / cover no-repeat;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -208,6 +211,7 @@ body:has(#login-form) {
     display: flex;
     align-items: center;
     justify-content: center;
+    background-size: 80% auto;
 }
 
 #login-form {

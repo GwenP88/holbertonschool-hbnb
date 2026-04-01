@@ -1,7 +1,7 @@
 <footer>
     <div class="left">
-        <a class="logo" href="index.html" aria-label="Retour à l'accueil">
-            <img src="../images/logo/logo_bis.webp" alt="Logo du site HBnB">
+        <a class="logo" href="{{ url_for('main.home') }}" aria-label="Retour à l'accueil">
+            <img src="{{ url_for('static', filename='images/logo/logo_bis.webp') }}" alt="Logo du site HBnB">
         </a>
     </div>
     <div class="center">

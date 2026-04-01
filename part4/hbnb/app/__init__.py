@@ -22,6 +22,9 @@ def create_app(config_class="config.DevelopmentConfig"):
         }
     }
 
+    from app.routes import main # type: ignore
+    app.register_blueprint(main)
+
     api = Api(
         app, version='1.0',
         title='HBnB API',
