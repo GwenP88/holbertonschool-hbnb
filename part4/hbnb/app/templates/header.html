@@ -1,10 +1,12 @@
 <header>
     <nav class="container-nav">
-        <div class="left"></div>
-        <div class="center">
+        <div class="left">
             <a class="logo" href="{{ url_for('main.home') }}" aria-label="Retour à l'accueil">
                 <img src="{{ url_for('static', filename='images/logo/logo.webp') }}" alt="Logo du site HBnB">HBnB
             </a>
+        </div>
+        <div class="center">
+            <p id="welcome-message"></p>
         </div>
         <div class="right">
             <!-- login a transformer en logout... -->

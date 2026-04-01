@@ -1,6 +1,4 @@
-/* 
------------ BASICS -----------
-*/
+/* ----------- BASICS ----------- */
 
 :root{
     /* Fonts */
@@ -35,9 +33,7 @@ h1, h2, h3 {
     font-family: var(--font-title);
 }
 
-/* 
------------ HEADER -----------
-*/
+/* ----------- HEADER ----------- */
 
 header {
     background-color: var(--bg);
@@ -73,9 +69,14 @@ nav a {
     width: auto;
 }
 
-/* 
------------ HERO -----------
-*/
+#welcome-message {
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-title);
+    text-align: center;
+}
+
+/* ----------- HERO ----------- */
 
 .hero {
     position: relative;
@@ -102,9 +103,7 @@ nav a {
     text-shadow: 0 1px 3px rgba(255,255,255,0.4);
 }
 
-/* 
------------ FILTER -----------
-*/
+/* ----------- FILTER ----------- */
 
 #filter {
     margin: 2rem auto;
@@ -119,9 +118,7 @@ nav a {
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-/* 
------------ PLACES LIST -----------
-*/
+/* ----------- PLACES LIST ----------- */
 
 #places-list {
     max-width: 1100px;
@@ -163,9 +160,7 @@ nav a {
     background-color: var(--text);
 }
 
-/* 
------------ FOOTER -----------
-*/
+/* ----------- FOOTER ----------- */
 
 footer {
     display: flex;
@@ -202,9 +197,7 @@ footer .right a:hover {
     color: var(--bg2);
 }
 
-/* 
------------ LOGIN -----------
-*/
+/* ----------- LOGIN ----------- */
 
 body:has(#login-form) {
     min-height: 100vh;
@@ -277,9 +270,7 @@ body:has(#login-form) {
     background-color: var(--text);
 }
 
-/* 
------------ PLACE DETAILS -----------
-*/
+/* ----------- PLACE DETAILS ----------- */
 
 #place-details {
     max-width: 900px;
@@ -337,9 +328,7 @@ body:has(#login-form) {
     font-size: 0.95rem;
 }
 
-/* 
------------ REVIEWS -----------
-*/
+/* ----------- REVIEWS ----------- */
 
 #reviews {
     max-width: 900px;
@@ -379,9 +368,7 @@ body:has(#login-form) {
     margin: 0;
 }
 
-/* 
------------ ADD REVIEW -----------
-*/
+/* ----------- ADD REVIEW ----------- */
 
 .add-review {
     max-width: 900px;
@@ -406,9 +393,7 @@ body:has(#login-form) {
     color: white;
 }
 
-/* 
------------ MODAL -----------
-*/
+/* ----------- MODAL ----------- */
 
 .modal-content {
     border-radius: 1rem;
