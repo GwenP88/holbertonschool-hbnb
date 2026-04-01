@@ -32,6 +32,7 @@ class UserList(Resource):
     @api.response(400, 'Email already registered')
     @api.response(400, 'Invalid input data')
     def post(self):
+        """Create a new user"""
         user_data = api.payload
         try:
             new_user = facade.create_user(user_data)
@@ -41,6 +42,7 @@ class UserList(Resource):
 
     @api.response(200, 'Users retrieved successfully')
     def get(self):
+        """Retrieve a list of all users"""
         users = facade.get_users()
         list_users = []
         for user in users:
@@ -67,6 +69,7 @@ class UserResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, user_id):
+        """Update a user's information"""
         payload = api.payload
         current_user = get_jwt_identity()
         claims = get_jwt()
@@ -88,6 +91,7 @@ class UserResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def delete(self, user_id):
+        """Delete a user"""
         current_user = get_jwt_identity()
         claims = get_jwt()
         user = facade.user_repo.get(user_id)
@@ -108,6 +112,7 @@ class UserEmailResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, user_id):
+        """Update a user's email"""
         payload = api.payload
         current_user = get_jwt_identity()
         claims = get_jwt()
@@ -131,6 +136,7 @@ class UserPasswordResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, user_id):
+        """Update a user's password"""
         payload = api.payload
         current_user = get_jwt_identity()
         claims = get_jwt()

@@ -52,6 +52,7 @@ class ReviewResource(Resource):
     @api.response(200, 'Review details retrieved successfully')
     @api.response(404, 'Review not found')
     def get(self, review_id):
+        """Get review details by ID"""
         review = facade.get_review(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
@@ -65,6 +66,7 @@ class ReviewResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, review_id):
+        """Update a review"""
         payload = api.payload
         current_user = get_jwt_identity()
         claims = get_jwt()
@@ -86,6 +88,7 @@ class ReviewResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def delete(self, review_id):
+        """Delete a review"""
         current_user = get_jwt_identity()
         claims = get_jwt()
         review = facade.review_repo.get(review_id)

@@ -25,6 +25,7 @@ class AmenityList(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def post(self):
+        """Create a new amenity"""
         claims = get_jwt()
         if not claims.get("is_admin"):
             return {'error': 'Admin privileges required'}, 403
@@ -37,6 +38,7 @@ class AmenityList(Resource):
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
+        """Retrieve a list of all amenities"""
         amenities = facade.get_all_amenities()
         list_amenities = []
         for amenity in amenities:
@@ -49,6 +51,7 @@ class AmenityResource(Resource):
     @api.response(200, 'Amenity details retrieved successfully')
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
+        """Get amenity details by ID"""
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {'error': 'Amenity not found'}, 404
@@ -62,6 +65,7 @@ class AmenityResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def put(self, amenity_id):
+        """Update an amenity's information"""
         claims = get_jwt()
         if not claims.get("is_admin"):
             return {'error': 'Admin privileges required'}, 403
@@ -80,6 +84,7 @@ class AmenityResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def delete(self, amenity_id):
+        """Delete an amenity"""
         claims = get_jwt()
         amenity = facade.amenity_repo.get(amenity_id)
         if not amenity:

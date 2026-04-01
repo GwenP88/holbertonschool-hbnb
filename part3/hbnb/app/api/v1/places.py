@@ -137,6 +137,7 @@ class PlaceResource(Resource):
     @api.doc(security='Bearer')
     @jwt_required()
     def delete(self, place_id):
+        """Delete a place"""
         current_user = get_jwt_identity()
         claims = get_jwt()
         place = facade.place_repo.get(place_id)
@@ -208,6 +209,7 @@ class PlaceReviewList(Resource):
     @api.response(200, 'List of reviews for the place retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
+        """Get all reviews for a place"""
         reviews = facade.get_reviews_by_place(place_id)
         if reviews is None:
             api.abort(404, "Place not found")
