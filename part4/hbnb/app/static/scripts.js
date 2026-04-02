@@ -124,3 +124,30 @@ async function getCurrentUser() {
 }
 
 /* ------ index ------ */
+
+function checkAuthentication() {
+    const token = getCookie('token');
+        fetchPlaces(token);
+}
+
+async function fetchPlaces(token) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+        
+    const response = await fetch('/api/v1/places', { method: 'GET', headers });
+    if (!response.ok) {
+        return;
+    }
+
+    const places = await response.json();
+    displayPlaces(places);
+}
+
+  function displayPlaces(places) {
+      // Clear the current content of the places list
+      // Iterate over the places data
+      // For each place, create a div element and set its content
+      // Append the created element to the places list
+  }
