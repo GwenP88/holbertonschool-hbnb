@@ -67,7 +67,8 @@ place_model_summary = api.model('PlaceSummary', {
     'latitude': fields.Float(description='Latitude of the place'),
     'longitude': fields.Float(description='Longitude of the place'),
     'city': fields.String(description='City name (resolved from coordinates)'), 
-    'owner': fields.String(description='Place ID')
+    'owner': fields.String(description='Place ID'),
+    'rating': fields.Float(description='Average rating of the place')
 })
 
 
@@ -95,8 +96,7 @@ class PlaceList(Resource):
     def get(self):
         """Retrieve a list of all places"""
         places = facade.get_all_places()
-        return places, 200
-
+        return [place.to_list_item() for place in places], 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -109,7 +109,7 @@ class PlaceResource(Resource):
         place = facade.get_place(place_id)
         if not place:
             api.abort(404, "Place not found")
-        return place, 200
+        return place.get_details(), 200
 
     @api.expect(place_model_update, validate=True)
     @api.response(200, 'Place updated successfully')

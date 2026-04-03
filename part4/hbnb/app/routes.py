@@ -10,6 +10,10 @@ def home():
 def login():
     return render_template('login.html')
 
-@main.route('/place')
-def place():
+@main.route('/places/<place_id>')
+def place(place_id):
     return render_template('place.html')
+
+@main.route('/user')
+def user():
+    return render_template('user.html')

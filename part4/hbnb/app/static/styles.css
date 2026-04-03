@@ -1,13 +1,11 @@
-/* 
------------ BASICS -----------
-*/
+/* ----------- BASICS ----------- */
 
 :root{
     /* Fonts */
     --font-title: 'Fraunces', serif;
     --font-text: 'DM Sans', sans-serif;
 
-    --bg: #f3ecd9;
+    --bg: #f4eedb;
     --bg2: #e0c09b;
     --text: #1b565c;
     --accent: #2F7F7A;
@@ -35,9 +33,7 @@ h1, h2, h3 {
     font-family: var(--font-title);
 }
 
-/* 
------------ HEADER -----------
-*/
+/* ----------- HEADER ----------- */
 
 header {
     background-color: var(--bg);
@@ -73,9 +69,14 @@ nav a {
     width: auto;
 }
 
-/* 
------------ HERO -----------
-*/
+#welcome-message {
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-title);
+    text-align: center;
+}
+
+/* ----------- HERO ----------- */
 
 .hero {
     position: relative;
@@ -102,9 +103,11 @@ nav a {
     text-shadow: 0 1px 3px rgba(255,255,255,0.4);
 }
 
-/* 
------------ FILTER -----------
-*/
+.hero-subtitle {
+    font-size: 1.4rem;
+}
+
+/* ----------- FILTER ----------- */
 
 #filter {
     margin: 2rem auto;
@@ -119,17 +122,15 @@ nav a {
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-/* 
------------ PLACES LIST -----------
-*/
+/* ----------- PLACES LIST ----------- */
 
-#places-list {
+.places-list {
     max-width: 1100px;
     margin: 0 auto 3rem auto;
     padding: 0 1rem;
 }
 
-#places-list .card {
+.places-list .card {
     background-color: var(--structure);
     border: none;
     border-radius: 1rem;
@@ -137,21 +138,21 @@ nav a {
     transition: transform 0.2s ease;
 }
 
-#places-list .card-title {
+.places-list .card-title {
     font-size: 1.4rem;
 }
 
-#places-list .card:hover {
+.places-list .card:hover {
     transform: translateY(-4px);
 }
 
-#places-list .card-img-top {
+.places-list .card-img-top {
     border-radius: 1rem 1rem 0 0;
     height: 200px;
     object-fit: cover;
 }
 
-#places-list .btn {
+.places-list .btn {
     background-color: var(--accent);
     color: white;
     border: none;
@@ -159,13 +160,35 @@ nav a {
     border-radius: 0.5rem;
 }
 
-#places-list .btn:hover {
+.places-list .btn:hover {
     background-color: var(--text);
 }
 
-/* 
------------ FOOTER -----------
-*/
+.place-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.place-card .card-body .btn {
+    margin-top: auto;
+}
+
+/* ----------- USER ACCOUNT ----------- */
+
+#welcome-message {
+    margin: 3rem;
+}
+
+#user-places,
+#user-reviews {
+    max-width: 1100px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
+}
+
+/* ----------- FOOTER ----------- */
 
 footer {
     display: flex;
@@ -173,6 +196,7 @@ footer {
     justify-content: space-between;
     padding: 1rem 2rem;
     background-color: var(--accent);
+    margin-top: auto;
 }
 
 footer .logo img {
@@ -202,9 +226,7 @@ footer .right a:hover {
     color: var(--bg2);
 }
 
-/* 
------------ LOGIN -----------
-*/
+/* ----------- LOGIN ----------- */
 
 body:has(#login-form) {
     min-height: 100vh;
@@ -277,9 +299,11 @@ body:has(#login-form) {
     background-color: var(--text);
 }
 
-/* 
------------ PLACE DETAILS -----------
-*/
+#user-link {
+    display: none;
+}
+
+/* ----------- PLACE DETAILS ----------- */
 
 #place-details {
     max-width: 900px;
@@ -314,7 +338,7 @@ body:has(#login-form) {
 }
 
 .place-img {
-    flex: 1;
+    flex: 0 0 50%;
 }
 
 .place-img img {
@@ -325,7 +349,7 @@ body:has(#login-form) {
 }
 
 .place-meta {
-    flex: 2;
+    flex: 0 0 50%;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -337,17 +361,15 @@ body:has(#login-form) {
     font-size: 0.95rem;
 }
 
-/* 
------------ REVIEWS -----------
-*/
+/* ----------- REVIEWS ----------- */
 
-#reviews {
+.reviews {
     max-width: 900px;
     margin: 2rem auto;
     padding: 0 1rem;
 }
 
-#reviews h2 {
+.reviews h2 {
     margin-bottom: 1.5rem;
     color: var(--text);
 }
@@ -379,9 +401,7 @@ body:has(#login-form) {
     margin: 0;
 }
 
-/* 
------------ ADD REVIEW -----------
-*/
+/* ----------- ADD REVIEW ----------- */
 
 .add-review {
     max-width: 900px;
@@ -406,9 +426,7 @@ body:has(#login-form) {
     color: white;
 }
 
-/* 
------------ MODAL -----------
-*/
+/* ----------- MODAL ----------- */
 
 .modal-content {
     border-radius: 1rem;

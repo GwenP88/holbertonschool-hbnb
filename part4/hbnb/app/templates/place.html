@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body style="background-image: url('{{ url_for('static', filename='images/hero/hero_2.webp') }}'); background-repeat: no-repeat; background-position: bottom center; background-size: 100% auto;">
+<body style="background-image: url('{{ url_for('static', filename='images/hero/hero_2.png') }}'); background-repeat: no-repeat; background-position: bottom center; background-size: 100% auto;">
     
     {% include 'header.html' %}
 
@@ -17,8 +17,8 @@
         <section id="place-details" class="place-details">
             <!-- card detail of place with title description owner price amenities -->
             <div class="place-info">
-                <h1>place title</h1>
-                <p>place description</p>
+                <h1 class="card-title">place title</h1>
+                <p class="card-content">place description</p>
                 <div class="place-media">
                     <div class="place-img">
                         <img src="{{ url_for('static', filename='images/places/place_default.webp') }}" alt="Place image">
@@ -32,7 +32,7 @@
             </div>
         </section>
 
-        <section id="reviews">
+        <section id="reviews" class="reviews">
             <!-- Reviews will be populated dynamically -->
             <h2>Customer reviews</h2>
             <div class="review-card">

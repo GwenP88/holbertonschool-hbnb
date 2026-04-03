@@ -47,6 +47,17 @@ class UserList(Resource):
             list_users.append({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email, 'is_admin': user.is_admin})
         return list_users, 200
 
+@api.route('/me')
+class UserMeResource(Resource):
+    @api.response(404, 'User not found')
+    @api.doc(security='Bearer')
+    @jwt_required()
+    def get(self):
+        current_user = get_jwt_identity()
+        user = facade.get_user(current_user)
+        if not user:
+            return {'error': 'User not found'}, 404
+        return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email, 'is_admin': user.is_admin}, 200
 
 @api.route('/<user_id>')
 class UserResource(Resource):
@@ -90,7 +101,7 @@ class UserResource(Resource):
     def delete(self, user_id):
         current_user = get_jwt_identity()
         claims = get_jwt()
-        user = facade.user_repo.get(user_id)
+        user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
         if user_id != current_user and not claims.get("is_admin"):

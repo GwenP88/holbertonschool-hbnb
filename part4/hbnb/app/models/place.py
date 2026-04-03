@@ -66,6 +66,13 @@ class Place(BaseModel):
             return number_type(value)
         except (TypeError, ValueError):
             raise ValueError(f"{field_name} must be a number.")
+        
+    @property
+    def rating(self):
+        """Return the average rating from reviews, or None if no reviews."""
+        if not self.reviews:
+            return None
+        return round(sum(r.rating for r in self.reviews) / len(self.reviews), 1)
 
     # ------- Validations -----
     @staticmethod
@@ -168,6 +175,7 @@ class Place(BaseModel):
             "longitude": self.longitude,
             "city": get_city_name(self.latitude, self.longitude),
             "owner": self.owner_id,
+            "rating": self.rating, 
         }
     
     # -------- Update ---------
