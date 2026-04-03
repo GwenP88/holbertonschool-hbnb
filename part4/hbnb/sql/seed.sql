@@ -45,6 +45,54 @@ INSERT INTO amenities(id, created_at, updated_at, name, description) VALUES ('c5
 INSERT INTO amenities(id, created_at, updated_at, name, description) VALUES ('62b29136-184b-48fd-88d5-650e8e94a3ab', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'private parking', 'Secure underground parking space included, available 24/7 for guests');
 
 -- ============================================================
+-- PLACE-AMENITIES
+-- ============================================================
+
+-- Insert amenities for place 1.
+-- Stores wifi
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', '93282ff9-7af0-4b0d-beb1-407b6998b01f');
+
+-- Stores Rooftop Terrace
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', 'c5fcec1a-08f8-40ba-beae-fc5717d8f60e')
+
+-- Stores air conditioning
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', '68615b51-bb01-4d8f-8222-a445efdf23b6')
+
+-- Insert amenities for place 2.
+-- Stores wifi
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('b7f90bd1-3466-4429-b57d-e00adb798bbc', '93282ff9-7af0-4b0d-beb1-407b6998b01f');
+
+-- Insert amenities for place 3.
+-- Stores wifi
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('57ea271c-e55e-4a4e-94cb-ab5319664e7e', '93282ff9-7af0-4b0d-beb1-407b6998b01f');
+
+-- Stores swimming pool
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('57ea271c-e55e-4a4e-94cb-ab5319664e7e', '984fc2e7-bb3b-49ff-9c93-6fe57119ba53');
+
+-- Stores air conditioning
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('57ea271c-e55e-4a4e-94cb-ab5319664e7e', '68615b51-bb01-4d8f-8222-a445efdf23b6');
+
+-- Stores Private Parking 
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('57ea271c-e55e-4a4e-94cb-ab5319664e7e', '62b29136-184b-48fd-88d5-650e8e94a3ab');
+
+-- Insert amenities for place 4.
+-- Stores wifi
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('69354fdc-70f9-403a-9f88-c77147087909', '93282ff9-7af0-4b0d-beb1-407b6998b01f');
+
+-- Stores Private Parking
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('69354fdc-70f9-403a-9f88-c77147087909', '62b29136-184b-48fd-88d5-650e8e94a3ab');
+
+-- Insert amenities for place 5.
+-- Stores wifi
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('5fcc6d25-3bf1-4701-b8dc-a8016def143d', '93282ff9-7af0-4b0d-beb1-407b6998b01f');
+
+-- Stores Rooftop Terrace
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('5fcc6d25-3bf1-4701-b8dc-a8016def143d', 'c5fcec1a-08f8-40ba-beae-fc5717d8f60e');
+
+-- Stores Private Parking
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('5fcc6d25-3bf1-4701-b8dc-a8016def143d', '62b29136-184b-48fd-88d5-650e8e94a3ab');
+
+-- ============================================================
 -- PLACES
 -- ============================================================
 
