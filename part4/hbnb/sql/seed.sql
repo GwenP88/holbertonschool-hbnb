@@ -45,6 +45,34 @@ INSERT INTO amenities(id, created_at, updated_at, name, description) VALUES ('c5
 INSERT INTO amenities(id, created_at, updated_at, name, description) VALUES ('62b29136-184b-48fd-88d5-650e8e94a3ab', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'private parking', 'Secure underground parking space included, available 24/7 for guests');
 
 -- ============================================================
+-- PLACES
+-- ============================================================
+
+-- Insert the default place 1 user 1.
+-- Stores the place 1, lyon.
+INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Sunny Loft in the City Center', 'A bright and modern loft located in the heart of the city, perfect for family.', 180, 45.7640, 4.8357, '7b5a1b64-4bb6-4581-8cd3-019863c6e3d9');
+
+-- Insert the default place 2 user 1.
+-- Stores the place 2, lyon.
+INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('b7f90bd1-3466-4429-b57d-e00adb798bbc', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Cozy Studio in Central Lyon', 'A cozy studio in the heart of Lyon, close to shops and public transport. Perfect for a comfortable stay.', 80, 45.7640, 4.8357, '7b5a1b64-4bb6-4581-8cd3-019863c6e3d9');
+
+-- Insert the default place 3 user 2.
+-- Stores the place 3, annecy.
+INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('57ea271c-e55e-4a4e-94cb-ab5319664e7e', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Charming Chalet by Lake Annecy', 'A cozy chalet near Lake Annecy, surrounded by nature. Perfect for a peaceful and relaxing stay.', 250, 45.8992, 6.1294, '76efe665-2825-4883-a382-8d76bb8ea472');
+
+-- Insert the default place 4 user 2.
+-- Stores the place 4, annecy.
+INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('69354fdc-70f9-403a-9f88-c77147087909', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Family Apartment in Central Annecy', 'A spacious apartment in the heart of Annecy, close to the lake and shops. Perfect for a family stay.', 180, 45.8992, 6.1294, '76efe665-2825-4883-a382-8d76bb8ea472');
+
+-- Insert the default place 5 user 3.
+-- Stores the place 5, geneve.
+INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('5fcc6d25-3bf1-4701-b8dc-a8016def143d', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Unique Apartment in Geneva', 'A stylish and atypical apartment in Geneva, close to the city center. Perfect for a memorable stay.', 140, 46.2044, 6.1432, '76d64007-5865-492c-b06f-ac012b825812');
+
+-- Insert the default place 6 user 3.
+-- Stores the place 6, geneve.
+INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('9bc8b8f5-ac16-4ce3-b3b1-91b1b30d934d', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Modern Studio in Central Geneva', 'A modern studio in the heart of Geneva, close to shops and transport. Ideal for a comfortable stay.', 75, 46.2044, 6.1432, '76d64007-5865-492c-b06f-ac012b825812');
+
+-- ============================================================
 -- PLACE-AMENITIES
 -- ============================================================
 
@@ -53,10 +81,10 @@ INSERT INTO amenities(id, created_at, updated_at, name, description) VALUES ('62
 INSERT INTO place_amenity(place_id, amenity_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', '93282ff9-7af0-4b0d-beb1-407b6998b01f');
 
 -- Stores Rooftop Terrace
-INSERT INTO place_amenity(place_id, amenity_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', 'c5fcec1a-08f8-40ba-beae-fc5717d8f60e')
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', 'c5fcec1a-08f8-40ba-beae-fc5717d8f60e');
 
 -- Stores air conditioning
-INSERT INTO place_amenity(place_id, amenity_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', '68615b51-bb01-4d8f-8222-a445efdf23b6')
+INSERT INTO place_amenity(place_id, amenity_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', '68615b51-bb01-4d8f-8222-a445efdf23b6');
 
 -- Insert amenities for place 2.
 -- Stores wifi
@@ -91,34 +119,6 @@ INSERT INTO place_amenity(place_id, amenity_id) VALUES ('5fcc6d25-3bf1-4701-b8dc
 
 -- Stores Private Parking
 INSERT INTO place_amenity(place_id, amenity_id) VALUES ('5fcc6d25-3bf1-4701-b8dc-a8016def143d', '62b29136-184b-48fd-88d5-650e8e94a3ab');
-
--- ============================================================
--- PLACES
--- ============================================================
-
--- Insert the default place 1 user 1.
--- Stores the place 1, lyon.
-INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('ef448d99-36e6-4aa6-880a-59bab9bbe439', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Sunny Loft in the City Center', 'A bright and modern loft located in the heart of the city, perfect for family.', 180, 45.7640, 4.8357, '7b5a1b64-4bb6-4581-8cd3-019863c6e3d9');
-
--- Insert the default place 2 user 1.
--- Stores the place 2, lyon.
-INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('b7f90bd1-3466-4429-b57d-e00adb798bbc', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Cozy Studio in Central Lyon', 'A cozy studio in the heart of Lyon, close to shops and public transport. Perfect for a comfortable stay.', 80, 45.7640, 4.8357, '7b5a1b64-4bb6-4581-8cd3-019863c6e3d9');
-
--- Insert the default place 3 user 2.
--- Stores the place 3, annecy.
-INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('57ea271c-e55e-4a4e-94cb-ab5319664e7e', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Charming Chalet by Lake Annecy', 'A cozy chalet near Lake Annecy, surrounded by nature. Perfect for a peaceful and relaxing stay.', 250, 45.8992, 6.1294, '76efe665-2825-4883-a382-8d76bb8ea472');
-
--- Insert the default place 4 user 2.
--- Stores the place 4, annecy.
-INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('69354fdc-70f9-403a-9f88-c77147087909', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Family Apartment in Central Annecy', 'A spacious apartment in the heart of Annecy, close to the lake and shops. Perfect for a family stay.', 180, 45.8992, 6.1294, '76efe665-2825-4883-a382-8d76bb8ea472');
-
--- Insert the default place 5 user 3.
--- Stores the place 5, geneve.
-INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('5fcc6d25-3bf1-4701-b8dc-a8016def143d', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Unique Apartment in Geneva', 'A stylish and atypical apartment in Geneva, close to the city center. Perfect for a memorable stay.', 140, 46.2044, 6.1432, '76d64007-5865-492c-b06f-ac012b825812');
-
--- Insert the default place 6 user 3.
--- Stores the place 6, geneve.
-INSERT INTO places(id, created_at, updated_at, title, description, price, latitude, longitude, owner_id) VALUES ('9bc8b8f5-ac16-4ce3-b3b1-91b1b30d934d', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Modern Studio in Central Geneva', 'A modern studio in the heart of Geneva, close to shops and transport. Ideal for a comfortable stay.', 75, 46.2044, 6.1432, '76d64007-5865-492c-b06f-ac012b825812');
 
 -- ============================================================
 -- REVIEWS
