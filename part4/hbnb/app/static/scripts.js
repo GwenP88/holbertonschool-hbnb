@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('Review submitted successfully!');
                 reviewForm.reset();
 
-                /* Ferme la modal Bootstrap */
+                /* Ferme la modal */
                 const modal = bootstrap.Modal.getInstance(document.getElementById('Modal'));
                 if (modal) {
                     modal.hide();
@@ -168,7 +168,6 @@ function getCookie(name) {
             return cookie.substring((name + '=').length);
         }
     }
-
     /* Retourne null si le cookie n'existe pas */
     return null;
 }
@@ -191,7 +190,6 @@ async function getCurrentUser() {
     if (response.ok) {
         return await response.json();
     }
-
     return null;
 }
 
@@ -210,7 +208,6 @@ function checkAuthentication() {
     if (loginLink && !token) {
         loginLink.style.display = 'inline-block';
     }
-
     fetchPlaces(token);
 }
 
@@ -245,7 +242,7 @@ function displayPlaces(places) {
         return;
     }
 
-    /* Vide le contenu existant et crée une grille Bootstrap */
+    /* Vide le contenu existant et crée une grille */
     list.innerHTML = '<div class="row row-cols-1 row-cols-md-3 g-4" id="places-row"></div>';
     const row = document.getElementById('places-row');
 
@@ -468,13 +465,13 @@ async function loadUserReviews(places) {
             continue;
         }
 
-        /* Affiche le titre de la place comme séparateur */
+        /* Affiche le titre de la place */
         const placeTitle = document.createElement('h3');
         placeTitle.textContent = place.title;
         placeTitle.style.margin = '1.5rem 0 0.5rem 0';
         container.appendChild(placeTitle);
 
-        /* Affiche chaque review */
+        /* Parcours chaque review */
         for (let j = 0; j < reviews.length; j++) {
             const review = reviews[j];
             const stars = '⭐'.repeat(review.rating);
@@ -487,6 +484,7 @@ async function loadUserReviews(places) {
                 authorName = author.first_name + ' ' + author.last_name;
             }
 
+            /* affiche les reviews */
             const card = document.createElement('div');
             card.className = 'review-card';
             card.innerHTML =
