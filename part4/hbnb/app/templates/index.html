@@ -9,13 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body style="background-image: url('{{ url_for('static', filename='images/hero/hero_2.png') }}'); background-repeat: no-repeat; background-position: bottom center; background-size: 100% auto;">
+<body class="body-image">
 
     {% include 'header.html' %}
 
     <main>
         <!-- Section hero -->
-        <section class="hero" aria-labelledby="hero-title" style="background-image: url('{{ url_for('static', filename='images/hero/hero_1.webp') }}')">
+        <section class="hero hero-image" aria-labelledby="hero-title">
             <div class="hero-bg-overlay"></div>
             <div class="hero-content row">
                 <h1 id="hero-title">Evadez-vous entre lacs & montagnes</h1>

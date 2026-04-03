@@ -33,6 +33,13 @@ h1, h2, h3 {
     font-family: var(--font-title);
 }
 
+.body-image {
+    background-image: url('/static/images/hero/hero_2.png'); 
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    background-size: 100% auto;
+}
+
 /* ----------- HEADER ----------- */
 
 header {
@@ -90,6 +97,10 @@ nav a {
     text-align: center;
     width: 100%;
     margin: 0;
+}
+
+.hero-image {
+    background-image: url('/static/images/hero/hero_1.webp'); 
 }
 
 .hero-content {
