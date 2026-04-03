@@ -6,9 +6,9 @@
             </a>
         </div>
         <div class="center">
-            <p id="welcome-message"></p>
         </div>
         <div class="right">
+            <a href="{{ url_for('main.user') }}" id="user-link" class="login-button">My Account</a>
             <!-- login a transformer en logout... -->
             <a href="{{ url_for('main.login') }}" id="login-link" class="login-button">Login</a>
         </div>

@@ -5,7 +5,7 @@
     --font-title: 'Fraunces', serif;
     --font-text: 'DM Sans', sans-serif;
 
-    --bg: #f3ecd9;
+    --bg: #f4eedb;
     --bg2: #e0c09b;
     --text: #1b565c;
     --accent: #2F7F7A;
@@ -124,13 +124,13 @@ nav a {
 
 /* ----------- PLACES LIST ----------- */
 
-#places-list {
+.places-list {
     max-width: 1100px;
     margin: 0 auto 3rem auto;
     padding: 0 1rem;
 }
 
-#places-list .card {
+.places-list .card {
     background-color: var(--structure);
     border: none;
     border-radius: 1rem;
@@ -138,21 +138,21 @@ nav a {
     transition: transform 0.2s ease;
 }
 
-#places-list .card-title {
+.places-list .card-title {
     font-size: 1.4rem;
 }
 
-#places-list .card:hover {
+.places-list .card:hover {
     transform: translateY(-4px);
 }
 
-#places-list .card-img-top {
+.places-list .card-img-top {
     border-radius: 1rem 1rem 0 0;
     height: 200px;
     object-fit: cover;
 }
 
-#places-list .btn {
+.places-list .btn {
     background-color: var(--accent);
     color: white;
     border: none;
@@ -160,8 +160,32 @@ nav a {
     border-radius: 0.5rem;
 }
 
-#places-list .btn:hover {
+.places-list .btn:hover {
     background-color: var(--text);
+}
+
+.place-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.place-card .card-body .btn {
+    margin-top: auto;
+}
+
+/* ----------- USER ACCOUNT ----------- */
+
+#welcome-message {
+    margin: 3rem;
+}
+
+#user-places,
+#user-reviews {
+    max-width: 1100px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
 }
 
 /* ----------- FOOTER ----------- */
@@ -172,6 +196,7 @@ footer {
     justify-content: space-between;
     padding: 1rem 2rem;
     background-color: var(--accent);
+    margin-top: auto;
 }
 
 footer .logo img {
@@ -274,6 +299,10 @@ body:has(#login-form) {
     background-color: var(--text);
 }
 
+#user-link {
+    display: none;
+}
+
 /* ----------- PLACE DETAILS ----------- */
 
 #place-details {
@@ -309,7 +338,7 @@ body:has(#login-form) {
 }
 
 .place-img {
-    flex: 1;
+    flex: 0 0 50%;
 }
 
 .place-img img {
@@ -320,7 +349,7 @@ body:has(#login-form) {
 }
 
 .place-meta {
-    flex: 2;
+    flex: 0 0 50%;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -334,13 +363,13 @@ body:has(#login-form) {
 
 /* ----------- REVIEWS ----------- */
 
-#reviews {
+.reviews {
     max-width: 900px;
     margin: 2rem auto;
     padding: 0 1rem;
 }
 
-#reviews h2 {
+.reviews h2 {
     margin-bottom: 1.5rem;
     color: var(--text);
 }
