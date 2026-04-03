@@ -73,6 +73,7 @@ nav a {
     margin: 0;
     color: var(--text);
     font-family: var(--font-title);
+    font-size: 2rem;
     text-align: center;
 }
 
