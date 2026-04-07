@@ -250,10 +250,10 @@ Default user credentials for testing:
 
 | User       | Email                  | Password    |
 |------------|------------------------|-------------|
-| John Doe   | johndoe@email.com      | `admin1234` |
+| John Doe   | johndoe@email.com      | `string123` |
 | Jane Doe   | janedoe@email.com      | `string123` |
 | Jean Peplu | jeanpeplu@email.com    | `string123` |
-| Admin      | admin@hbnb.io          | `string123` |
+| Admin      | admin@hbnb.io          | `admin1234` |
 
 ---
 
